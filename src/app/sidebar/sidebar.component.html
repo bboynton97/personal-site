@@ -1,1 +1,32 @@
-<p>sidebar works!</p>
+<div class="sidebar-content">
+  <div class="profile-section">
+    <img src="assets/me.jpeg" alt="Braelyn Boynton" class="profile-image">
+    <h1 class="profile-name">Braelyn Boynton</h1>
+    <div class="social-links">
+      <a class="social-link instagram" href="https://www.instagram.com/braelyn.b__" target="_blank" rel="noopener noreferrer" aria-label="Instagram profile for braelyn.b__">
+        <svg class="logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <title>{{ instagramIcon.title }}</title>
+          <path [attr.d]="instagramIcon.path"></path>
+        </svg>
+        <span class="handle">&#64;braelyn.b__</span>
+      </a>
+      <a class="social-link x" href="https://x.com/braelyn_ai" target="_blank" rel="noopener noreferrer" aria-label="X profile for braelyn_ai">
+        <svg class="logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <title>{{ xIcon.title }}</title>
+          <path [attr.d]="xIcon.path"></path>
+        </svg>
+        <span class="handle">&#64;braelyn_ai</span>
+      </a>
+      <a class="social-link linkedin" href="https://www.linkedin.com/in/braelyn-boynton" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile for Braelyn Boynton">
+        <span class="logo" aria-hidden="true">in</span>
+        <span class="handle">Braelyn Boynton</span>
+      </a>
+    </div>
+  </div>
+  <ul class="nav-menu">
+    <li class="nav-item"><a routerLink="/" routerLinkActive="active" class="nav-link">Home</a></li>
+    <li class="nav-item"><a routerLink="/blog" routerLinkActive="active" class="nav-link">Blog</a></li>
+    <li class="nav-item"><a routerLink="/personal" routerLinkActive="active" class="nav-link">Personal</a></li>
+    <li class="nav-item"><a routerLink="/work" routerLinkActive="active" class="nav-link">Work</a></li>
+  </ul>
+</div>
