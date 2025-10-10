@@ -1,3 +1,48 @@
-<h2>Work</h2>
-<p>Explore my professional experience, projects, and achievements.</p>
-<!-- Work content will go here -->
+<div class="work-container">
+  <div class="work-header">
+    <h2>Professional Experience</h2>
+    <p>Explore my professional journey, projects, and achievements across various companies and technologies.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-line"></div>
+    
+    <div *ngFor="let experience of workExperiences; let i = index" class="experience-item">
+      <div class="experience-content">
+        <div class="company-header">
+          <div class="company-logo">
+            <img [src]="experience.logo" [alt]="experience.company + ' logo'" />
+          </div>
+          <div class="company-info">
+            <h3 class="company-name">{{ experience.company }}</h3>
+            <h4 class="position">{{ experience.position }}</h4>
+            <div class="location-date">
+              <span class="location">📍 {{ experience.location }}</span>
+              <span class="date-range">
+                {{ formatDate(experience.startDate) }} - {{ formatDate(experience.endDate) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="experience-details">
+          <p class="description">{{ experience.description }}</p>
+          
+          <div class="achievements">
+            <h5>Key Achievements:</h5>
+            <ul>
+              <li *ngFor="let achievement of experience.achievements">{{ achievement }}</li>
+            </ul>
+          </div>
+
+          <div class="technologies">
+            <h5>Technologies Used:</h5>
+            <div class="tech-tags">
+              <span *ngFor="let tech of experience.technologies" class="tech-tag">{{ tech }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
