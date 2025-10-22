@@ -1,7 +1,7 @@
 .terminal {
   background: #000000;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.4;
   width: 100vw;
   height: 100vh;
@@ -61,6 +61,23 @@
 
 .command-input::placeholder {
   color: #ffffff;
+}
+
+/* Output type styles */
+.command-text {
+  color: #ffffff;
+}
+
+.output-text {
+  color: #ffffff;
+}
+
+.error-text {
+  color: #ff6b6b;
+}
+
+.system-text {
+  color: #4ecdc4;
 }
 
 /* Terminal cursor effect */

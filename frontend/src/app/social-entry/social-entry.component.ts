@@ -10,10 +10,21 @@ import { RouterModule } from '@angular/router';
   styleUrl: './social-entry.component.css'
 })
 export class SocialEntryComponent {
+  isVisible: boolean = true;
+  buttonText: string = 'Enter';
 
   constructor(private router: Router) {}
 
   onEnterClick() {
+    this.isVisible = false;
     this.router.navigate(['/home']);
+  }
+
+  onButtonHover() {
+    this.buttonText = 'Can you handle it??';
+  }
+
+  onButtonLeave() {
+    this.buttonText = 'Enter';
   }
 }

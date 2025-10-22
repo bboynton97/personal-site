@@ -1,24 +1,31 @@
 <div class="terminal">
   <div class="terminal-content">
-    <div class="terminal-line">
-      <span class="prompt">Last login:</span>
+    <!-- Initial typewriter content -->
+    <div class="terminal-line" *ngIf="lastLoginTime">
       <span class="timestamp">{{ lastLoginTime }}</span>
     </div>
     
-    <div class="terminal-line">
+    <div class="terminal-line" *ngIf="greeting">
       <span class="greeting">{{ greeting }}</span>
     </div>
     
-    <div class="terminal-line">
+    <div class="terminal-line" *ngIf="systemInfo">
       <span class="info">{{ systemInfo }}</span>
     </div>
     
-    <div class="terminal-line">
+    <div class="terminal-line" *ngIf="helpText">
       <span class="help">{{ helpText }}</span>
     </div>
     
-    <div class="terminal-line">
-      <span class="prompt">braelyn&#64;personal-site:~$</span>
+    <!-- Command outputs -->
+    <div class="terminal-line" *ngFor="let output of terminalOutputs" [ngClass]="'output-' + output.type">
+      <span *ngIf="output.type === 'command'" class="prompt">braelyn&#64;personal-site:~$</span>
+      <span [ngClass]="getOutputClass(output.type)">{{ output.content }}</span>
+    </div>
+    
+    <!-- Current command input -->
+    <div class="terminal-line" *ngIf="prompt">
+      <span class="prompt">{{ prompt }}</span>
       <input 
         type="text" 
         class="command-input" 
@@ -29,3 +36,5 @@
     </div>
   </div>
 </div>
+<app-social-entry></app-social-entry>
+

@@ -1,4 +1,4 @@
-<div class="social-entry-container">
+<div class="social-entry-container" [class.fade-out]="!isVisible">
   <div class="social-icons">
     <a href="https://www.instagram.com/braelyn.b__" target="_blank" class="social-link instagram">
       <i class="fab fa-instagram icon"></i>
@@ -13,5 +13,5 @@
       <img src="assets/OnlyFans_Logo_Icon_Blue.webp" alt="OnlyFans" class="icon onlyfans-icon">
     </a>
   </div>
-  <button class="enter-button" (click)="onEnterClick()">Enter</button>
+  <button class="enter-button" (click)="onEnterClick()" (mouseenter)="onButtonHover()" (mouseleave)="onButtonLeave()" #enterButton>{{ buttonText }}</button>
 </div>
