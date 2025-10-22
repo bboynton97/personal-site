@@ -1,3 +1,31 @@
-<h2>Welcome</h2>
-<p>Hello! I'm Braelyn Boynton. Welcome to my personal site where I share my thoughts, experiences, and work.</p>
-<p>🚧 I'm working on this site when i feel like it right now so dont expect much :)</p>
+<div class="terminal">
+  <div class="terminal-content">
+    <div class="terminal-line">
+      <span class="prompt">Last login:</span>
+      <span class="timestamp">{{ lastLoginTime }}</span>
+    </div>
+    
+    <div class="terminal-line">
+      <span class="greeting">{{ greeting }}</span>
+    </div>
+    
+    <div class="terminal-line">
+      <span class="info">{{ systemInfo }}</span>
+    </div>
+    
+    <div class="terminal-line">
+      <span class="help">{{ helpText }}</span>
+    </div>
+    
+    <div class="terminal-line">
+      <span class="prompt">braelyn&#64;personal-site:~$</span>
+      <input 
+        type="text" 
+        class="command-input" 
+        [(ngModel)]="currentCommand"
+        (keydown)="onKeyDown($event)"
+        placeholder=""
+        autofocus>
+    </div>
+  </div>
+</div>

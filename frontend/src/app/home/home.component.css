@@ -1,0 +1,82 @@
+.terminal {
+  background: #000000;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.terminal-content {
+  color: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.terminal-line {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.prompt {
+  color: #ffffff;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.timestamp {
+  color: #ffffff;
+}
+
+.greeting {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.info {
+  color: #ffffff;
+}
+
+.help {
+  color: #ffffff;
+}
+
+.command-input {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  flex: 1;
+  margin-left: 8px;
+}
+
+.command-input::placeholder {
+  color: #ffffff;
+}
+
+/* Terminal cursor effect */
+.command-input:focus {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .terminal {
+    font-size: 12px;
+    padding: 15px;
+  }
+}
