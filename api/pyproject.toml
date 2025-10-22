@@ -13,6 +13,9 @@ dependencies = [
     "pydantic>=2.5.0",
 ]
 
+[project.scripts]
+start = "uvicorn main:app --host 0.0.0.0 --port 8000"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",

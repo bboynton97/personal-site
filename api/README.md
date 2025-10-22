@@ -26,6 +26,25 @@ For development with additional dev dependencies:
 uv sync --dev
 ```
 
+## Railway Deployment
+
+This API is configured to deploy on Railway:
+
+1. Connect your GitHub repository to Railway
+2. Railway will automatically detect the Python project and use uv for dependency management
+3. The service will be available at the Railway-provided URL
+
+### Railway Configuration
+
+- **railway.toml**: Contains Railway-specific configuration including health checks
+- **Procfile**: Defines the web process command
+- **pyproject.toml**: Contains project scripts and dependencies
+
+The API will automatically start with:
+```bash
+uv run uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
 ## Endpoints
 
 - `GET /` - Root endpoint
