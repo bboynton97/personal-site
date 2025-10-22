@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SocialEntryComponent } from '../social-entry/social-entry.component';
+import { MusicPlayerComponent } from '../music-player/music-player.component';
 import { TerminalService } from '../terminal/services/terminal.service';
 import { TerminalOutput } from '../terminal/types/terminal.types';
 import { 
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, CommonModule, SocialEntryComponent],
+  imports: [FormsModule, CommonModule, SocialEntryComponent, MusicPlayerComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

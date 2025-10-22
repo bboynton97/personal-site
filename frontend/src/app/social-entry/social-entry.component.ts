@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { MusicPlayerService } from '../services/music-player.service';
 
 @Component({
   selector: 'app-social-entry',
@@ -13,10 +14,11 @@ export class SocialEntryComponent {
   isVisible: boolean = true;
   buttonText: string = 'Enter';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private musicPlayerService: MusicPlayerService) {}
 
   onEnterClick() {
     this.isVisible = false;
+    this.musicPlayerService.play();
     this.router.navigate(['/home']);
   }
 
