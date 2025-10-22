@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.0/index.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono-nerd-font@5.0.0/index.css');
 
 /* Reset and base styles */
 * {
