@@ -77,3 +77,29 @@ export class ShareholderCommand implements TerminalCommand {
       }
     }
   }
+
+export class BrainRotCommand implements TerminalCommand {
+    name = 'brainrot';
+    aliases = ['adhd', 'rot', 'video'];
+    description = 'Trigger the ADHD brain rot video';
+    usage = 'brainrot';
+  
+    async execute(args: string[], context: any): Promise<CommandResult> {
+      // Check if we have access to the background animation service through context
+      if (context && context.backgroundAnimationService) {
+        context.backgroundAnimationService.triggerBrainRot();
+        
+        return {
+          success: true,
+          output: '🧠 ADHD brain rot video activated! Click X to close.',
+          action: 'none'
+        };
+      } else {
+        return {
+          success: false,
+          error: 'Background animation service not available in this context',
+          action: 'none'
+        };
+      }
+    }
+  }

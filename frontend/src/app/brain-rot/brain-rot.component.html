@@ -1,0 +1,21 @@
+<div class="brain-rot-overlay" [class.active]="isActive" (click)="stopBrainRot()">
+  <div class="brain-rot-container" (click)="$event.stopPropagation()">
+    <!-- Close button -->
+    <button class="close-button" (click)="stopBrainRot()" aria-label="Close brain rot video">
+      <span class="close-icon">×</span>
+    </button>
+    
+    <!-- Video element -->
+    <video 
+      id="brain-rot-video"
+      class="brain-rot-video"
+      preload="auto"
+      muted>
+      <source src="assets/video/brainrot.mov" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    
+    <!-- iPhone home indicator -->
+    <div class="home-indicator"></div>
+  </div>
+</div>

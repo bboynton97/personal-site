@@ -45,4 +45,11 @@ export class BackgroundAnimationService {
   triggerShareholderValue(): void {
     this.triggerAnimation('shareholder');
   }
+
+  /**
+   * Convenience method to trigger brain rot video
+   */
+  triggerBrainRot(): void {
+    this.triggerAnimation('brainrot');
+  }
 }

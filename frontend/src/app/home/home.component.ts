@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { SocialEntryComponent } from '../social-entry/social-entry.component';
 import { MusicPlayerComponent } from '../music-player/music-player.component';
 import { BackgroundComponent } from '../background/background.component';
+import { BrainRotComponent } from '../brain-rot/brain-rot.component';
 import { BackgroundAnimationService } from '../services/background-animation.service';
 import { TerminalService } from '../terminal/services/terminal.service';
 import { TerminalOutput } from '../terminal/types/terminal.types';
@@ -22,18 +23,20 @@ import {
   SlackCommand,
   AlarmCommand,
   CountdownCommand,
-  ShareholderCommand
+  ShareholderCommand,
+  BrainRotCommand
 } from '../terminal/commands/index';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, CommonModule, SocialEntryComponent, MusicPlayerComponent, BackgroundComponent, Nl2brPipe],
+  imports: [FormsModule, CommonModule, SocialEntryComponent, MusicPlayerComponent, BackgroundComponent, BrainRotComponent, Nl2brPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('terminalInput', { static: false }) terminalInput!: ElementRef<HTMLInputElement>;
+  @ViewChild(BrainRotComponent) brainRot!: BrainRotComponent;
   
   lastLoginTime: string = '';
   greeting: string = '';
@@ -93,6 +96,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.terminalService.registerCommand(new AlarmCommand());
     this.terminalService.registerCommand(new CountdownCommand());
     this.terminalService.registerCommand(new ShareholderCommand());
+    this.terminalService.registerCommand(new BrainRotCommand());
   }
 
   private async startTypewriterEffect(): Promise<void> {
@@ -186,6 +190,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.clearTerminalDisplay();
       } else if (result.action === 'navigate' && result.data?.route) {
         this.router.navigate([result.data.route]);
+      } else if (command.toLowerCase() === 'brainrot' || command.toLowerCase() === 'adhd' || command.toLowerCase() === 'rot' || command.toLowerCase() === 'video') {
+        this.triggerBrainRot();
       }
       
       this.focusTerminalInput();
@@ -288,6 +294,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
     
     this.notificationService.addNotification(randomName, randomMessage);
+  }
+
+  /**
+   * Triggers the brain rot video
+   */
+  triggerBrainRot(): void {
+    if (this.brainRot) {
+      this.brainRot.startBrainRot();
+    }
   }
 
   ngOnDestroy(): void {
