@@ -1,0 +1,144 @@
+.terminal {
+  background: transparent;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 16px;
+  line-height: 1.4;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.terminal-content {
+  color: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.terminal-line {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.prompt {
+  color: #ffffff;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.timestamp {
+  color: #ffffff;
+}
+
+.greeting {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.info {
+  color: #ffffff;
+}
+
+.help {
+  color: #ffffff;
+}
+
+.command-input {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  flex: 1;
+  margin-left: 8px;
+}
+
+.command-input::placeholder {
+  color: #ffffff;
+}
+
+/* Output type styles */
+.command-text {
+  color: #ffffff;
+}
+
+.output-text {
+  color: #ffffff;
+}
+
+.error-text {
+  color: #ff6b6b;
+}
+
+.system-text {
+  color: #4ecdc4;
+}
+
+/* Terminal cursor effect */
+.command-input:focus {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* RGB Glitch Effect */
+.glitch-effect {
+  animation: rgbGlitch 0.1s ease-in-out;
+}
+
+@keyframes rgbGlitch {
+  0% {
+    text-shadow: 
+      var(--glitch-width, 11px) 0 0 #ff0000,
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #00ffff,
+      0 0 0 #000000;
+    color: #ffffff;
+  }
+  25% {
+    text-shadow: 
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #ff0000,
+      var(--glitch-width, 11px) 0 0 #00ffff,
+      0 0 0 #000000;
+    color: #ff0000;
+  }
+  50% {
+    text-shadow: 
+      var(--glitch-width, 11px) 0 0 #00ffff,
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #ff0000,
+      0 0 0 #000000;
+    color: #00ffff;
+  }
+  75% {
+    text-shadow: 
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #00ffff,
+      var(--glitch-width, 11px) 0 0 #ff0000,
+      0 0 0 #000000;
+    color: #ffff00;
+  }
+  100% {
+    text-shadow: 
+      var(--glitch-width, 11px) 0 0 #ff0000,
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #00ffff,
+      0 0 0 #000000;
+    color: #ffffff;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .terminal {
+    font-size: 12px;
+    padding: 15px;
+  }
+}
