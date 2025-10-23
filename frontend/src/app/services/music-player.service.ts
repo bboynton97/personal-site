@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class MusicPlayerService {
   private audio: HTMLAudioElement | null = null;
+  private explosionSound: HTMLAudioElement | null = null;
   private isPlayingSubject = new BehaviorSubject<boolean>(false);
   private currentTimeSubject = new BehaviorSubject<number>(0);
   private durationSubject = new BehaviorSubject<number>(0);
@@ -27,6 +28,11 @@ export class MusicPlayerService {
     this.audio.src = 'assets/music/Gesaffelstein Opr.mp3';
     this.audio.loop = true;
     this.audio.volume = 0.5;
+
+    // Initialize explosion sound effect
+    this.explosionSound = new Audio();
+    this.explosionSound.src = 'assets/sfx/Explosion Sound Effect.mp3';
+    this.explosionSound.volume = 0.7;
 
     // Set up event listeners
     this.audio.addEventListener('loadedmetadata', () => {
@@ -54,6 +60,15 @@ export class MusicPlayerService {
     if (this.audio) {
       this.audio.play().catch(error => {
         console.error('Error playing audio:', error);
+      });
+    }
+  }
+
+  playExplosionSound(): void {
+    if (this.explosionSound) {
+      this.explosionSound.currentTime = 0; // Reset to beginning
+      this.explosionSound.play().catch(error => {
+        console.error('Error playing explosion sound:', error);
       });
     }
   }

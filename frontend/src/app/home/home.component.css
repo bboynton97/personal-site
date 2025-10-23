@@ -1,5 +1,5 @@
 .terminal {
-  background: #000000;
+  background: transparent;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 16px;
   line-height: 1.4;
@@ -9,6 +9,8 @@
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .terminal-content {
@@ -88,6 +90,49 @@
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
+}
+
+/* RGB Glitch Effect */
+.glitch-effect {
+  animation: rgbGlitch 0.1s ease-in-out;
+}
+
+@keyframes rgbGlitch {
+  0% {
+    text-shadow: 
+      var(--glitch-width, 11px) 0 0 #ff0000,
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #00ffff,
+      0 0 0 #000000;
+    color: #ffffff;
+  }
+  25% {
+    text-shadow: 
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #ff0000,
+      var(--glitch-width, 11px) 0 0 #00ffff,
+      0 0 0 #000000;
+    color: #ff0000;
+  }
+  50% {
+    text-shadow: 
+      var(--glitch-width, 11px) 0 0 #00ffff,
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #ff0000,
+      0 0 0 #000000;
+    color: #00ffff;
+  }
+  75% {
+    text-shadow: 
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #00ffff,
+      var(--glitch-width, 11px) 0 0 #ff0000,
+      0 0 0 #000000;
+    color: #ffff00;
+  }
+  100% {
+    text-shadow: 
+      var(--glitch-width, 11px) 0 0 #ff0000,
+      calc(-1 * var(--glitch-width, 11px)) 0 0 #00ffff,
+      0 0 0 #000000;
+    color: #ffffff;
+  }
 }
 
 /* Responsive design */

@@ -1,34 +1,36 @@
+<app-background></app-background>
 <div class="terminal">
   <div class="terminal-content">
     <!-- Initial typewriter content -->
     <div class="terminal-line" *ngIf="lastLoginTime">
-      <span class="timestamp">{{ lastLoginTime }}</span>
+      <span class="timestamp" [ngClass]="{'glitch-effect': isGlitching}">{{ lastLoginTime }}</span>
     </div>
     
     <div class="terminal-line" *ngIf="greeting">
-      <span class="greeting">{{ greeting }}</span>
+      <span class="greeting" [ngClass]="{'glitch-effect': isGlitching}">{{ greeting }}</span>
     </div>
     
     <div class="terminal-line" *ngIf="systemInfo">
-      <span class="info">{{ systemInfo }}</span>
+      <span class="info" [ngClass]="{'glitch-effect': isGlitching}">{{ systemInfo }}</span>
     </div>
     
     <div class="terminal-line" *ngIf="helpText">
-      <span class="help">{{ helpText }}</span>
+      <span class="help" [ngClass]="{'glitch-effect': isGlitching}">{{ helpText }}</span>
     </div>
     
     <!-- Command outputs -->
     <div class="terminal-line" *ngFor="let output of terminalOutputs" [ngClass]="'output-' + output.type">
-      <span *ngIf="output.type === 'command'" class="prompt">braelyn&#64;personal-site:~$</span>
-      <span [ngClass]="getOutputClass(output.type)">{{ output.content }}</span>
+      <span *ngIf="output.type === 'command'" class="prompt" [ngClass]="{'glitch-effect': isGlitching}">braelyn&#64;personal-site:~$</span>
+      <span [ngClass]="[getOutputClass(output.type), {'glitch-effect': isGlitching}]">{{ output.content }}</span>
     </div>
     
     <!-- Current command input -->
     <div class="terminal-line" *ngIf="prompt">
-      <span class="prompt">{{ prompt }}</span>
+      <span class="prompt" [ngClass]="{'glitch-effect': isGlitching}">{{ prompt }}</span>
       <input 
         type="text" 
         class="command-input" 
+        [ngClass]="{'glitch-effect': isGlitching}"
         [(ngModel)]="currentCommand"
         (keydown)="onKeyDown($event)"
         placeholder=""

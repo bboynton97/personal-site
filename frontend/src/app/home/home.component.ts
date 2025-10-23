@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SocialEntryComponent } from '../social-entry/social-entry.component';
 import { MusicPlayerComponent } from '../music-player/music-player.component';
+import { BackgroundComponent } from '../background/background.component';
+import { BackgroundAnimationService } from '../services/background-animation.service';
 import { TerminalService } from '../terminal/services/terminal.service';
 import { TerminalOutput } from '../terminal/types/terminal.types';
 import { 
@@ -18,11 +20,11 @@ import {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, CommonModule, SocialEntryComponent, MusicPlayerComponent],
+  imports: [FormsModule, CommonModule, SocialEntryComponent, MusicPlayerComponent, BackgroundComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   lastLoginTime: string = '';
   greeting: string = '';
   systemInfo: string = '';
@@ -30,6 +32,7 @@ export class HomeComponent implements OnInit {
   prompt: string = '';
   currentCommand: string = '';
   terminalOutputs: TerminalOutput[] = [];
+  isGlitching: boolean = false;
   
   private fullLastLoginTime: string;
   private fullGreeting: string;
@@ -37,8 +40,9 @@ export class HomeComponent implements OnInit {
   private fullHelpText: string;
   private isTyping: boolean = false;
   private terminalService: TerminalService;
+  private glitchTimeout: any;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private backgroundAnimationService: BackgroundAnimationService) {
     this.terminalService = new TerminalService();
     this.fullLastLoginTime = new Date().toLocaleString();
     this.fullGreeting = 'Welcome to Braelyn Boynton\'s personal site!';
@@ -50,6 +54,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.startTypewriterEffect();
+    this.startGlitchEffect();
   }
 
   private initializeCommands(): void {
@@ -117,6 +122,7 @@ export class HomeComponent implements OnInit {
 
   onKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
+      this.backgroundAnimationService.triggerLightning();
       this.executeCommand();
     }
   }
@@ -165,6 +171,47 @@ export class HomeComponent implements OnInit {
         return 'system-text';
       default:
         return 'output-text';
+    }
+  }
+
+  private startGlitchEffect(): void {
+    // Schedule the first glitch effect
+    this.scheduleNextGlitch();
+  }
+
+  private scheduleNextGlitch(): void {
+    // Generate random delay between 2 and 15 seconds
+    const randomDelay = Math.random() * 8000 + 2000; // 2000ms to 15000ms
+    
+    this.glitchTimeout = setTimeout(() => {
+      this.triggerGlitchEffect();
+      this.scheduleNextGlitch(); // Schedule the next one
+    }, randomDelay);
+  }
+
+  private triggerGlitchEffect(): void {
+    if (this.isTyping) {
+      return; // Don't glitch while typing
+    }
+    
+    // Generate random width between 2 and 20 pixels
+    const randomWidth = Math.random() * 18 + 2; // 2 to 20 pixels
+    const roundedWidth = Math.round(randomWidth * 10) / 10; // Round to 1 decimal place
+    
+    // Apply random width to CSS custom property
+    document.documentElement.style.setProperty('--glitch-width', `${roundedWidth}px`);
+    
+    this.isGlitching = true;
+    
+    // Remove glitch effect after animation completes
+    setTimeout(() => {
+      this.isGlitching = false;
+    }, 100); // Match the CSS animation duration
+  }
+
+  ngOnDestroy(): void {
+    if (this.glitchTimeout) {
+      clearTimeout(this.glitchTimeout);
     }
   }
 }
