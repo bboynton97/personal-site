@@ -27,10 +27,37 @@
   align-items: center;
 }
 
+.terminal-line.command-line {
+  margin-top: 16px;
+}
+
 .prompt {
-  color: #f8f8f8;
   margin-right: 8px;
   font-weight: bold;
+}
+
+.prompt-user {
+  color: #6b8e6b; /* muted green */
+}
+
+.prompt-at {
+  color: #f8f8f8; /* white */
+}
+
+.prompt-host {
+  color: #64748b; /* slate */
+}
+
+.prompt-colon {
+  color: #f8f8f8; /* white */
+}
+
+.prompt-path {
+  color: #f8f8f8; /* white */
+}
+
+.prompt-dollar {
+  color: #f8f8f8; /* white */
 }
 
 .timestamp {

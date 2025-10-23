@@ -16,7 +16,8 @@ import {
   AboutCommand, 
   WorkCommand, 
   BlogCommand, 
-  ContactCommand 
+  ContactCommand,
+  CodeCommand
 } from '../terminal/commands/basic-commands';
 
 @Component({
@@ -53,7 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.fullLastLoginTime = new Date().toLocaleString();
     this.fullGreeting = 'Welcome to Braelyn Boynton\'s personal site!';
     this.fullSystemInfo = 'Type "help" to see available commands, or explore the site using the navigation.';
-    this.fullHelpText = 'Available commands: help, about, work, blog, contact';
+    this.fullHelpText = 'Some available commands: help, about, work, blog, contact';
     
     this.initializeCommands();
   }
@@ -71,6 +72,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.terminalService.registerCommand(new WorkCommand());
     this.terminalService.registerCommand(new BlogCommand());
     this.terminalService.registerCommand(new ContactCommand());
+    this.terminalService.registerCommand(new CodeCommand());
   }
 
   private async startTypewriterEffect(): Promise<void> {

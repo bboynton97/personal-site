@@ -163,3 +163,18 @@ Feel free to reach out for collaborations or just to say hello!
     };
   }
 }
+
+export class CodeCommand implements TerminalCommand {
+  name = 'code';
+  aliases = ['dev', 'programming'];
+  description = 'Show a motivational message about coding';
+  usage = 'code';
+
+  async execute(args: string[], context: any): Promise<CommandResult> {
+    return {
+      success: true,
+      output: "You're absolutely right!",
+      action: 'none'
+    };
+  }
+}
