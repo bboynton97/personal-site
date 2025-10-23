@@ -19,9 +19,9 @@
     </div>
     
     <!-- Command outputs -->
-    <div class="terminal-line" *ngFor="let output of terminalOutputs" [ngClass]="'output-' + output.type">
-      <span *ngIf="output.type === 'command'" class="prompt" [ngClass]="{'glitch-effect': isGlitching}">braelyn&#64;personal-site:~$</span>
-      <span [ngClass]="[getOutputClass(output.type), {'glitch-effect': isGlitching}]">{{ output.content }}</span>
+    <div class="terminal-line" *ngFor="let output of terminalOutputs">
+      <span *ngIf="output.type === 'command'" class="prompt" [ngClass]="{'glitch-effect': isGlitching}">guest&#64;personal-site:~$</span>
+      <span [ngClass]="{'glitch-effect': isGlitching}" [class]="getOutputClass(output.type)" [innerHTML]="output.content | nl2br"></span>
     </div>
     
     <!-- Current command input -->
@@ -40,4 +40,11 @@
 </div>
 <app-social-entry></app-social-entry>
 <app-music-player></app-music-player>
+
+<!-- Demo button for Slack notifications -->
+<div class="demo-controls">
+  <button class="demo-btn" (click)="testSlackNotification()">
+    Test Slack Notification
+  </button>
+</div>
 

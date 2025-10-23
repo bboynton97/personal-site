@@ -8,6 +8,8 @@ import { BackgroundComponent } from '../background/background.component';
 import { BackgroundAnimationService } from '../services/background-animation.service';
 import { TerminalService } from '../terminal/services/terminal.service';
 import { TerminalOutput } from '../terminal/types/terminal.types';
+import { SlackNotificationService } from '../services/slack-notification.service';
+import { Nl2brPipe } from '../pipes/nl2br.pipe';
 import { 
   HelpCommand, 
   ClearCommand, 
@@ -20,7 +22,7 @@ import {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, CommonModule, SocialEntryComponent, MusicPlayerComponent, BackgroundComponent],
+  imports: [FormsModule, CommonModule, SocialEntryComponent, MusicPlayerComponent, BackgroundComponent, Nl2brPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -42,7 +44,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   private terminalService: TerminalService;
   private glitchTimeout: any;
 
-  constructor(private router: Router, private backgroundAnimationService: BackgroundAnimationService) {
+  constructor(
+    private router: Router, 
+    private backgroundAnimationService: BackgroundAnimationService, 
+    private notificationService: SlackNotificationService
+  ) {
     this.terminalService = new TerminalService();
     this.fullLastLoginTime = new Date().toLocaleString();
     this.fullGreeting = 'Welcome to Braelyn Boynton\'s personal site!';
@@ -122,7 +128,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
-      this.backgroundAnimationService.triggerLightning();
       this.executeCommand();
     }
   }
@@ -134,11 +139,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.currentCommand = '';
+
     try {
       const result = await this.terminalService.executeCommand(command);
       
       // Update terminal outputs
-      this.terminalOutputs = this.terminalService.getRecentOutputs(50);
+      this.terminalOutputs = [...this.terminalService.getRecentOutputs(50)];
       
       // Handle special actions
       if (result.action === 'clear') {
@@ -150,8 +157,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Command execution error:', error);
     }
-    
-    this.currentCommand = '';
   }
 
   private clearTerminalDisplay(): void {
@@ -207,6 +212,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.isGlitching = false;
     }, 100); // Match the CSS animation duration
+  }
+
+  testSlackNotification(): void {
+    const names = ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson', 'Alex Brown'];
+    const messages = [
+      'Hey, how are you doing?',
+      'Can you review the latest changes?',
+      'Meeting in 10 minutes!',
+      'The build is ready for deployment',
+      'Thanks for the help with the bug fix!'
+    ];
+    
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    
+    this.notificationService.addNotification(randomName, randomMessage);
   }
 
   ngOnDestroy(): void {

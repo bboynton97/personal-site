@@ -1,0 +1,9 @@
+<div class="notifications-container">
+  <app-slack-message
+    *ngFor="let notification of notifications"
+    [name]="notification.name"
+    [message]="notification.message"
+    [id]="notification.id"
+    (dismiss)="onDismiss($event)"
+  ></app-slack-message>
+</div>

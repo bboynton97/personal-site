@@ -149,7 +149,6 @@ export class ContactCommand implements TerminalCommand {
 Contact Information
 ===================
 
-Email: braelyn@example.com
 LinkedIn: linkedin.com/in/braelyn-ai
 Twitter: @braelyn_ai
 Instagram: @braelyn.b__
