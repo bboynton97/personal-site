@@ -13,8 +13,11 @@ import { Subscription } from 'rxjs';
 export class BackgroundComponent implements OnInit, OnDestroy {
   lightningActive = false;
   private subscriptions: Subscription[] = [];
+  private explosionSound: HTMLAudioElement | null = null;
 
-  constructor(private backgroundAnimationService: BackgroundAnimationService) {}
+  constructor(private backgroundAnimationService: BackgroundAnimationService) {
+    this.initializeExplosionSound();
+  }
 
   ngOnInit(): void {
     // Subscribe to animation triggers
@@ -29,16 +32,32 @@ export class BackgroundComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  private initializeExplosionSound(): void {
+    this.explosionSound = new Audio();
+    this.explosionSound.src = 'assets/sfx/Explosion Sound Effect.mp3';
+    this.explosionSound.volume = 0.7;
+  }
+
   /**
    * Triggers the lightning animation
    */
   triggerLightning(): void {
     this.lightningActive = true;
+    this.playExplosionSound();
     
     // Reset animation after it completes
     setTimeout(() => {
       this.lightningActive = false;
     }, 200);
+  }
+
+  private playExplosionSound(): void {
+    if (this.explosionSound) {
+      this.explosionSound.currentTime = 0; // Reset to beginning
+      this.explosionSound.play().catch(error => {
+        console.error('Error playing explosion sound:', error);
+      });
+    }
   }
 
   /**

@@ -24,8 +24,8 @@ export class SocialEntryComponent {
   onEnterClick() {
     this.isVisible = false;
     this.backgroundAnimationService.triggerLightning();
-    this.musicPlayerService.playExplosionSound();
     this.musicPlayerService.play();
+    
     this.router.navigate(['/home']);
   }
 

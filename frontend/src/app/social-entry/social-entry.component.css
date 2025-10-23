@@ -31,6 +31,46 @@
   align-items: center;
 }
 
+.text-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.text-link {
+  color: #ffffff;
+  text-decoration: underline;
+  text-decoration-color: #ffffff;
+  text-underline-offset: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+}
+
+.text-link:hover {
+  color: #00ff00;
+  text-decoration-color: #00ff00;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.text-link::before {
+  content: '_';
+  position: absolute;
+  left: -0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.text-link:hover::before {
+  opacity: 1;
+}
+
 .social-link {
   display: flex;
   align-items: center;
@@ -151,6 +191,16 @@
   
   .icon {
     font-size: 1.2rem;
+  }
+  
+  .text-links {
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  .text-link {
+    font-size: 1rem;
+    padding: 0.3rem 0.8rem;
   }
   
   .enter-button {

@@ -8,8 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build:prod": "ng build --configuration production",
-    "start:railway": "npx http-server dist/personal-site-angular -p $PORT -a 0.0.0.0",
-    "postinstall": "npm run build:prod"
+    "start:railway": "bunx http-server dist/personal-site-angular -p $PORT -a 0.0.0.0",
+    "postinstall": "bun run build:prod"
   },
   "private": true,
   "dependencies": {
