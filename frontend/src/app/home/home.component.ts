@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -27,7 +27,9 @@ import {
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('terminalInput', { static: false }) terminalInput!: ElementRef<HTMLInputElement>;
+  
   lastLoginTime: string = '';
   greeting: string = '';
   systemInfo: string = '';
@@ -44,6 +46,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private isTyping: boolean = false;
   private terminalService: TerminalService;
   private glitchTimeout: any;
+  private focusInterval: any;
 
   constructor(
     private router: Router, 
@@ -62,6 +65,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.startTypewriterEffect();
     this.startGlitchEffect();
+  }
+
+  ngAfterViewInit(): void {
+    // Try to focus after view is initialized
+    setTimeout(() => {
+      this.focusTerminalInput();
+    }, 2000); // Wait 2 seconds after view init
   }
 
   private initializeCommands(): void {
@@ -109,6 +119,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     await this.typeText('guest@personal-site:~$', 'prompt');
     
     this.isTyping = false;
+    
+    // Start the focus interval after typewriter effect completes
+    this.startFocusInterval();
   }
 
   private async typeText(text: string, targetProperty: string, append: boolean = false): Promise<void> {
@@ -129,6 +142,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onKeyDown(event: KeyboardEvent): void {
+    // Stop the focus interval when user starts typing
+    this.stopFocusInterval();
+    
     if (event.key === 'Enter') {
       this.executeCommand();
     }
@@ -156,14 +172,40 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.router.navigate([result.data.route]);
       }
       
+      this.focusTerminalInput();
     } catch (error) {
       console.error('Command execution error:', error);
+      this.focusTerminalInput();
     }
   }
 
   private clearTerminalDisplay(): void {
     this.terminalOutputs = [];
     this.terminalService.clearOutputs();
+  }
+
+  focusTerminalInput(): void {
+    if (this.terminalInput) {
+      this.terminalInput.nativeElement.focus();
+    }
+  }
+
+  startFocusInterval(): void {
+    if (this.focusInterval) {
+      clearInterval(this.focusInterval);
+    }
+    
+    // Focus every second
+    this.focusInterval = setInterval(() => {
+      this.focusTerminalInput();
+    }, 1000);
+  }
+
+  stopFocusInterval(): void {
+    if (this.focusInterval) {
+      clearInterval(this.focusInterval);
+      this.focusInterval = null;
+    }
   }
 
   getOutputClass(type: string): string {
@@ -235,6 +277,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.glitchTimeout) {
       clearTimeout(this.glitchTimeout);
+    }
+    if (this.focusInterval) {
+      clearInterval(this.focusInterval);
     }
   }
 }

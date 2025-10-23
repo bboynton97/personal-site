@@ -1,5 +1,5 @@
 <app-background></app-background>
-<div class="terminal">
+<div class="terminal" (click)="focusTerminalInput()">
   <div class="terminal-content">
     <!-- Initial typewriter content -->
     <div class="terminal-line" *ngIf="lastLoginTime">
@@ -32,6 +32,7 @@
         <span class="prompt-user">guest</span><span class="prompt-at">&#64;</span><span class="prompt-host">personal-site</span><span class="prompt-colon">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
       </span>
       <input 
+        #terminalInput
         type="text" 
         class="command-input" 
         [ngClass]="{'glitch-effect': isGlitching}"
