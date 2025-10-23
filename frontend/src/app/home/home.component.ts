@@ -17,8 +17,10 @@ import {
   WorkCommand, 
   BlogCommand, 
   ContactCommand,
-  CodeCommand
-} from '../terminal/commands/basic-commands';
+  CodeCommand,
+  WhoAmICommand,
+  SlackCommand
+} from '../terminal/commands/index';
 
 @Component({
   selector: 'app-home',
@@ -83,6 +85,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.terminalService.registerCommand(new BlogCommand());
     this.terminalService.registerCommand(new ContactCommand());
     this.terminalService.registerCommand(new CodeCommand());
+    this.terminalService.registerCommand(new WhoAmICommand());
+    this.terminalService.registerCommand(new SlackCommand());
   }
 
   private async startTypewriterEffect(): Promise<void> {
@@ -116,7 +120,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     await this.delay(500);
     
     // Type the prompt
-    await this.typeText('guest@personal-site:~$', 'prompt');
+    await this.typeText('root@personal-site:~$', 'prompt');
     
     this.isTyping = false;
     
@@ -160,7 +164,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.currentCommand = '';
 
     try {
-      const result = await this.terminalService.executeCommand(command);
+      // Create context with notification service for commands that need it
+      const context = {
+        notificationService: this.notificationService
+      };
+      
+      const result = await this.terminalService.executeCommand(command, context);
       
       // Update terminal outputs
       this.terminalOutputs = [...this.terminalService.getRecentOutputs(50)];

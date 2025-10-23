@@ -8,13 +8,13 @@ export class TerminalContextService {
       currentDirectory: '~',
       history: [],
       environment: {
-        USER: 'guest',
+        USER: 'root',
         HOSTNAME: 'personal-site',
         PATH: '/usr/local/bin:/usr/bin:/bin',
         HOME: '~'
       },
       user: {
-        name: 'guest',
+        name: 'root',
         hostname: 'personal-site'
       }
     };

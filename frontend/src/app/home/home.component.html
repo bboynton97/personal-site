@@ -21,7 +21,7 @@
     <!-- Command outputs -->
     <div class="terminal-line" [ngClass]="{'command-line': output.type === 'command'}" *ngFor="let output of terminalOutputs">
       <span *ngIf="output.type === 'command'" class="prompt" [ngClass]="{'glitch-effect': isGlitching}">
-        <span class="prompt-user">guest</span><span class="prompt-at">&#64;</span><span class="prompt-host">personal-site</span><span class="prompt-colon">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+        <span class="prompt-user">root</span><span class="prompt-at">&#64;</span><span class="prompt-host">personal-site</span><span class="prompt-colon">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
       </span>
       <span [ngClass]="{'glitch-effect': isGlitching}" [class]="getOutputClass(output.type)" [innerHTML]="output.content | nl2br"></span>
     </div>
@@ -29,7 +29,7 @@
     <!-- Current command input -->
     <div class="terminal-line command-line" *ngIf="prompt">
       <span class="prompt" [ngClass]="{'glitch-effect': isGlitching}">
-        <span class="prompt-user">guest</span><span class="prompt-at">&#64;</span><span class="prompt-host">personal-site</span><span class="prompt-colon">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
+        <span class="prompt-user">root</span><span class="prompt-at">&#64;</span><span class="prompt-host">personal-site</span><span class="prompt-colon">:</span><span class="prompt-path">~</span><span class="prompt-dollar">$</span>
       </span>
       <input 
         #terminalInput

@@ -74,11 +74,9 @@ export class AboutCommand implements TerminalCommand {
 Braelyn Boynton
 ===============
 
-Welcome to my personal site! I'm a developer passionate about creating 
-innovative solutions and sharing knowledge through technology.
+Welcome to my personal site! I'm an engineer at heart and an entrepreneur for fun.
 
-This terminal interface is built with Angular and showcases my love for 
-clean, functional design and user experience.
+TODO: Add more heartfelt stuff about what i care about.
 
 Type 'help' to see available commands, or explore the site using the navigation.
     `.trim();
@@ -164,17 +162,43 @@ Feel free to reach out for collaborations or just to say hello!
   }
 }
 
-export class CodeCommand implements TerminalCommand {
-  name = 'code';
-  aliases = ['dev', 'programming'];
-  description = 'Show a motivational message about coding';
-  usage = 'code';
+export class SlackCommand implements TerminalCommand {
+  name = 'slack';
+  aliases = ['test-slack', 'notification'];
+  description = 'Test Slack message functionality';
+  usage = 'slack';
 
   async execute(args: string[], context: any): Promise<CommandResult> {
-    return {
-      success: true,
-      output: "You're absolutely right!",
-      action: 'none'
-    };
+    // Check if we have access to the notification service through context
+    if (context && context.notificationService) {
+      // Generate a random test message
+      const names = ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson', 'Alex Brown'];
+      const messages = [
+        'Hey, how are you doing?',
+        'Can you review the latest changes?',
+        'Meeting in 10 minutes!',
+        'The build is ready for deployment',
+        'Thanks for the help with the bug fix!'
+      ];
+      
+      const randomName = names[Math.floor(Math.random() * names.length)];
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      
+      context.notificationService.addNotification(randomName, randomMessage);
+      
+      return {
+        success: true,
+        output: `Slack notification test sent! Message from ${randomName}: "${randomMessage}"`,
+        action: 'none'
+      };
+    } else {
+      return {
+        success: false,
+        error: 'Slack notification service not available in this context',
+        action: 'none'
+      };
+    }
   }
 }
+
+

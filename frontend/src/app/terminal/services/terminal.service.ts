@@ -14,7 +14,7 @@ export class TerminalService {
     this.contextService = new TerminalContextService();
   }
 
-  async executeCommand(input: string): Promise<CommandResult> {
+  async executeCommand(input: string, additionalContext?: any): Promise<CommandResult> {
     const trimmedInput = input.trim();
     if (!trimmedInput) {
       return { success: true, action: 'none' };
@@ -43,8 +43,9 @@ export class TerminalService {
     }
 
     try {
-      // Execute the command
-      const context = this.contextService.getContext();
+      // Execute the command with merged context
+      const baseContext = this.contextService.getContext();
+      const context = additionalContext ? { ...baseContext, ...additionalContext } : baseContext;
       const result = await command.execute(args, context);
       
       // Handle the result
