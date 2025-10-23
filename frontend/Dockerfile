@@ -10,8 +10,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json bun.lockb ./
 
-# Install dependencies using Bun
-RUN bun install --frozen-lockfile
+# Install dependencies using Bun (without running postinstall scripts)
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
@@ -19,8 +19,8 @@ COPY . .
 # Build the application
 RUN bun run build:prod
 
-# Expose port
-EXPOSE 3000
+# Expose port (Railway will set PORT environment variable)
+EXPOSE $PORT
 
 # Start the application
 CMD ["bun", "run", "start:railway"]
