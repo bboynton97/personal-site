@@ -1,10 +1,17 @@
 <div class="brain-rot-overlay" [class.active]="isActive" (click)="stopBrainRot()">
+  <!-- Left side - ADHD -->
+  <div class="left-side">
+    <div class="title">ADHD</div>
+    <div class="counter" [class.shake]="fCounterShake">F counter: {{fCounter}}/100</div>
+  </div>
+  
+  <!-- Right side - ATTACK -->
+  <div class="right-side">
+    <div class="title">ATTACK</div>
+    <div class="counter" [class.shake]="jCounterShake">J counter: {{jCounter}}/100</div>
+  </div>
+  
   <div class="brain-rot-container" (click)="$event.stopPropagation()">
-    <!-- Close button -->
-    <button class="close-button" (click)="stopBrainRot()" aria-label="Close brain rot video">
-      <span class="close-icon">×</span>
-    </button>
-    
     <!-- Video element -->
     <video 
       id="brain-rot-video"
