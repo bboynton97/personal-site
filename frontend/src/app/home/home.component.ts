@@ -19,7 +19,10 @@ import {
   ContactCommand,
   CodeCommand,
   WhoAmICommand,
-  SlackCommand
+  SlackCommand,
+  AlarmCommand,
+  CountdownCommand,
+  ShareholderCommand
 } from '../terminal/commands/index';
 
 @Component({
@@ -87,6 +90,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.terminalService.registerCommand(new CodeCommand());
     this.terminalService.registerCommand(new WhoAmICommand());
     this.terminalService.registerCommand(new SlackCommand());
+    this.terminalService.registerCommand(new AlarmCommand());
+    this.terminalService.registerCommand(new CountdownCommand());
+    this.terminalService.registerCommand(new ShareholderCommand());
   }
 
   private async startTypewriterEffect(): Promise<void> {
@@ -164,9 +170,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.currentCommand = '';
 
     try {
-      // Create context with notification service for commands that need it
+      // Create context with services for commands that need them
       const context = {
-        notificationService: this.notificationService
+        notificationService: this.notificationService,
+        backgroundAnimationService: this.backgroundAnimationService
       };
       
       const result = await this.terminalService.executeCommand(command, context);

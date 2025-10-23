@@ -24,4 +24,25 @@ export class BackgroundAnimationService {
   triggerLightning(): void {
     this.triggerAnimation('lightning');
   }
+
+  /**
+   * Convenience method to trigger alarm animation
+   */
+  triggerAlarm(): void {
+    this.triggerAnimation('alarm');
+  }
+
+  /**
+   * Convenience method to trigger countdown timer
+   */
+  triggerCountdown(): void {
+    this.triggerAnimation('countdown');
+  }
+
+  /**
+   * Convenience method to trigger shareholder value decrease
+   */
+  triggerShareholderValue(): void {
+    this.triggerAnimation('shareholder');
+  }
 }
