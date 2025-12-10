@@ -11,6 +11,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { CRTShader } from './CRTShader.js'
 import { Terminal } from './Terminal.js'
+import { Oscilloscope } from './Oscilloscope.js'
 
 // --- CONSTANTS ---
 const ZOOM_POS = new THREE.Vector3(-2.8, 2.8, 1.2)
@@ -181,6 +182,7 @@ state.lightShows.lightShow3 = { light: bouncingLight }
 
 // --- TERMINAL ---
 const terminal = new Terminal()
+const oscilloscope = new Oscilloscope()
 
 // --- ASSET LOADING ---
 const loader = new GLTFLoader()
@@ -394,6 +396,21 @@ loader.load('/scope/scene.gltf', (gltf) => {
         if (child.isMesh) {
             child.castShadow = true
             child.receiveShadow = true
+            
+            // Log mesh names to help debug
+            console.log('Oscilloscope mesh found:', child.name)
+
+            if (child.name === 'Grid005_Material109_0') {
+                child.material = new THREE.MeshStandardMaterial({
+                    map: oscilloscope.texture,
+                    emissiveMap: oscilloscope.texture,
+                    emissive: 0xffffff,
+                    emissiveIntensity: 1.0,
+                    roughness: 0.2,
+                    metalness: 0.5,
+                    color: 0x000000
+                })
+            }
         }
     })
 })
@@ -626,6 +643,35 @@ loader.load('/Yamaha R1 3D Model.glb', (gltf) => {
     // Using x = -1.8 (to the right in world space) as x < -3 is occupied by the computer
     pivot.position.set(-5.4, 1.4 + (size.y * scale) / 2, 0.6)
     pivot.rotation.y = -Math.PI / 2
+
+    model.traverse(child => {
+        if (child.isMesh) {
+            child.castShadow = true
+            child.receiveShadow = true
+        }
+    })
+})
+
+// 11. Notepad
+loader.load('/Notepad/scene.gltf', (gltf) => {
+    const model = gltf.scene
+    const box = new THREE.Box3().setFromObject(model)
+    const size = box.getSize(new THREE.Vector3())
+    const center = box.getCenter(new THREE.Vector3())
+
+    const pivot = new THREE.Group()
+    scene.add(pivot)
+
+    model.position.copy(center).negate()
+    pivot.add(model)
+
+    const targetWidth = 2
+    const scale = targetWidth / size.x
+    pivot.scale.set(scale, scale, scale)
+
+    pivot.position.set(3, -1 + (size.y * scale) / 2, 1.6)
+    pivot.rotation.y = Math.PI / 1.1
+    pivot.rotation.z = Math.PI
 
     model.traverse(child => {
         if (child.isMesh) {
@@ -889,6 +935,7 @@ function animate() {
 
     // Render
     terminal.update()
+    oscilloscope.update()
     composer.render()
 }
 
