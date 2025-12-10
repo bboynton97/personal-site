@@ -26,6 +26,7 @@ const state = {
     isCameraLocked: true,
     isFocusingOnScreen: false,
     isFocusingOnNotepad: false,
+    isEmergencyStopped: false,
     computerPivot: null,
     notepadPivot: null,
     armSegments: { base: null, arm: null },
@@ -412,6 +413,14 @@ loader.load('/scope/scene.gltf', (gltf) => {
                 // Height is compressed to 75% (repeat 1.33x)
                 oscilloscope.texture.repeat.set(4, 1.33); 
                 
+                // Position 10% from left
+                // Calculation: We want the window (0.1 to 0.35) to map to texture (0 to 1)
+                // With repeat=4 and center=0.5:
+                // 0 = (0.1 - 0.5) * 4 + 0.5 + offset
+                // 0 = -1.6 + 0.5 + offset
+                // offset = 1.1
+                oscilloscope.texture.offset.set(0.1, 0);
+
                 child.material = new THREE.MeshStandardMaterial({
                     map: oscilloscope.texture,
                     emissiveMap: oscilloscope.texture,
@@ -701,6 +710,7 @@ loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
     const center = box.getCenter(new THREE.Vector3())
 
     const pivot = new THREE.Group()
+    state.emergencyButtonPivot = pivot
     scene.add(pivot)
 
     model.position.copy(center).negate()
@@ -776,6 +786,14 @@ window.addEventListener('click', (event) => {
                 state.isFocusingOnScreen = false
                 terminal.setFocused(false)
             }
+        }
+    }
+
+    if (state.emergencyButtonPivot) {
+        const intersects = raycaster.intersectObjects(state.emergencyButtonPivot.children, true)
+        if (intersects.length > 0) {
+            state.isEmergencyStopped = !state.isEmergencyStopped
+            console.log('Emergency Stop Toggled:', state.isEmergencyStopped)
         }
     }
 })
@@ -867,95 +885,97 @@ function animate() {
     }
 
     // Show/hide lights based on active show
-    const showRaveLights = state.currentLightShow !== 'lightShow3'
+    const showRaveLights = state.currentLightShow !== 'lightShow3' && !state.isEmergencyStopped
     state.raveLights.forEach(item => {
         item.light.visible = showRaveLights
     })
     if (state.bouncingLight) {
-        state.bouncingLight.visible = state.currentLightShow === 'lightShow3'
+        state.bouncingLight.visible = state.currentLightShow === 'lightShow3' && !state.isEmergencyStopped
     }
 
     // Rave Animation
-    const activeConfig = state.lightShows[state.currentLightShow]
-    state.raveLights.forEach((item, index) => {
-        const config = activeConfig[index]
-        
-        if (state.currentLightShow === 'lightShow2') {
-            // Light Show 2: Sequence of phases
-            // Phase cycle: fast strobe -> pause -> slow strobe -> fast strobe -> red light
-            const cycleTime = 8.0 // Total cycle duration in seconds
-            const phaseTime = time % cycleTime
-            const phaseDuration = cycleTime / 5 // Each phase gets equal time
-            const currentPhase = Math.floor(phaseTime / phaseDuration)
-            const phaseLocalTime = phaseTime % phaseDuration
+    if (!state.isEmergencyStopped) {
+        const activeConfig = state.lightShows[state.currentLightShow]
+        state.raveLights.forEach((item, index) => {
+            const config = activeConfig[index]
             
-            let color = 0xffffff
-            let intensity = 0
-            let isStrobing = false
-            let strobeSpeed = 0
-            
-            if (currentPhase === 0) {
-                // Phase 1: Much faster strobe (white)
-                strobeSpeed = 15.0 // Very fast
-                isStrobing = true
-                color = 0xffffff
-            } else if (currentPhase === 1) {
-                // Phase 2: Pause (all off)
-                intensity = 0
-                color = 0xffffff
-            } else if (currentPhase === 2) {
-                // Phase 3: Slow strobe (white)
-                strobeSpeed = 2.0 // Slow
-                isStrobing = true
-                color = 0xffffff
-            } else if (currentPhase === 3) {
-                // Phase 4: Fast strobe (white)
-                strobeSpeed = 8.0 // Fast
-                isStrobing = true
-                color = 0xffffff
+            if (state.currentLightShow === 'lightShow2') {
+                // Light Show 2: Sequence of phases
+                // Phase cycle: fast strobe -> pause -> slow strobe -> fast strobe -> red light
+                const cycleTime = 8.0 // Total cycle duration in seconds
+                const phaseTime = time % cycleTime
+                const phaseDuration = cycleTime / 5 // Each phase gets equal time
+                const currentPhase = Math.floor(phaseTime / phaseDuration)
+                const phaseLocalTime = phaseTime % phaseDuration
+                
+                let color = 0xffffff
+                let intensity = 0
+                let isStrobing = false
+                let strobeSpeed = 0
+                
+                if (currentPhase === 0) {
+                    // Phase 1: Much faster strobe (white)
+                    strobeSpeed = 15.0 // Very fast
+                    isStrobing = true
+                    color = 0xffffff
+                } else if (currentPhase === 1) {
+                    // Phase 2: Pause (all off)
+                    intensity = 0
+                    color = 0xffffff
+                } else if (currentPhase === 2) {
+                    // Phase 3: Slow strobe (white)
+                    strobeSpeed = 2.0 // Slow
+                    isStrobing = true
+                    color = 0xffffff
+                } else if (currentPhase === 3) {
+                    // Phase 4: Fast strobe (white)
+                    strobeSpeed = 8.0 // Fast
+                    isStrobing = true
+                    color = 0xffffff
+                } else {
+                    // Phase 5: Red light (solid)
+                    color = 0xff0000
+                    intensity = item.type === 'rect' ? 15 : 300
+                }
+                
+                if (isStrobing) {
+                    const colorIndex = Math.floor(phaseLocalTime * strobeSpeed) % 2
+                    const isOn = colorIndex === 1
+                    intensity = isOn 
+                        ? (item.type === 'rect' ? 15 : 300) 
+                        : 0
+                }
+                
+                item.light.color.setHex(color)
+                item.light.intensity = intensity
+                
+                if (item.type === 'spot') {
+                    // Keep spotlights stationary for strobe effect
+                    item.light.target.position.x = item.targetBaseX
+                    item.light.target.position.y = 10
+                }
             } else {
-                // Phase 5: Red light (solid)
-                color = 0xff0000
-                intensity = item.type === 'rect' ? 15 : 300
-            }
-            
-            if (isStrobing) {
-                const colorIndex = Math.floor(phaseLocalTime * strobeSpeed) % 2
-                const isOn = colorIndex === 1
-                intensity = isOn 
-                    ? (item.type === 'rect' ? 15 : 300) 
-                    : 0
-            }
-            
-            item.light.color.setHex(color)
-            item.light.intensity = intensity
-            
-            if (item.type === 'spot') {
-                // Keep spotlights stationary for strobe effect
-                item.light.target.position.x = item.targetBaseX
-                item.light.target.position.y = 10
-            }
-        } else {
-            // Light Show 1: Original red/white alternating pattern
-            const colorIndex = Math.floor(time * config.speed + config.offset) % 2
-            const color = colorIndex === 0 ? 0xff0000 : 0xffffff
-            const intensity = colorIndex === 0 ? 1 : 2 // Boost white intensity
-            
-            item.light.color.setHex(color)
-            item.light.intensity = item.type === 'rect' 
-                ? (colorIndex === 0 ? 5 : 10) 
-                : (colorIndex === 0 ? 100 : 200)
+                // Light Show 1: Original red/white alternating pattern
+                const colorIndex = Math.floor(time * config.speed + config.offset) % 2
+                const color = colorIndex === 0 ? 0xff0000 : 0xffffff
+                const intensity = colorIndex === 0 ? 1 : 2 // Boost white intensity
+                
+                item.light.color.setHex(color)
+                item.light.intensity = item.type === 'rect' 
+                    ? (colorIndex === 0 ? 5 : 10) 
+                    : (colorIndex === 0 ? 100 : 200)
 
-            if (item.type === 'spot') {
-                // Move spotlights
-                item.light.target.position.x = item.targetBaseX + Math.sin(time * config.speed + config.offset) * 10
-                item.light.target.position.y = 10 + Math.cos(time * config.speed * 0.5) * 5
+                if (item.type === 'spot') {
+                    // Move spotlights
+                    item.light.target.position.x = item.targetBaseX + Math.sin(time * config.speed + config.offset) * 10
+                    item.light.target.position.y = 10 + Math.cos(time * config.speed * 0.5) * 5
+                }
             }
-        }
-    })
+        })
+    }
 
     // Light Show 3: Bouncing red light around perimeter
-    if (state.currentLightShow === 'lightShow3' && state.bouncingLight) {
+    if (state.currentLightShow === 'lightShow3' && state.bouncingLight && !state.isEmergencyStopped) {
         // Square path: back-left -> back-right -> front-right -> front-left -> back-left
         // Perimeter: 100 (back) + 50 (right) + 100 (front) + 50 (left) = 300 units
         const perimeterLength = 300
