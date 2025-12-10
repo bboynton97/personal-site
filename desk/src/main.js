@@ -16,6 +16,8 @@ import { Oscilloscope } from './Oscilloscope.js'
 // --- CONSTANTS ---
 const ZOOM_POS = new THREE.Vector3(-2.8, 2.8, 1.2)
 const ZOOM_TARGET = new THREE.Vector3(-3.4, 2.5, -0.1)
+const NOTEPAD_POS = new THREE.Vector3(2.8, 2.5, 2.0)
+const NOTEPAD_TARGET = new THREE.Vector3(3, 1.2, 1.6)
 const DEFAULT_POS = new THREE.Vector3(1, 4, 8)
 const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0)
 
@@ -23,7 +25,9 @@ const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0)
 const state = {
     isCameraLocked: true,
     isFocusingOnScreen: false,
+    isFocusingOnNotepad: false,
     computerPivot: null,
+    notepadPivot: null,
     armSegments: { base: null, arm: null },
     raveLights: [],
     currentLightShow: 'lightShow1',
@@ -400,7 +404,7 @@ loader.load('/scope/scene.gltf', (gltf) => {
             // Log mesh names to help debug
             console.log('Oscilloscope mesh found:', child.name)
 
-            if (child.name === 'Grid005_Material109_0') {
+            if (child.name === 'Grid005_Material109_0' || child.name === 'Cube013_Material096_0') {
                 child.material = new THREE.MeshStandardMaterial({
                     map: oscilloscope.texture,
                     emissiveMap: oscilloscope.texture,
@@ -660,6 +664,7 @@ loader.load('/Notepad/scene.gltf', (gltf) => {
     const center = box.getCenter(new THREE.Vector3())
 
     const pivot = new THREE.Group()
+    state.notepadPivot = pivot
     scene.add(pivot)
 
     model.position.copy(center).negate()
@@ -673,6 +678,34 @@ loader.load('/Notepad/scene.gltf', (gltf) => {
     pivot.rotation.y = Math.PI / 1.1
     pivot.rotation.z = Math.PI
 
+    model.traverse(child => {
+        if (child.isMesh) {
+            child.castShadow = true
+            child.receiveShadow = true
+        }
+    })
+})
+
+// 12. Emergency Stop Button
+loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
+    const model = gltf.scene
+    const box = new THREE.Box3().setFromObject(model)
+    const size = box.getSize(new THREE.Vector3())
+    const center = box.getCenter(new THREE.Vector3())
+
+    const pivot = new THREE.Group()
+    scene.add(pivot)
+
+    model.position.copy(center).negate()
+    pivot.add(model)
+
+    const targetWidth = 0.5 
+    const scale = targetWidth / size.x
+    pivot.scale.set(scale, scale, scale)
+
+    // Position to the left of the arm (arm is at x=5, z=-1.5)
+    pivot.position.set(4.2, (size.y * scale / 2), -1.5)
+    
     model.traverse(child => {
         if (child.isMesh) {
             child.castShadow = true
@@ -722,7 +755,19 @@ window.addEventListener('click', (event) => {
         if (intersects.length > 0) {
             if (state.isCameraLocked) {
                 state.isFocusingOnScreen = true
+                state.isFocusingOnNotepad = false
                 terminal.setFocused(true)
+            }
+        }
+    }
+
+    if (state.notepadPivot) {
+        const intersects = raycaster.intersectObjects(state.notepadPivot.children, true)
+        if (intersects.length > 0) {
+            if (state.isCameraLocked) {
+                state.isFocusingOnNotepad = true
+                state.isFocusingOnScreen = false
+                terminal.setFocused(false)
             }
         }
     }
@@ -731,6 +776,7 @@ window.addEventListener('click', (event) => {
 window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
         state.isFocusingOnScreen = false
+        state.isFocusingOnNotepad = false
         terminal.setFocused(false)
     }
 
@@ -747,6 +793,7 @@ window.addEventListener('keydown', (event) => {
             controls.enabled = true
             state.isCameraLocked = false
             state.isFocusingOnScreen = false
+            state.isFocusingOnNotepad = false
             terminal.setFocused(false)
             
             console.log('Switched to Dev Mode')
@@ -791,6 +838,9 @@ function animate() {
     if (state.isFocusingOnScreen) {
         camera.position.lerp(ZOOM_POS, 0.05)
         controls.target.lerp(ZOOM_TARGET, 0.05)
+    } else if (state.isFocusingOnNotepad) {
+        camera.position.lerp(NOTEPAD_POS, 0.05)
+        controls.target.lerp(NOTEPAD_TARGET, 0.05)
     } else if (state.isCameraLocked) {
         if (camera.position.distanceTo(DEFAULT_POS) > 0.1 || controls.target.distanceTo(DEFAULT_TARGET) > 0.1) {
              camera.position.lerp(DEFAULT_POS, 0.05)
