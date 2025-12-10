@@ -37,6 +37,19 @@ const state = {
     isBlackout: false,
     computerPivot: null,
     notepadPivot: null,
+    
+    // Garage Assets
+    floorPivots: [],
+    barrierPivots: [],
+    wallPivots: [],
+    speakerPivots: [],
+    carPivot: null,
+    bikePivot: null,
+    
+    // Backrooms Assets
+    backroomsPivot: null,
+    backroomsLights: [],
+
     armSegments: { base: null, arm: null },
     roomLights: [],
     raveLights: [],
@@ -459,6 +472,7 @@ loader.load('/Steel Road Barrier 3D Model.glb', (gltf) => {
     const center = box.getCenter(new THREE.Vector3())
 
     const pivot = new THREE.Group()
+    state.barrierPivots.push(pivot)
     scene.add(pivot)
 
     model.position.copy(center).negate()
@@ -482,11 +496,13 @@ loader.load('/Steel Road Barrier 3D Model.glb', (gltf) => {
     // Create second copy to the left
     const pivot2 = pivot.clone()
     pivot2.position.x -= 20
+    state.barrierPivots.push(pivot2)
     scene.add(pivot2)
 
     // Create third copy to the right
     const pivot3 = pivot.clone()
     pivot3.position.x += 20
+    state.barrierPivots.push(pivot3)
     scene.add(pivot3)
 })
 
@@ -498,6 +514,7 @@ loader.load('/Industrial Factory Wall 3D Model (1).glb', (gltf) => {
     const center = box.getCenter(new THREE.Vector3())
 
     const pivot = new THREE.Group()
+    state.wallPivots.push(pivot)
     scene.add(pivot)
 
     model.position.copy(center).negate()
@@ -524,11 +541,13 @@ loader.load('/Industrial Factory Wall 3D Model (1).glb', (gltf) => {
     // Create lower copy
     const pivotLower = pivot.clone()
     pivotLower.position.y -= size.y * scale
+    state.wallPivots.push(pivotLower)
     scene.add(pivotLower)
 
     // Create upper copy
     const pivotUpper = pivot.clone()
     pivotUpper.position.y += size.y * scale
+    state.wallPivots.push(pivotUpper)
     scene.add(pivotUpper)
 
     // Create Left Wall (Corner)
@@ -539,11 +558,13 @@ loader.load('/Industrial Factory Wall 3D Model (1).glb', (gltf) => {
     // Rotated 90deg, local X+ becomes world Z-.
     // So the wall extends from CenterZ to CenterZ - 50 = -30. => CenterZ = 20.
     pivotLeft.position.set(-50, -12 + (size.y * scale) / 2, 20)
+    state.wallPivots.push(pivotLeft)
     scene.add(pivotLeft)
 
     // Left Wall Lower Copy
     const pivotLeftLower = pivotLeft.clone()
     pivotLeftLower.position.y -= size.y * scale
+    state.wallPivots.push(pivotLeftLower)
     scene.add(pivotLeftLower)
 })
 
@@ -555,6 +576,7 @@ loader.load('/floor.glb', (gltf) => {
     const center = box.getCenter(new THREE.Vector3())
 
     const pivot = new THREE.Group()
+    state.floorPivots.push(pivot)
     scene.add(pivot)
 
     model.position.copy(center).negate()
@@ -577,11 +599,13 @@ loader.load('/floor.glb', (gltf) => {
     // Create second copy to the left
     const pivot2 = pivot.clone()
     pivot2.position.x -= 40
+    state.floorPivots.push(pivot2)
     scene.add(pivot2)
 
     // Create third copy to the right
     const pivot3 = pivot.clone()
     pivot3.position.x += 40
+    state.floorPivots.push(pivot3)
     scene.add(pivot3)
 })
 
@@ -593,6 +617,7 @@ loader.load('/speaker/scene.gltf', (gltf) => {
     const center = box.getCenter(new THREE.Vector3())
 
     const pivot = new THREE.Group()
+    state.speakerPivots.push(pivot)
     scene.add(pivot)
 
     model.position.copy(center).negate()
@@ -625,6 +650,7 @@ loader.load('/speaker/scene.gltf', (gltf) => {
     pivot2.rotation.y = -pivot.rotation.y
     pivot2.rotation.z = -pivot.rotation.z
     
+    state.speakerPivots.push(pivot2)
     scene.add(pivot2)
 })
 
@@ -636,6 +662,7 @@ loader.load("/Mazda RX-7 Akagi's White Comet Remake/scene.gltf", (gltf) => {
     const center = box.getCenter(new THREE.Vector3())
 
     const pivot = new THREE.Group()
+    state.carPivot = pivot
     scene.add(pivot)
 
     model.position.copy(center).negate()
@@ -665,6 +692,7 @@ loader.load('/Yamaha R1 3D Model.glb', (gltf) => {
     const center = box.getCenter(new THREE.Vector3())
 
     const pivot = new THREE.Group()
+    state.bikePivot = pivot
     scene.add(pivot)
 
     model.position.copy(center).negate()
@@ -792,6 +820,60 @@ loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
     scene.add(textMesh)
     state.emergencyText = textMesh
     textMesh.visible = false
+})
+
+// 13. Backrooms
+loader.load('/backrooms_map_packed_blender_3.2.0.glb', (gltf) => {
+    const model = gltf.scene
+    const box = new THREE.Box3().setFromObject(model)
+    const size = box.getSize(new THREE.Vector3())
+    const center = box.getCenter(new THREE.Vector3())
+
+    const pivot = new THREE.Group()
+    state.backroomsPivot = pivot
+    scene.add(pivot)
+    
+    // Hide initially
+    pivot.visible = false
+
+    model.position.copy(center).negate()
+    pivot.add(model)
+    
+    // Scale up (Backrooms map usually needs checking, assuming it needs to be room scale)
+    // The current room is roughly 40-100 units wide.
+    pivot.scale.set(5, 5, 5)
+    
+    // Position so camera (at 0,0,0 or similar) is inside a corridor
+    pivot.position.set(-50, -30, 20)
+
+    model.traverse(child => {
+        if (child.isMesh) {
+            child.receiveShadow = true
+            // Backrooms usually self-lit or diffuse, but let's allow shadows
+            child.castShadow = true
+        }
+    })
+    
+    // Backrooms Lighting (Yellow Haze)
+    const backroomsAmbient = new THREE.AmbientLight(0xffaa00, 0.2)
+    backroomsAmbient.visible = false
+    scene.add(backroomsAmbient)
+    state.backroomsLights.push(backroomsAmbient)
+    
+    // Hum/Buzz lights
+    const pointLight = new THREE.PointLight(0xffaa00, 1, 20)
+    pointLight.position.set(0, 4, 0)
+    pointLight.visible = false
+    scene.add(pointLight)
+    state.backroomsLights.push(pointLight)
+    
+    // Additional fill
+    const rectLight = new THREE.RectAreaLight(0xffaa00, 2, 20, 20)
+    rectLight.position.set(0, 5, 0)
+    rectLight.lookAt(0, 0, 0)
+    rectLight.visible = false
+    scene.add(rectLight)
+    state.backroomsLights.push(rectLight)
 })
 
 // --- POST PROCESSING ---
@@ -943,6 +1025,24 @@ window.addEventListener('click', (event) => {
                     setTimeout(() => {
                         state.isBlackout = true
                         state.roomLights.forEach(light => light.visible = false)
+                        
+                        // 4. After 1s of darkness, swap environment
+                        setTimeout(() => {
+                            // Remove Garage Assets
+                            state.floorPivots.forEach(p => p.visible = false)
+                            state.barrierPivots.forEach(p => p.visible = false)
+                            state.wallPivots.forEach(p => p.visible = false)
+                            state.speakerPivots.forEach(p => p.visible = false)
+                            if (state.carPivot) state.carPivot.visible = false
+                            if (state.bikePivot) state.bikePivot.visible = false
+                            
+                            // Show Backrooms
+                            if (state.backroomsPivot) state.backroomsPivot.visible = true
+                            
+                            // Enable Backrooms Lights
+                            state.backroomsLights.forEach(light => light.visible = true)
+                            
+                        }, 1000)
                     }, 1000)
                 }, 1000)
             }
