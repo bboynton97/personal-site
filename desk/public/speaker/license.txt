@@ -1,0 +1,11 @@
+Model Information:
+* title:	DJ Toilet 3.0 Speaker
+* source:	https://sketchfab.com/3d-models/dj-toilet-30-speaker-d0675b46459c4127bb8255f777ec12b2
+* author:	rendy.six (https://sketchfab.com/rendyman)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "DJ Toilet 3.0 Speaker" (https://sketchfab.com/3d-models/dj-toilet-30-speaker-d0675b46459c4127bb8255f777ec12b2) by rendy.six (https://sketchfab.com/rendyman) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

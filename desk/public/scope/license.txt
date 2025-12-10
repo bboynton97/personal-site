@@ -1,0 +1,11 @@
+Model Information:
+* title:	Laboratory Oscilloscope 20MHz
+* source:	https://sketchfab.com/3d-models/laboratory-oscilloscope-20mhz-a8975bc6c48d440a896c57167cf58c80
+* author:	aonohono64 (https://sketchfab.com/aonohono64)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Laboratory Oscilloscope 20MHz" (https://sketchfab.com/3d-models/laboratory-oscilloscope-20mhz-a8975bc6c48d440a896c57167cf58c80) by aonohono64 (https://sketchfab.com/aonohono64) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
