@@ -407,13 +407,10 @@ loader.load('/scope/scene.gltf', (gltf) => {
             if (child.name === 'Grid005_Material109_0' || child.name === 'Cube013_Material096_0' || child.name === 'Cube012_Material102_0' || child.name === 'Cube003_Material129_0') {
                 oscilloscope.texture.center.set(0.5, 0.5);
                 oscilloscope.texture.rotation = -Math.PI / 2;
-                // Scale texture to repeat 4 times horizontally (effectively making the content 25% width if not repeated, 
-                // but since we want to *squeeze* the wave to 25% of the object width, we actually need to 
-                // adjust how the UVs map or scale the texture differently. 
-                // If the user means the wave itself should be thinner? Or the display area is too wide?
-                // "reduce the width of the animation to 25% the width of the obj" 
-                // likely means the texture is stretched too wide. To fix stretching, we increase the repeat.
-                oscilloscope.texture.repeat.set(4, 1); 
+                
+                // Width is compressed to 25% (repeat 4x)
+                // Height is compressed to 75% (repeat 1.33x)
+                oscilloscope.texture.repeat.set(4, 1.33); 
                 
                 child.material = new THREE.MeshStandardMaterial({
                     map: oscilloscope.texture,
@@ -714,7 +711,7 @@ loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
     pivot.scale.set(scale, scale, scale)
 
     // Position to the left of the arm (arm is at x=5, z=-1.5)
-    pivot.position.set(3.5, (size.y * scale / 2), -1.5)
+    pivot.position.set(3.0, (size.y * scale / 2), -1.5)
     
     model.traverse(child => {
         if (child.isMesh) {
