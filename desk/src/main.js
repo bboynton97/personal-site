@@ -767,7 +767,38 @@ loader.load('/Notepad/scene.gltf', (gltf) => {
     })
 })
 
-// 12. Emergency Stop Button
+// 12. Cocaine Pile
+loader.load('/Cocaine Pile 3D Model.glb', (gltf) => {
+    const model = gltf.scene
+    const box = new THREE.Box3().setFromObject(model)
+    const size = box.getSize(new THREE.Vector3())
+    const center = box.getCenter(new THREE.Vector3())
+
+    const pivot = new THREE.Group()
+    scene.add(pivot)
+
+    model.position.copy(center).negate()
+    pivot.add(model)
+
+    // Small size - target width of 0.4 units
+    const targetWidth = 0.4
+    const maxDim = Math.max(size.x, size.y, size.z)
+    const scale = targetWidth / maxDim
+    pivot.scale.set(scale, scale, scale)
+
+    // Position in left front corner of desk
+    // Desk is 14 units wide (x: -7 to +7), so left front corner is around x=-6, z=6
+    pivot.position.set(-5, ((size.y * scale) / 2) + 0.5, 1.9)
+
+    model.traverse(child => {
+        if (child.isMesh) {
+            child.castShadow = true
+            child.receiveShadow = true
+        }
+    })
+})
+
+// 13. Emergency Stop Button
 loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
     const model = gltf.scene
     const box = new THREE.Box3().setFromObject(model)
@@ -822,7 +853,7 @@ loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
     textMesh.visible = false
 })
 
-// 13. Backrooms
+// 14. Backrooms
 loader.load('/backrooms_map_packed_blender_3.2.0.glb', (gltf) => {
     const model = gltf.scene
     const box = new THREE.Box3().setFromObject(model)
@@ -1062,6 +1093,9 @@ window.addEventListener('click', (event) => {
                 state.isEmergencyStopped = true
                 console.log('Emergency Stop ACTIVATED')
                 
+                // Hide the warning text
+                if (state.emergencyText) state.emergencyText.visible = false
+                
                 // 1. Rave lights off (handled by loop via state.isEmergencyStopped)
                 
                 // 2. Pause then Zoom out
@@ -1165,6 +1199,9 @@ window.addEventListener('keydown', (event) => {
             state.isEmergencyStopped = true
             console.log('Emergency Stop ACTIVATED (B key)')
             
+            // Hide the warning text
+            if (state.emergencyText) state.emergencyText.visible = false
+            
             // Turn off rave lights (handled by loop via state.isEmergencyStopped)
             
             // Pause then Turn off all lights
@@ -1226,8 +1263,11 @@ function animate() {
     const time = Date.now() * 0.001
     crtPass.uniforms['time'].value = time
 
-    // Arm Animation
-    if (state.armSegments.arm) {
+    // Check if in backrooms (used to disable animations)
+    const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
+
+    // Arm Animation (disabled in backrooms)
+    if (state.armSegments.arm && !isInBackrooms) {
         const rawTriangle = (2 / Math.PI) * Math.asin(Math.sin(time * 0.7))
         const clamped = Math.max(-1, Math.min(1, rawTriangle * 1.02))
         state.armSegments.arm.rotation.x = clamped * 0.1
@@ -1370,7 +1410,10 @@ function animate() {
 
     // Render
     terminal.update()
-    oscilloscope.update()
+    // Oscilloscope disabled in backrooms
+    if (!isInBackrooms) {
+        oscilloscope.update()
+    }
     composer.render()
 }
 
