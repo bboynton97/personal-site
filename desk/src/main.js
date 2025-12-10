@@ -12,12 +12,18 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { CRTShader } from './CRTShader.js'
 import { Terminal } from './Terminal.js'
 import { Oscilloscope } from './Oscilloscope.js'
+import { Notepad } from './Notepad.js'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
+import typeface from 'three/examples/fonts/helvetiker_regular.typeface.json'
 
 // --- CONSTANTS ---
 const ZOOM_POS = new THREE.Vector3(-2.8, 2.8, 1.2)
 const ZOOM_TARGET = new THREE.Vector3(-3.4, 2.5, -0.1)
 const NOTEPAD_POS = new THREE.Vector3(2.8, 2.5, 2.0)
 const NOTEPAD_TARGET = new THREE.Vector3(3, 1.2, 1.6)
+const BUTTON_ZOOM_POS = new THREE.Vector3(3.0, 1.5, 0.5)
+const BUTTON_ZOOM_TARGET = new THREE.Vector3(3.0, 0.5, -1.5)
 const DEFAULT_POS = new THREE.Vector3(1, 4, 8)
 const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0)
 
@@ -26,6 +32,7 @@ const state = {
     isCameraLocked: true,
     isFocusingOnScreen: false,
     isFocusingOnNotepad: false,
+    isFocusingOnButton: false,
     isEmergencyStopped: false,
     computerPivot: null,
     notepadPivot: null,
@@ -188,6 +195,7 @@ state.lightShows.lightShow3 = { light: bouncingLight }
 // --- TERMINAL ---
 const terminal = new Terminal()
 const oscilloscope = new Oscilloscope()
+const notepad = new Notepad()
 
 // --- ASSET LOADING ---
 const loader = new GLTFLoader()
@@ -698,6 +706,27 @@ loader.load('/Notepad/scene.gltf', (gltf) => {
         if (child.isMesh) {
             child.castShadow = true
             child.receiveShadow = true
+            
+            console.log('Notepad child:', child.name)
+
+            // The paper part of the notepad (identified as the larger mesh from GLTF inspection)
+            // Name in GLTF is Torus.002_Material.002_0
+            if (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002')) {
+                 console.log('Applying texture to Notepad Body')
+                 
+                 // Adjust texture scaling/offset
+                 notepad.texture.center.set(0.5, 0.5);
+                 notepad.texture.rotation = 0; 
+                 notepad.texture.repeat.set(1.25, 1.25);
+                 notepad.texture.offset.set(0, 0);
+                 
+                 child.material = new THREE.MeshStandardMaterial({
+                    map: notepad.texture,
+                    roughness: 0.9,
+                    metalness: 0.0,
+                    side: THREE.DoubleSide
+                })
+            }
         }
     })
 })
@@ -760,6 +789,66 @@ composer.addPass(outputPass)
 // --- INTERACTION ---
 const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
+
+window.addEventListener('mousemove', (event) => {
+    // Only check for hover if focusing on the notepad
+    if (state.isFocusingOnNotepad && state.notepadPivot) {
+        pointer.x = (event.clientX / window.innerWidth) * 2 - 1
+        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
+        
+        raycaster.setFromCamera(pointer, camera)
+        
+        // Find the paper mesh
+        let paperMesh = null
+        state.notepadPivot.traverse(child => {
+            if (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002')) paperMesh = child
+        })
+
+        if (paperMesh) {
+            const intersects = raycaster.intersectObject(paperMesh)
+            if (intersects.length > 0) {
+                const uv = intersects[0].uv
+                // Canvas coordinates (1024x1024)
+                // UV (0,0) is bottom-left, Canvas (0,0) is top-left
+                // Texture is likely flipped or rotated, need to calibrate
+                // Based on standard UV mapping:
+                const x = uv.x * 1024
+                const y = (1 - uv.y) * 1024
+                
+                // Check if hovering over any blog post title
+                let hoveredIndex = -1
+                
+                notepad.blogPosts.forEach((post, index) => {
+                    // Simple bounding box check
+                    // Canvas size is 1024x1448
+                    // X starts at 250. Width approx 500-600.
+                    // Y is post.y
+                    
+                    // Apply texture transform (repeat 1.25 around center)
+                    const tx = (uv.x - 0.5) * 1.25 + 0.5
+                    const ty = (uv.y - 0.5) * 1.25 + 0.5
+                    
+                    const scaledX = tx * 1024
+                    const scaledY = (1 - uv.y) * 1448
+
+                    if (scaledX > 250 && scaledX < 850 && scaledY > post.y - 40 && scaledY < post.y + 40) {
+                        hoveredIndex = index
+                    }
+                })
+                
+                notepad.setHovered(hoveredIndex)
+                
+                // Change cursor style
+                document.body.style.cursor = hoveredIndex !== -1 ? 'pointer' : 'default'
+            } else {
+                notepad.setHovered(-1)
+                document.body.style.cursor = 'default'
+            }
+        }
+    } else {
+        document.body.style.cursor = 'default'
+    }
+})
 
 window.addEventListener('click', (event) => {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1
