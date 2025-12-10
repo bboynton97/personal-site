@@ -758,6 +758,30 @@ loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
             child.receiveShadow = true
         }
     })
+
+    // Add "EMERGENCY STOP" text
+    const fontLoader = new FontLoader()
+    const font = fontLoader.parse(typeface)
+    const textGeometry = new TextGeometry('EMERGENCY STOP', {
+        font: font,
+        size: 0.08,
+        height: 0.01,
+        width: 0.01,
+        depth: 0.01
+    })
+    
+    const textMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xff0000, 
+        emissive: 0xff0000, 
+        emissiveIntensity: 0.5 
+    })
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial)
+    
+    textMesh.rotation.x = -Math.PI / 2
+    // Place to the left of the button
+    textMesh.position.set(2.55, 0.02, -0.9)
+    
+    scene.add(textMesh)
 })
 
 // --- POST PROCESSING ---
@@ -821,15 +845,21 @@ window.addEventListener('mousemove', (event) => {
                 notepad.blogPosts.forEach((post, index) => {
                     // Simple bounding box check
                     // Canvas size is 1024x1448
-                    // X starts at 250. Width approx 500-600.
-                    // Y is post.y
                     
-                    // Apply texture transform (repeat 1.25 around center)
-                    const tx = (uv.x - 0.5) * 1.25 + 0.5
-                    const ty = (uv.y - 0.5) * 1.25 + 0.5
+                    // Transform UV to Texture Space
+                    // We applied repeat: 1.2, offset: -0.1
+                    // Texture UV = (Mesh UV * repeat) + offset
+                    // But Wait! Texture offset moves the texture, so it shifts UV coordinates in the opposite direction for sampling.
+                    // Actually, gl_FragColor = texture2D(map, uv * repeat + offset)
+                    // So the UV we want to check against canvas coords is (uv * repeat + offset)
                     
-                    const scaledX = tx * 1024
-                    const scaledY = (1 - uv.y) * 1448
+                    const texU = uv.x * 1.2 - 0.1
+                    // Use standard V orientation (Top-Down for Canvas)
+                    // (1 - uv.y) is standard flip. 
+                    const texV = (1 - uv.y) * 1.2 - 0.1
+                    
+                    const scaledX = texU * 1024
+                    const scaledY = texV * 1448
 
                     if (scaledX > 250 && scaledX < 850 && scaledY > post.y - 40 && scaledY < post.y + 40) {
                         hoveredIndex = index
@@ -882,6 +912,14 @@ window.addEventListener('click', (event) => {
         const intersects = raycaster.intersectObjects(state.emergencyButtonPivot.children, true)
         if (intersects.length > 0) {
             state.isEmergencyStopped = !state.isEmergencyStopped
+            
+            // Zoom in on button
+            state.isFocusingOnButton = true
+            state.isCameraLocked = true
+            state.isFocusingOnScreen = false
+            state.isFocusingOnNotepad = false
+            terminal.setFocused(false)
+            
             console.log('Emergency Stop Toggled:', state.isEmergencyStopped)
         }
     }
@@ -891,6 +929,7 @@ window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
         state.isFocusingOnScreen = false
         state.isFocusingOnNotepad = false
+        state.isFocusingOnButton = false
         terminal.setFocused(false)
     }
 
@@ -955,6 +994,9 @@ function animate() {
     } else if (state.isFocusingOnNotepad) {
         camera.position.lerp(NOTEPAD_POS, 0.05)
         controls.target.lerp(NOTEPAD_TARGET, 0.05)
+    } else if (state.isFocusingOnButton) {
+        camera.position.lerp(BUTTON_ZOOM_POS, 0.05)
+        controls.target.lerp(BUTTON_ZOOM_TARGET, 0.05)
     } else if (state.isCameraLocked) {
         if (camera.position.distanceTo(DEFAULT_POS) > 0.1 || controls.target.distanceTo(DEFAULT_TARGET) > 0.1) {
              camera.position.lerp(DEFAULT_POS, 0.05)
