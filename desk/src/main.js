@@ -34,9 +34,11 @@ const state = {
     isFocusingOnNotepad: false,
     isFocusingOnButton: false,
     isEmergencyStopped: false,
+    isBlackout: false,
     computerPivot: null,
     notepadPivot: null,
     armSegments: { base: null, arm: null },
+    roomLights: [],
     raveLights: [],
     currentLightShow: 'lightShow1',
     lightShows: {
@@ -72,6 +74,7 @@ controls.enabled = false // Locked by default
 // --- LIGHTING ---
 const ambientLight = new THREE.AmbientLight(0x101020, 0.1)
 scene.add(ambientLight)
+state.roomLights.push(ambientLight)
 
 const spotLight = new THREE.SpotLight(0xffaa55, 20)
 spotLight.position.set(3, 6, 2)
@@ -84,20 +87,24 @@ spotLight.shadow.mapSize.width = 1024
 spotLight.shadow.mapSize.height = 1024
 spotLight.shadow.bias = -0.0001
 scene.add(spotLight)
+state.roomLights.push(spotLight)
 scene.add(spotLight.target)
 spotLight.target.position.set(0, 0, 0)
 
 const screenLight = new THREE.PointLight(0x00ffaa, 2, 5)
 screenLight.position.set(-4, 1.5, 1.5)
 scene.add(screenLight)
+state.roomLights.push(screenLight)
 
 const rimLight = new THREE.DirectionalLight(0x4455ff, 1)
 rimLight.position.set(-5, 5, -5)
 scene.add(rimLight)
+state.roomLights.push(rimLight)
 
 const deskFrontLight = new THREE.PointLight(0xffffff, 2, 15)
 deskFrontLight.position.set(0, -1, 7)
 scene.add(deskFrontLight)
+state.roomLights.push(deskFrontLight)
 
 // Rave Lights Setup
 const raveColors = [0xff0000, 0xffffff]
@@ -386,6 +393,7 @@ loader.load('/arm/Robotic Arm.glb', (gltf) => {
     const armLight = new THREE.PointLight(0xff0000, 10, 8)
     armLight.position.set(5.0 - 1, 3, -1.5 + 2)
     scene.add(armLight)
+    state.roomLights.push(armLight)
 })
 
 // 4. Oscilloscope
@@ -762,7 +770,7 @@ loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
     // Add "EMERGENCY STOP" text
     const fontLoader = new FontLoader()
     const font = fontLoader.parse(typeface)
-    const textGeometry = new TextGeometry('EMERGENCY STOP', {
+    const textGeometry = new TextGeometry('DO NOT PRESS', {
         font: font,
         size: 0.08,
         height: 0.01,
@@ -779,9 +787,11 @@ loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
     
     textMesh.rotation.x = -Math.PI / 2
     // Place to the left of the button
-    textMesh.position.set(2.55, 0.02, -0.9)
+    textMesh.position.set(2.62, 0.02, -0.9)
     
     scene.add(textMesh)
+    state.emergencyText = textMesh
+    textMesh.visible = false
 })
 
 // --- POST PROCESSING ---
@@ -911,16 +921,31 @@ window.addEventListener('click', (event) => {
     if (state.emergencyButtonPivot) {
         const intersects = raycaster.intersectObjects(state.emergencyButtonPivot.children, true)
         if (intersects.length > 0) {
-            state.isEmergencyStopped = !state.isEmergencyStopped
-            
-            // Zoom in on button
-            state.isFocusingOnButton = true
-            state.isCameraLocked = true
-            state.isFocusingOnScreen = false
-            state.isFocusingOnNotepad = false
-            terminal.setFocused(false)
-            
-            console.log('Emergency Stop Toggled:', state.isEmergencyStopped)
+            if (!state.isFocusingOnButton) {
+                // Zoom in on button
+                state.isFocusingOnButton = true
+                state.isCameraLocked = true
+                state.isFocusingOnScreen = false
+                state.isFocusingOnNotepad = false
+                terminal.setFocused(false)
+            } else if (!state.isEmergencyStopped) {
+                // Sequence: Turn off rave lights -> Pause -> Zoom out -> Pause -> Turn off all lights
+                state.isEmergencyStopped = true
+                console.log('Emergency Stop ACTIVATED')
+                
+                // 1. Rave lights off (handled by loop via state.isEmergencyStopped)
+                
+                // 2. Pause then Zoom out
+                setTimeout(() => {
+                    state.isFocusingOnButton = false
+                    
+                    // 3. Pause then Turn off all lights
+                    setTimeout(() => {
+                        state.isBlackout = true
+                        state.roomLights.forEach(light => light.visible = false)
+                    }, 1000)
+                }, 1000)
+            }
         }
     }
 })
@@ -1139,6 +1164,15 @@ function animate() {
         }
         
         state.bouncingLight.position.set(x, 0, z)
+    }
+
+    // Emergency Text Flashing
+    if (state.emergencyText) {
+        if (state.isFocusingOnButton) {
+            state.emergencyText.visible = Math.floor(time * 2) % 2 === 0
+        } else {
+            state.emergencyText.visible = false
+        }
     }
 
     // Render
