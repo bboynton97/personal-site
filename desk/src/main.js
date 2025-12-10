@@ -405,7 +405,7 @@ loader.load('/scope/scene.gltf', (gltf) => {
             // Log mesh names to help debug
             console.log('Oscilloscope mesh found:', child.name)
 
-            if (child.name === 'Grid005_Material109_0' || child.name === 'Cube013_Material096_0' || child.name === 'Cube012_Material102_0' || child.name === 'Cube003_Material129_0') {
+            if (child.name === 'Cube012_Material102_0') {
                 oscilloscope.texture.center.set(0.5, 0.5);
                 oscilloscope.texture.rotation = -Math.PI / 2;
                 
