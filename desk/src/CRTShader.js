@@ -5,7 +5,8 @@ export const CRTShader = {
     uniforms: {
         'tDiffuse': { value: null },
         'time': { value: 0 },
-        'resolution': { value: new Vector2() }
+        'resolution': { value: new Vector2() },
+        'vignetteStrength': { value: 1.0 }
     },
     vertexShader: `
         varying vec2 vUv;
@@ -18,6 +19,7 @@ export const CRTShader = {
         uniform sampler2D tDiffuse;
         uniform float time;
         uniform vec2 resolution;
+        uniform float vignetteStrength;
         varying vec2 vUv;
 
         float random(vec2 st) {
@@ -58,7 +60,7 @@ export const CRTShader = {
             // Vignette
             float dist = length(uv_distorted - 0.5);
             float vignette = smoothstep(0.6, 0.3, dist);
-            color *= vignette;
+            color = mix(color, color * vignette, vignetteStrength);
 
             // Color Grading (Gritty/High Contrast)
             color = pow(color, vec3(1.2)); // Gamma/Contrast

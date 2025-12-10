@@ -844,36 +844,82 @@ loader.load('/backrooms_map_packed_blender_3.2.0.glb', (gltf) => {
     pivot.scale.set(5, 5, 5)
     
     // Position so camera (at 0,0,0 or similar) is inside a corridor
-    pivot.position.set(-50, -30, 20)
+    pivot.position.set(15, -32, 15)
 
+    // Store light meshes to add lights to later
+    const lightMeshes = []
+    
     model.traverse(child => {
         if (child.isMesh) {
             child.receiveShadow = true
             // Backrooms usually self-lit or diffuse, but let's allow shadows
             child.castShadow = true
+            
+            // Check if this mesh represents a light fixture
+            const name = child.name.toLowerCase()
+            const isLightMesh = name.includes('light') || 
+                               name.includes('lamp') || 
+                               name.includes('bulb') || 
+                               name.includes('fixture') ||
+                               name.includes('ceiling') ||
+                               (child.material && child.material.emissive && 
+                                (child.material.emissive.r > 0 || 
+                                 child.material.emissive.g > 0 || 
+                                 child.material.emissive.b > 0))
+            
+            if (isLightMesh) {
+                lightMeshes.push(child)
+            }
         }
     })
     
-    // Backrooms Lighting (Yellow Haze)
-    const backroomsAmbient = new THREE.AmbientLight(0xffaa00, 0.2)
+    // Add lights at each light mesh position
+    // We need to wait until after the model is added to pivot and transformed
+    setTimeout(() => {
+        lightMeshes.forEach(mesh => {
+            // Get world position of the mesh
+            const worldPosition = new THREE.Vector3()
+            mesh.getWorldPosition(worldPosition)
+            
+            // Create a point light at this position
+            const meshLight = new THREE.PointLight(0xffaa00, 5, 50)
+            meshLight.position.copy(worldPosition)
+            meshLight.visible = false
+            scene.add(meshLight)
+            state.backroomsLights.push(meshLight)
+        })
+        
+        console.log(`Added ${lightMeshes.length} lights to backrooms light meshes`)
+    }, 100)
+    
+    // Backrooms Lighting (Yellow Haze) - Really bright, no fog
+    const backroomsAmbient = new THREE.AmbientLight(0xffaa00, 3.0)
     backroomsAmbient.visible = false
     scene.add(backroomsAmbient)
     state.backroomsLights.push(backroomsAmbient)
     
-    // Hum/Buzz lights
-    const pointLight = new THREE.PointLight(0xffaa00, 1, 20)
-    pointLight.position.set(0, 4, 0)
+    // Hum/Buzz lights - Central overhead
+    const pointLight = new THREE.PointLight(0xffaa00, 8, 200)
+    pointLight.position.set(-50, -15, 20)
     pointLight.visible = false
     scene.add(pointLight)
     state.backroomsLights.push(pointLight)
     
-    // Additional fill
-    const rectLight = new THREE.RectAreaLight(0xffaa00, 2, 20, 20)
-    rectLight.position.set(0, 5, 0)
-    rectLight.lookAt(0, 0, 0)
+    // Additional fill - Large ceiling panel
+    const rectLight = new THREE.RectAreaLight(0xffaa00, 15, 200, 200)
+    rectLight.position.set(-50, -10, 20)
+    rectLight.lookAt(-50, -32, 20)
     rectLight.visible = false
     scene.add(rectLight)
     state.backroomsLights.push(rectLight)
+    
+    // Extra overhead fill for maximum brightness
+    const rectLight2 = new THREE.RectAreaLight(0xffaa00, 12, 180, 180)
+    rectLight2.position.set(-30, -12, 10)
+    rectLight2.lookAt(-30, -32, 10)
+    rectLight2.visible = false
+    scene.add(rectLight2)
+    state.backroomsLights.push(rectLight2)
 })
 
 // --- POST PROCESSING ---
@@ -897,6 +943,7 @@ composer.addPass(bloomPass)
 
 const crtPass = new ShaderPass(CRTShader)
 crtPass.uniforms['resolution'].value = new THREE.Vector2(window.innerWidth, window.innerHeight)
+crtPass.uniforms['vignetteStrength'].value = 1.0 // Default full vignette
 composer.addPass(crtPass)
 
 const outputPass = new OutputPass()
@@ -1039,6 +1086,12 @@ window.addEventListener('click', (event) => {
                             // Show Backrooms
                             if (state.backroomsPivot) state.backroomsPivot.visible = true
                             
+                            // Disable fog for bright backrooms
+                            scene.fog = null
+                            
+                            // Reduce vignette for backrooms
+                            crtPass.uniforms['vignetteStrength'].value = 0.3
+                            
                             // Enable Backrooms Lights
                             state.backroomsLights.forEach(light => light.visible = true)
                             
@@ -1103,6 +1156,46 @@ window.addEventListener('keydown', (event) => {
         } else {
             state.currentLightShow = 'lightShow1'
             console.log('Switched to Light Show 1')
+        }
+    }
+
+    if (event.key === 'b' || event.key === 'B') {
+        // Skip directly to backrooms
+        if (!state.isEmergencyStopped) {
+            state.isEmergencyStopped = true
+            console.log('Emergency Stop ACTIVATED (B key)')
+            
+            // Turn off rave lights (handled by loop via state.isEmergencyStopped)
+            
+            // Pause then Turn off all lights
+            setTimeout(() => {
+                state.isBlackout = true
+                state.roomLights.forEach(light => light.visible = false)
+                
+                // After 1s of darkness, swap environment
+                setTimeout(() => {
+                    // Remove Garage Assets
+                    state.floorPivots.forEach(p => p.visible = false)
+                    state.barrierPivots.forEach(p => p.visible = false)
+                    state.wallPivots.forEach(p => p.visible = false)
+                    state.speakerPivots.forEach(p => p.visible = false)
+                    if (state.carPivot) state.carPivot.visible = false
+                    if (state.bikePivot) state.bikePivot.visible = false
+                    
+                    // Show Backrooms
+                    if (state.backroomsPivot) state.backroomsPivot.visible = true
+                    
+                    // Disable fog for bright backrooms
+                    scene.fog = null
+                    
+                    // Reduce vignette for backrooms
+                    crtPass.uniforms['vignetteStrength'].value = 0.3
+                    
+                    // Enable Backrooms Lights
+                    state.backroomsLights.forEach(light => light.visible = true)
+                    
+                }, 1000)
+            }, 1000)
         }
     }
 })
