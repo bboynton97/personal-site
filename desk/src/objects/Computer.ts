@@ -55,7 +55,6 @@ export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: T
                     }
                 } else if (name.includes('cube_screen_0')) {
                     // The Main Screen (Convex)
-                    console.log('FOUND CONVEX SCREEN:', child.name)
                     
                     // 1. Compute Planar UVs to map texture onto the curved surface
                     child.geometry.computeBoundingBox()

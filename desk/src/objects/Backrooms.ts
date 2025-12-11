@@ -69,8 +69,6 @@ export function loadBackrooms(loader: GLTFLoader, scene: THREE.Scene, state: App
                 scene.add(meshLight)
                 state.backroomsLights.push(meshLight)
             })
-            
-            console.log(`Added ${lightMeshes.length} lights to backrooms light meshes`)
         }, 100)
         
         // Backrooms Lighting (Yellow Haze) - Really bright, no fog

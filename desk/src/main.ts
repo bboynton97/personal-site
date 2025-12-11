@@ -380,7 +380,6 @@ window.addEventListener('click', (event: MouseEvent) => {
             } else if (!state.isEmergencyStopped) {
                 // Sequence: Turn off rave lights -> Pause -> Zoom out -> Pause -> Turn off all lights
                 state.isEmergencyStopped = true
-                console.log('Emergency Stop ACTIVATED')
                 
                 // Hide the warning text
                 if (state.emergencyText) state.emergencyText.visible = false
@@ -449,8 +448,6 @@ window.addEventListener('keydown', (event: KeyboardEvent) => {
             state.isFocusingOnScreen = false
             state.isFocusingOnNotepad = false
             terminal.setFocused(false)
-            
-            console.log('Switched to Dev Mode')
         } else {
             // View Mode
             renderPass.enabled = false
@@ -463,8 +460,6 @@ window.addEventListener('keydown', (event: KeyboardEvent) => {
             
             camera.position.copy(DEFAULT_POS)
             camera.lookAt(DEFAULT_TARGET)
-            
-            console.log('Switched to View Mode')
         }
     }
 
@@ -472,13 +467,10 @@ window.addEventListener('keydown', (event: KeyboardEvent) => {
         // Cycle through light shows
         if (state.currentLightShow === 'lightShow1') {
             state.currentLightShow = 'lightShow2'
-            console.log('Switched to Light Show 2')
         } else if (state.currentLightShow === 'lightShow2') {
             state.currentLightShow = 'lightShow3'
-            console.log('Switched to Light Show 3')
         } else {
             state.currentLightShow = 'lightShow1'
-            console.log('Switched to Light Show 1')
         }
     }
 
@@ -486,7 +478,6 @@ window.addEventListener('keydown', (event: KeyboardEvent) => {
         // Skip directly to backrooms
         if (!state.isEmergencyStopped) {
             state.isEmergencyStopped = true
-            console.log('Emergency Stop ACTIVATED (B key)')
             
             // Hide the warning text
             if (state.emergencyText) state.emergencyText.visible = false

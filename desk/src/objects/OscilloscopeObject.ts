@@ -23,9 +23,6 @@ export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscillo
             if (child instanceof THREE.Mesh) {
                 child.castShadow = true
                 child.receiveShadow = true
-                
-                // Log mesh names to help debug
-                console.log('Oscilloscope mesh found:', child.name)
 
                 if (child.name === 'Cube012_Material102_0') {
                     oscilloscope.texture.center.set(0.5, 0.5)

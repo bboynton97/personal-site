@@ -260,13 +260,13 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
             } else {
                 // Animation complete, reset to default
                 renderPixelatedPass.setPixelSize(startPixelSize)
-                crtTurnOnPass.enabled = false
+                whiteOutPass.enabled = false
                 crtPass.uniforms['vignetteStrength'].value = 1.0 // Restore default vignette
                 state.pixelationAnimationStartTime = undefined
             }
         } else {
             // Ensure fade effect is disabled when not animating
-            crtTurnOnPass.enabled = false
+            whiteOutPass.enabled = false
         }
 
         // Render

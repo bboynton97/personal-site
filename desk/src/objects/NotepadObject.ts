@@ -29,14 +29,10 @@ export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppSt
             if (child instanceof THREE.Mesh) {
                 child.castShadow = true
                 child.receiveShadow = true
-                
-                console.log('Notepad child:', child.name)
 
                 // The paper part of the notepad (identified as the larger mesh from GLTF inspection)
                 // Name in GLTF is Torus.002_Material.002_0
                 if (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002')) {
-                     console.log('Applying texture to Notepad Body')
-                     
                      // Adjust texture scaling/offset
                      notepad.texture.center.set(0.5, 0.5)
                      notepad.texture.rotation = 0 
