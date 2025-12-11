@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import type { AppState } from '../types'
 
-export function loadCocainePile(loader: GLTFLoader, scene: THREE.Scene): void {
+export function loadCocainePile(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
     loader.load('/Cocaine Pile 3D Model.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -10,6 +11,7 @@ export function loadCocainePile(loader: GLTFLoader, scene: THREE.Scene): void {
 
         const pivot = new THREE.Group()
         scene.add(pivot)
+        state.powerPilePivot = pivot
 
         model.position.copy(center).negate()
         pivot.add(model)

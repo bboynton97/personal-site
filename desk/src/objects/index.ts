@@ -34,7 +34,7 @@ export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state:
     loadSpeaker(loader, scene, state)
     loadCar(loader, scene, state)
     loadBike(loader, scene, state)
-    loadCocainePile(loader, scene)
+    loadCocainePile(loader, scene, state)
     loadEmergencyButton(loader, scene, state)
     loadBackrooms(loader, scene, state)
 }

@@ -30,6 +30,7 @@ export interface AppState {
     isBlackout: boolean
     computerPivot: THREE.Group | null
     notepadPivot: THREE.Group | null
+    powerPilePivot: THREE.Group | null
     
     // Garage Assets
     floorPivots: THREE.Group[]
@@ -58,4 +59,5 @@ export interface AppState {
     bouncingLight: THREE.PointLight | null
     emergencyButtonPivot?: THREE.Group
     emergencyText?: THREE.Mesh
+    pixelationAnimationStartTime?: number
 }
