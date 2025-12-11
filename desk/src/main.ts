@@ -239,46 +239,92 @@ whiteOutPass.uniforms['resolution'].value = new THREE.Vector2(window.innerWidth,
 whiteOutPass.uniforms['fadeAmount'].value = 0.0
 whiteOutPass.enabled = false // Disabled by default
 
-// Load the animated GIF for the burn effect
-// Use img element with canvas to handle animated GIF
-const img = document.createElement('img')
-img.src = '/k.gif'
-img.crossOrigin = 'anonymous'
+// Load and extract frames from animated GIF for the burn effect
+// Using omggif library to decode GIF frames
+let gifFrames: THREE.DataTexture[] = []
+let gifFrameDelays: number[] = []
+let gifStartTime = 0
 
-// Create canvas to extract frames from animated GIF
-const canvas = document.createElement('canvas')
-const ctx = canvas.getContext('2d')!
-
-img.addEventListener('load', () => {
-    canvas.width = img.width
-    canvas.height = img.height
-    console.log('GIF loaded:', img.width, img.height)
-})
-
-// Create texture from canvas
-const burnImage = new THREE.CanvasTexture(canvas)
-burnImage.minFilter = THREE.LinearFilter
-burnImage.magFilter = THREE.LinearFilter
-burnImage.format = THREE.RGBAFormat
-
-// Update canvas each frame to capture animated GIF frames
-let lastUpdateTime = 0
-function updateGIFTexture() {
-    const now = Date.now()
-    // Update at ~30fps to capture GIF animation
-    if (now - lastUpdateTime > 33) {
-        if (img.complete && img.naturalWidth > 0) {
-            ctx.drawImage(img, 0, 0)
-            burnImage.needsUpdate = true
+async function loadAnimatedGIF() {
+    try {
+        // Load omggif library from CDN
+        const script = document.createElement('script')
+        script.src = 'https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.js'
+        await new Promise((resolve, reject) => {
+            script.onload = resolve
+            script.onerror = reject
+            document.head.appendChild(script)
+        })
+        
+        // Fetch the GIF file
+        const response = await fetch('/k.gif')
+        const arrayBuffer = await response.arrayBuffer()
+        const bytes = new Uint8Array(arrayBuffer)
+        
+        // Decode GIF using omggif
+        // @ts-ignore - omggif is loaded from CDN
+        const gifReader = new GifReader(bytes)
+        const numFrames = gifReader.numFrames()
+        const width = gifReader.width
+        const height = gifReader.height
+        
+        console.log(`GIF decoded: ${width}x${height}, ${numFrames} frames`)
+        
+        // Extract each frame
+        gifFrames = []
+        gifFrameDelays = []
+        
+        for (let i = 0; i < numFrames; i++) {
+            const frameInfo = gifReader.frameInfo(i)
+            const frameData = new Uint8Array(width * height * 4)
+            gifReader.decodeAndBlitFrameRGBA(i, frameData)
+            
+            // Create texture from frame data
+            const frameTexture = new THREE.DataTexture(frameData, width, height, THREE.RGBAFormat)
+            frameTexture.minFilter = THREE.LinearFilter
+            frameTexture.magFilter = THREE.LinearFilter
+            frameTexture.flipY = true
+            frameTexture.needsUpdate = true
+            
+            gifFrames.push(frameTexture)
+            gifFrameDelays.push(frameInfo.delay * 10) // Convert centiseconds to milliseconds
         }
-        lastUpdateTime = now
+        
+        // Set initial frame
+        if (gifFrames.length > 0) {
+            whiteOutPass.uniforms['tImage'].value = gifFrames[0]
+            gifStartTime = Date.now()
+            
+            // Expose to global scope for animation loop
+            // @ts-ignore
+            window.gifFrames = gifFrames
+            // @ts-ignore
+            window.gifFrameDelays = gifFrameDelays
+            // @ts-ignore
+            window.gifStartTime = gifStartTime
+        }
+        
+        console.log('GIF frames extracted:', gifFrames.length)
+    } catch (error) {
+        console.error('Error loading GIF:', error)
+        // Fallback: use canvas approach
+        const img = new Image()
+        img.src = '/k.gif'
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')!
+            canvas.width = img.width
+            canvas.height = img.height
+            ctx.drawImage(img, 0, 0)
+            const texture = new THREE.CanvasTexture(canvas)
+            texture.minFilter = THREE.LinearFilter
+            texture.magFilter = THREE.LinearFilter
+            whiteOutPass.uniforms['tImage'].value = texture
+        }
     }
-    requestAnimationFrame(updateGIFTexture)
 }
-updateGIFTexture()
 
-// Set the texture to the shader
-whiteOutPass.uniforms['tImage'].value = burnImage
+loadAnimatedGIF()
 
 composer.addPass(whiteOutPass)
 

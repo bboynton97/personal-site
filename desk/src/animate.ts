@@ -58,11 +58,41 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         crtPass.uniforms['time'].value = time
         whiteOutPass.uniforms['time'].value = time
         
-        // Update canvas texture if it exists (for animated GIF)
-        if (whiteOutPass.uniforms['tImage'] && whiteOutPass.uniforms['tImage'].value instanceof THREE.CanvasTexture) {
-            const canvasTexture = whiteOutPass.uniforms['tImage'].value as THREE.CanvasTexture
-            // Canvas texture is updated in the main.ts animation loop
-            canvasTexture.needsUpdate = true
+        // Update GIF frame animation if frames are loaded
+        if (whiteOutPass.enabled && whiteOutPass.uniforms['fadeAmount'].value > 0.85) {
+            // Access gifFrames and gifFrameDelays from global scope (set in main.ts)
+            // @ts-ignore - accessing global variables
+            const frames = (window as any).gifFrames
+            // @ts-ignore
+            const delays = (window as any).gifFrameDelays
+            // @ts-ignore
+            const startTime = (window as any).gifStartTime || 0
+            
+            if (frames && frames.length > 0 && delays && delays.length > 0) {
+                // Calculate current frame based on elapsed time and frame delays
+                let elapsed = Date.now() - startTime
+                
+                // Calculate total loop duration
+                let totalLoopTime = delays.reduce((sum: number, delay: number) => sum + (delay || 100), 0)
+                elapsed = elapsed % totalLoopTime
+                
+                // Find which frame we should be on based on cumulative delays
+                let cumulativeTime = 0
+                let currentFrame = 0
+                
+                for (let i = 0; i < delays.length; i++) {
+                    cumulativeTime += delays[i] || 100 // Default 100ms if no delay
+                    if (elapsed < cumulativeTime) {
+                        currentFrame = i
+                        break
+                    }
+                }
+                
+                // Update texture to current frame
+                if (frames[currentFrame]) {
+                    whiteOutPass.uniforms['tImage'].value = frames[currentFrame]
+                }
+            }
         }
 
         // Check if in backrooms (used to disable animations)
