@@ -1,0 +1,10 @@
+- desk chair under camera
+- k-hole feature
+    - the more you do, the deeper the hole
+- sounds
+    - music is Blood and Sand - Dolby D
+        - high cut a little bit
+    - maybe slight crowd noise too
+    - add hum to backrooms
+    - safety switch slam on lights off
+- backrooms creature

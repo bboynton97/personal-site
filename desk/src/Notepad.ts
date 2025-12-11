@@ -1,11 +1,24 @@
 import * as THREE from 'three'
 
+interface BlogPost {
+    title: string
+    y: number
+    isHovered: boolean
+}
+
 export class Notepad {
+    canvas: HTMLCanvasElement
+    ctx: CanvasRenderingContext2D
+    texture: THREE.CanvasTexture
+    blogPosts: BlogPost[]
+
     constructor() {
         this.canvas = document.createElement('canvas')
         this.canvas.width = 1024
         this.canvas.height = 1448 // A4 aspect ratio (approx 1:1.414)
-        this.ctx = this.canvas.getContext('2d')
+        const ctx = this.canvas.getContext('2d')
+        if (!ctx) throw new Error('Could not get 2d context')
+        this.ctx = ctx
 
         this.texture = new THREE.CanvasTexture(this.canvas)
         this.texture.flipY = false
@@ -20,7 +33,7 @@ export class Notepad {
         this.draw()
     }
 
-    setHovered(index) {
+    setHovered(index: number): void {
         let needsUpdate = false
         this.blogPosts.forEach((post, i) => {
             const wasHovered = post.isHovered
@@ -33,7 +46,7 @@ export class Notepad {
         }
     }
 
-    draw() {
+    draw(): void {
         const ctx = this.ctx
         const width = this.canvas.width
         const height = this.canvas.height

@@ -1,6 +1,9 @@
 import * as THREE from 'three'
+import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import type { AppState } from '../types'
+import type { Terminal } from '../Terminal'
 
-export function loadComputer(loader, scene, terminal, state) {
+export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: Terminal, state: AppState): void {
     loader.load('/computer/scene_converted.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -22,74 +25,85 @@ export function loadComputer(loader, scene, terminal, state) {
         pivot.rotation.y = 0.3 - Math.PI / 2
 
         model.traverse((child) => {
-            if (child.isMesh) {
+            if (child instanceof THREE.Mesh) {
                 child.castShadow = true
                 child.receiveShadow = true
                 if (child.material) {
-                    child.material.side = THREE.DoubleSide
-                    child.material.needsUpdate = true
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(mat => {
+                            mat.side = THREE.DoubleSide
+                            mat.needsUpdate = true
+                        })
+                    } else {
+                        child.material.side = THREE.DoubleSide
+                        child.material.needsUpdate = true
+                    }
                 }
 
                 const name = child.name.toLowerCase()
 
                 if (name.includes('glass')) {
                     // Glass Layer (excluding convex screen)
-                    child.material = child.material.clone()
-                    child.material.transparent = true
-                    child.material.opacity = 0.1
-                    child.material.roughness = 0.1
-                    child.material.metalness = 0.9
-                    child.material.blending = THREE.AdditiveBlending
+                    const material = Array.isArray(child.material) ? child.material[0] : child.material
+                    child.material = material.clone()
+                    if (child.material instanceof THREE.MeshStandardMaterial) {
+                        child.material.transparent = true
+                        child.material.opacity = 0.1
+                        child.material.roughness = 0.1
+                        child.material.metalness = 0.9
+                        child.material.blending = THREE.AdditiveBlending
+                    }
                 } else if (name.includes('cube_screen_0')) {
                     // The Main Screen (Convex)
                     console.log('FOUND CONVEX SCREEN:', child.name)
                     
                     // 1. Compute Planar UVs to map texture onto the curved surface
-                    child.geometry.computeBoundingBox();
-                    const box = child.geometry.boundingBox;
-                    const size = new THREE.Vector3();
-                    box.getSize(size);
+                    child.geometry.computeBoundingBox()
+                    const box = child.geometry.boundingBox
+                    if (!box) return
+                    const size = new THREE.Vector3()
+                    box.getSize(size)
                     
                     // Identify the "flat" dimensions vs "depth"
                     // Assuming depth is the smallest dimension
-                    const minDim = Math.min(size.x, size.y, size.z);
+                    const minDim = Math.min(size.x, size.y, size.z)
                     
-                    const positionAttribute = child.geometry.attributes.position;
-                    const uvAttribute = new THREE.BufferAttribute(new Float32Array(positionAttribute.count * 2), 2);
+                    const positionAttribute = child.geometry.attributes.position
+                    const uvAttribute = new THREE.BufferAttribute(new Float32Array(positionAttribute.count * 2), 2)
                     
                     for (let i = 0; i < positionAttribute.count; i++) {
-                        const x = positionAttribute.getX(i);
-                        const y = positionAttribute.getY(i);
-                        const z = positionAttribute.getZ(i);
+                        const x = positionAttribute.getX(i)
+                        const y = positionAttribute.getY(i)
+                        const z = positionAttribute.getZ(i)
                         
-                        let u, v;
+                        let u: number, v: number
                         
                         // Planar projection
                         if (size.x <= minDim + 0.001) {
                             // Projects along X
-                            u = (z - box.min.z) / size.z;
-                            v = (y - box.min.y) / size.y;
+                            u = (z - box.min.z) / size.z
+                            v = (y - box.min.y) / size.y
                         } else if (size.y <= minDim + 0.001) {
                             // Projects along Y
-                            u = (x - box.min.x) / size.x;
-                            v = (z - box.min.z) / size.z;
+                            u = (x - box.min.x) / size.x
+                            v = (z - box.min.z) / size.z
                         } else {
                             // Projects along Z
-                            u = (x - box.min.x) / size.x;
-                            v = (y - box.min.y) / size.y;
+                            u = (x - box.min.x) / size.x
+                            v = (y - box.min.y) / size.y
                         }
                         
-                        uvAttribute.setXY(i, u, v);
+                        uvAttribute.setXY(i, u, v)
                     }
                     
-                    child.geometry.setAttribute('uv', uvAttribute);
-                    child.geometry.attributes.uv.needsUpdate = true;
+                    child.geometry.setAttribute('uv', uvAttribute)
+                    child.geometry.attributes.uv.needsUpdate = true
 
                     // Reset texture transforms to defaults first, then adjust if needed
                     // Planar mapping usually results in standard orientation
-                    terminal.texture.center.set(0.5, 0.5);
-                    terminal.texture.rotation = Math.PI / 2;
-                    terminal.texture.repeat.set(1, 1);
+                    terminal.texture.center.set(0.5, 0.5)
+                    terminal.texture.rotation = Math.PI / 2
+                    terminal.texture.repeat.set(1, 1)
 
                     // Use MeshStandardMaterial for reflections + glowing text
                     child.material = new THREE.MeshStandardMaterial({
@@ -103,7 +117,7 @@ export function loadComputer(loader, scene, terminal, state) {
                     })
                 } else if (name.includes('monitor_screen_0')) {
                     // Hide old flat screen
-                    child.visible = false;
+                    child.visible = false
                 }
             }
         })

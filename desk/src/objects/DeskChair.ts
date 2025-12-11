@@ -1,6 +1,7 @@
 import * as THREE from 'three'
+import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-export function loadDeskChair(loader, scene) {
+export function loadDeskChair(loader: GLTFLoader, scene: THREE.Scene): void {
     loader.load('/Wooden Desk Chair 3D Model.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -23,7 +24,7 @@ export function loadDeskChair(loader, scene) {
         pivot.position.set(0.5, -9 + (size.y * scale) / 2, 6)
 
         model.traverse(child => {
-            if (child.isMesh) {
+            if (child instanceof THREE.Mesh) {
                 child.castShadow = true
                 child.receiveShadow = true
             }

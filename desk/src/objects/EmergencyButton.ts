@@ -1,9 +1,11 @@
 import * as THREE from 'three'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
+import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import type { AppState } from '../types'
 import typeface from 'three/examples/fonts/helvetiker_regular.typeface.json'
 
-export function loadEmergencyButton(loader, scene, state) {
+export function loadEmergencyButton(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
     loader.load('/Emergency Stop Button 3D Model.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -25,7 +27,7 @@ export function loadEmergencyButton(loader, scene, state) {
         pivot.position.set(3.0, (size.y * scale / 2), -1.5)
         
         model.traverse(child => {
-            if (child.isMesh) {
+            if (child instanceof THREE.Mesh) {
                 child.castShadow = true
                 child.receiveShadow = true
             }

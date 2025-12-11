@@ -9,11 +9,12 @@ import { RenderPixelatedPass } from 'three/examples/jsm/postprocessing/RenderPix
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
-import { CRTShader } from './CRTShader.js'
-import { Terminal } from './Terminal.js'
-import { Oscilloscope } from './Oscilloscope.js'
-import { Notepad } from './Notepad.js'
-import { loadSimpleObjects, loadComputer, loadOscilloscope, loadNotepad } from './objects/index.js'
+import { CRTShader } from './CRTShader'
+import { Terminal } from './Terminal'
+import { Oscilloscope } from './Oscilloscope'
+import { Notepad } from './Notepad'
+import { loadSimpleObjects, loadComputer, loadOscilloscope, loadNotepad } from './objects/index'
+import type { AppState, RaveLightItem, LightShowConfig } from './types'
 
 // --- CONSTANTS ---
 const ZOOM_POS = new THREE.Vector3(-2.8, 2.8, 1.2)
@@ -26,7 +27,7 @@ const DEFAULT_POS = new THREE.Vector3(1, 4, 8)
 const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0)
 
 // --- STATE ---
-const state = {
+const state: AppState = {
     isCameraLocked: true,
     isFocusingOnScreen: false,
     isFocusingOnNotepad: false,
@@ -257,7 +258,7 @@ composer.addPass(outputPass)
 const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
 
-window.addEventListener('mousemove', (event) => {
+window.addEventListener('mousemove', (event: MouseEvent) => {
     // Only check for hover if focusing on the notepad
     if (state.isFocusingOnNotepad && state.notepadPivot) {
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1
@@ -266,14 +267,16 @@ window.addEventListener('mousemove', (event) => {
         raycaster.setFromCamera(pointer, camera)
         
         // Find the paper mesh
-        let paperMesh = null
+        let paperMesh: THREE.Mesh | null = null
         state.notepadPivot.traverse(child => {
-            if (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002')) paperMesh = child
+            if (child instanceof THREE.Mesh && (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002'))) {
+                paperMesh = child
+            }
         })
 
         if (paperMesh) {
             const intersects = raycaster.intersectObject(paperMesh)
-            if (intersects.length > 0) {
+            if (intersects.length > 0 && intersects[0].uv) {
                 const uv = intersects[0].uv
                 // Canvas coordinates (1024x1024)
                 // UV (0,0) is bottom-left, Canvas (0,0) is top-left
@@ -323,7 +326,7 @@ window.addEventListener('mousemove', (event) => {
     }
 })
 
-window.addEventListener('click', (event) => {
+window.addEventListener('click', (event: MouseEvent) => {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
 
@@ -410,7 +413,7 @@ window.addEventListener('click', (event) => {
     }
 })
 
-window.addEventListener('keydown', (event) => {
+window.addEventListener('keydown', (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
         state.isFocusingOnScreen = false
         state.isFocusingOnNotepad = false
@@ -511,7 +514,7 @@ window.addEventListener('keydown', (event) => {
 })
 
 // --- ANIMATION LOOP ---
-function animate() {
+function animate(): void {
     requestAnimationFrame(animate)
     controls.update()
 
@@ -558,82 +561,87 @@ function animate() {
     // Rave Animation
     if (!state.isEmergencyStopped) {
         const activeConfig = state.lightShows[state.currentLightShow]
-        state.raveLights.forEach((item, index) => {
-            const config = activeConfig[index]
-            
-            if (state.currentLightShow === 'lightShow2') {
-                // Light Show 2: Sequence of phases
-                // Phase cycle: fast strobe -> pause -> slow strobe -> fast strobe -> red light
-                const cycleTime = 8.0 // Total cycle duration in seconds
-                const phaseTime = time % cycleTime
-                const phaseDuration = cycleTime / 5 // Each phase gets equal time
-                const currentPhase = Math.floor(phaseTime / phaseDuration)
-                const phaseLocalTime = phaseTime % phaseDuration
+        if (activeConfig && Array.isArray(activeConfig)) {
+            state.raveLights.forEach((item, index) => {
+                const config = activeConfig[index] as LightShowConfig
+                if (!config) return
                 
-                let color = 0xffffff
-                let intensity = 0
-                let isStrobing = false
-                let strobeSpeed = 0
-                
-                if (currentPhase === 0) {
-                    // Phase 1: Much faster strobe (white)
-                    strobeSpeed = 15.0 // Very fast
-                    isStrobing = true
-                    color = 0xffffff
-                } else if (currentPhase === 1) {
-                    // Phase 2: Pause (all off)
-                    intensity = 0
-                    color = 0xffffff
-                } else if (currentPhase === 2) {
-                    // Phase 3: Slow strobe (white)
-                    strobeSpeed = 2.0 // Slow
-                    isStrobing = true
-                    color = 0xffffff
-                } else if (currentPhase === 3) {
-                    // Phase 4: Fast strobe (white)
-                    strobeSpeed = 8.0 // Fast
-                    isStrobing = true
-                    color = 0xffffff
+                if (state.currentLightShow === 'lightShow2') {
+                    // Light Show 2: Sequence of phases
+                    // Phase cycle: fast strobe -> pause -> slow strobe -> fast strobe -> red light
+                    const cycleTime = 8.0 // Total cycle duration in seconds
+                    const phaseTime = time % cycleTime
+                    const phaseDuration = cycleTime / 5 // Each phase gets equal time
+                    const currentPhase = Math.floor(phaseTime / phaseDuration)
+                    const phaseLocalTime = phaseTime % phaseDuration
+                    
+                    let color = 0xffffff
+                    let intensity = 0
+                    let isStrobing = false
+                    let strobeSpeed = 0
+                    
+                    if (currentPhase === 0) {
+                        // Phase 1: Much faster strobe (white)
+                        strobeSpeed = 15.0 // Very fast
+                        isStrobing = true
+                        color = 0xffffff
+                    } else if (currentPhase === 1) {
+                        // Phase 2: Pause (all off)
+                        intensity = 0
+                        color = 0xffffff
+                    } else if (currentPhase === 2) {
+                        // Phase 3: Slow strobe (white)
+                        strobeSpeed = 2.0 // Slow
+                        isStrobing = true
+                        color = 0xffffff
+                    } else if (currentPhase === 3) {
+                        // Phase 4: Fast strobe (white)
+                        strobeSpeed = 8.0 // Fast
+                        isStrobing = true
+                        color = 0xffffff
+                    } else {
+                        // Phase 5: Red light (solid)
+                        color = 0xff0000
+                        intensity = item.type === 'rect' ? 15 : 300
+                    }
+                    
+                    if (isStrobing) {
+                        const colorIndex = Math.floor(phaseLocalTime * strobeSpeed) % 2
+                        const isOn = colorIndex === 1
+                        intensity = isOn 
+                            ? (item.type === 'rect' ? 15 : 300) 
+                            : 0
+                    }
+                    
+                    item.light.color.setHex(color)
+                    item.light.intensity = intensity
+                    
+                    if (item.type === 'spot' && item.light instanceof THREE.SpotLight) {
+                        // Keep spotlights stationary for strobe effect
+                        item.light.target.position.x = item.targetBaseX ?? 0
+                        item.light.target.position.y = 10
+                    }
                 } else {
-                    // Phase 5: Red light (solid)
-                    color = 0xff0000
-                    intensity = item.type === 'rect' ? 15 : 300
-                }
-                
-                if (isStrobing) {
-                    const colorIndex = Math.floor(phaseLocalTime * strobeSpeed) % 2
-                    const isOn = colorIndex === 1
-                    intensity = isOn 
-                        ? (item.type === 'rect' ? 15 : 300) 
-                        : 0
-                }
-                
-                item.light.color.setHex(color)
-                item.light.intensity = intensity
-                
-                if (item.type === 'spot') {
-                    // Keep spotlights stationary for strobe effect
-                    item.light.target.position.x = item.targetBaseX
-                    item.light.target.position.y = 10
-                }
-            } else {
-                // Light Show 1: Original red/white alternating pattern
-                const colorIndex = Math.floor(time * config.speed + config.offset) % 2
-                const color = colorIndex === 0 ? 0xff0000 : 0xffffff
-                const intensity = colorIndex === 0 ? 1 : 2 // Boost white intensity
-                
-                item.light.color.setHex(color)
-                item.light.intensity = item.type === 'rect' 
-                    ? (colorIndex === 0 ? 5 : 10) 
-                    : (colorIndex === 0 ? 100 : 200)
+                    // Light Show 1: Original red/white alternating pattern
+                    const speed = config.speed ?? 1
+                    const offset = config.offset ?? 0
+                    const colorIndex = Math.floor(time * speed + offset) % 2
+                    const color = colorIndex === 0 ? 0xff0000 : 0xffffff
+                    const intensity = colorIndex === 0 ? 1 : 2 // Boost white intensity
+                    
+                    item.light.color.setHex(color)
+                    item.light.intensity = item.type === 'rect' 
+                        ? (colorIndex === 0 ? 5 : 10) 
+                        : (colorIndex === 0 ? 100 : 200)
 
-                if (item.type === 'spot') {
-                    // Move spotlights
-                    item.light.target.position.x = item.targetBaseX + Math.sin(time * config.speed + config.offset) * 10
-                    item.light.target.position.y = 10 + Math.cos(time * config.speed * 0.5) * 5
+                    if (item.type === 'spot' && item.light instanceof THREE.SpotLight) {
+                        // Move spotlights
+                        item.light.target.position.x = (item.targetBaseX ?? 0) + Math.sin(time * speed + offset) * 10
+                        item.light.target.position.y = 10 + Math.cos(time * speed * 0.5) * 5
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
     // Light Show 3: Bouncing red light around perimeter
@@ -645,7 +653,7 @@ function animate() {
         const cycleTime = perimeterLength / speed // Time for one full cycle
         const pathTime = (time % cycleTime) / cycleTime // 0 to 1
         
-        let x, z
+        let x: number, z: number
         
         if (pathTime < 0.25) {
             // Side 1: Back wall, left to right (x: -50 to +50, z: -30)

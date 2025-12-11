@@ -1,6 +1,7 @@
 import * as THREE from 'three'
+import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-export function loadDesk(loader, scene) {
+export function loadDesk(loader: GLTFLoader, scene: THREE.Scene): void {
     loader.load('/metal_desk/scene.gltf', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -19,7 +20,7 @@ export function loadDesk(loader, scene) {
         pivot.position.set(0, -(size.y * scale) / 2, 0)
 
         model.traverse(child => {
-            if (child.isMesh) {
+            if (child instanceof THREE.Mesh) {
                 child.receiveShadow = true
                 child.castShadow = true
             }

@@ -1,6 +1,7 @@
-import { Vector2 } from 'three';
+import { Vector2 } from 'three'
+import type { Shader } from 'three'
 
-export const CRTShader = {
+export const CRTShader: Shader = {
     name: 'CRTShader',
     uniforms: {
         'tDiffuse': { value: null },
@@ -69,4 +70,4 @@ export const CRTShader = {
             gl_FragColor = vec4(color, 1.0);
         }
     `
-};
+}

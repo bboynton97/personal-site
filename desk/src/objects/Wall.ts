@@ -1,6 +1,8 @@
 import * as THREE from 'three'
+import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import type { AppState } from '../types'
 
-export function loadWall(loader, scene, state) {
+export function loadWall(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
     loader.load('/Industrial Factory Wall 3D Model (1).glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -22,12 +24,19 @@ export function loadWall(loader, scene, state) {
         pivot.position.set(0, -12 + (size.y * scale) / 2, -30)
 
         model.traverse(child => {
-            if (child.isMesh) {
+            if (child instanceof THREE.Mesh) {
                 child.castShadow = true
                 child.receiveShadow = true
                 if (child.material) {
-                    child.material.side = THREE.DoubleSide
-                    child.material.needsUpdate = true
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(mat => {
+                            mat.side = THREE.DoubleSide
+                            mat.needsUpdate = true
+                        })
+                    } else {
+                        child.material.side = THREE.DoubleSide
+                        child.material.needsUpdate = true
+                    }
                 }
             }
         })

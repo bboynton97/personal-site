@@ -1,6 +1,8 @@
 import * as THREE from 'three'
+import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import type { AppState } from '../types'
 
-export function loadBackrooms(loader, scene, state) {
+export function loadBackrooms(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
     loader.load('/backrooms_map_packed_blender_3.2.0.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -25,25 +27,26 @@ export function loadBackrooms(loader, scene, state) {
         pivot.position.set(15, -32, 15)
 
         // Store light meshes to add lights to later
-        const lightMeshes = []
+        const lightMeshes: THREE.Mesh[] = []
         
         model.traverse(child => {
-            if (child.isMesh) {
+            if (child instanceof THREE.Mesh) {
                 child.receiveShadow = true
                 // Backrooms usually self-lit or diffuse, but let's allow shadows
                 child.castShadow = true
                 
                 // Check if this mesh represents a light fixture
                 const name = child.name.toLowerCase()
+                const material = Array.isArray(child.material) ? child.material[0] : child.material
                 const isLightMesh = name.includes('light') || 
                                    name.includes('lamp') || 
                                    name.includes('bulb') || 
                                    name.includes('fixture') ||
                                    name.includes('ceiling') ||
-                                   (child.material && child.material.emissive && 
-                                    (child.material.emissive.r > 0 || 
-                                     child.material.emissive.g > 0 || 
-                                     child.material.emissive.b > 0))
+                                   (material && material instanceof THREE.MeshStandardMaterial && material.emissive && 
+                                    (material.emissive.r > 0 || 
+                                     material.emissive.g > 0 || 
+                                     material.emissive.b > 0))
                 
                 if (isLightMesh) {
                     lightMeshes.push(child)

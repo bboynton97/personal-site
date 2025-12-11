@@ -1,6 +1,8 @@
 import * as THREE from 'three'
+import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import type { AppState } from '../types'
 
-export function loadRoboticArm(loader, scene, state) {
+export function loadRoboticArm(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
     loader.load('/arm/Robotic Arm.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -27,9 +29,9 @@ export function loadRoboticArm(loader, scene, state) {
         // Split meshes between base and arm
         const minY = center.y - size.y / 2
         const splitY = minY + size.y * 0.4
-        const meshes = []
+        const meshes: THREE.Mesh[] = []
         
-        model.traverse(child => { if (child.isMesh) meshes.push(child) })
+        model.traverse(child => { if (child instanceof THREE.Mesh) meshes.push(child) })
         
         meshes.forEach(mesh => {
             const mBox = new THREE.Box3().setFromObject(mesh)

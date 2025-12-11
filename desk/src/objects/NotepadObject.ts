@@ -1,6 +1,9 @@
 import * as THREE from 'three'
+import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import type { AppState } from '../types'
+import type { Notepad } from '../Notepad'
 
-export function loadNotepad(loader, scene, state, notepad) {
+export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppState, notepad: Notepad): void {
     loader.load('/Notepad/scene.gltf', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -23,7 +26,7 @@ export function loadNotepad(loader, scene, state, notepad) {
         pivot.rotation.z = Math.PI
 
         model.traverse(child => {
-            if (child.isMesh) {
+            if (child instanceof THREE.Mesh) {
                 child.castShadow = true
                 child.receiveShadow = true
                 
@@ -35,10 +38,10 @@ export function loadNotepad(loader, scene, state, notepad) {
                      console.log('Applying texture to Notepad Body')
                      
                      // Adjust texture scaling/offset
-                     notepad.texture.center.set(0.5, 0.5);
-                     notepad.texture.rotation = 0; 
-                     notepad.texture.repeat.set(1.25, 1.25);
-                     notepad.texture.offset.set(0, 0);
+                     notepad.texture.center.set(0.5, 0.5)
+                     notepad.texture.rotation = 0 
+                     notepad.texture.repeat.set(1.25, 1.25)
+                     notepad.texture.offset.set(0, 0)
                      
                      child.material = new THREE.MeshStandardMaterial({
                         map: notepad.texture,
