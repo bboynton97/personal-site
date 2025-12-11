@@ -1,8 +1,8 @@
 import { Vector2 } from 'three'
 import type { Shader } from 'three'
 
-export const CRTTurnOnShader: Shader = {
-    name: 'CRTTurnOnShader',
+export const WhiteOutShader: Shader = {
+    name: 'WhiteOutShader',
     uniforms: {
         'tDiffuse': { value: null },
         'time': { value: 0 },

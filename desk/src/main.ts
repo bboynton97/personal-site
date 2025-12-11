@@ -10,7 +10,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { CRTShader } from './CRTShader'
-import { CRTTurnOnShader } from './CRTTurnOnShader'
+import { WhiteOutShader } from './WhiteOutShader'
 import { Terminal } from './Terminal'
 import { Oscilloscope } from './Oscilloscope'
 import { Notepad } from './Notepad'
@@ -234,11 +234,11 @@ composer.addPass(renderPass)
 const renderPixelatedPass = new RenderPixelatedPass(1.5, scene, camera)
 composer.addPass(renderPixelatedPass)
 
-const crtTurnOnPass = new ShaderPass(CRTTurnOnShader)
-crtTurnOnPass.uniforms['resolution'].value = new THREE.Vector2(window.innerWidth, window.innerHeight)
-crtTurnOnPass.uniforms['fadeAmount'].value = 0.0
-crtTurnOnPass.enabled = false // Disabled by default
-composer.addPass(crtTurnOnPass)
+const whiteOutPass = new ShaderPass(WhiteOutShader)
+whiteOutPass.uniforms['resolution'].value = new THREE.Vector2(window.innerWidth, window.innerHeight)
+whiteOutPass.uniforms['fadeAmount'].value = 0.0
+whiteOutPass.enabled = false // Disabled by default
+composer.addPass(whiteOutPass)
 
 const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -536,7 +536,7 @@ const animate = createAnimationLoop({
     oscilloscope,
     composer,
     renderPixelatedPass,
-    crtTurnOnPass
+    whiteOutPass
 })
 
 // --- RESIZE ---
@@ -546,7 +546,7 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight)
     composer.setSize(window.innerWidth, window.innerHeight)
     crtPass.uniforms['resolution'].value.set(window.innerWidth, window.innerHeight)
-    crtTurnOnPass.uniforms['resolution'].value.set(window.innerWidth, window.innerHeight)
+    whiteOutPass.uniforms['resolution'].value.set(window.innerWidth, window.innerHeight)
 })
 
 animate()

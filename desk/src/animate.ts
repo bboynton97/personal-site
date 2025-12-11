@@ -26,11 +26,11 @@ export interface AnimationDependencies {
     oscilloscope: Oscilloscope
     composer: EffectComposer
     renderPixelatedPass: RenderPixelatedPass
-    crtTurnOnPass: ShaderPass
+    whiteOutPass: ShaderPass
 }
 
 export function createAnimationLoop(deps: AnimationDependencies): () => void {
-    const { controls, camera, state, crtPass, terminal, oscilloscope, composer, renderPixelatedPass, crtTurnOnPass } = deps
+    const { controls, camera, state, crtPass, terminal, oscilloscope, composer, renderPixelatedPass, whiteOutPass } = deps
 
     function animate(): void {
         requestAnimationFrame(animate)
@@ -228,11 +228,11 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                     // Phase 1: Going up from 1.5 to 10
                     const t = elapsed / upDuration // 0 to 1
                     pixelSize = startPixelSize + (endPixelSize - startPixelSize) * t
-                    crtTurnOnPass.enabled = false
+                    whiteOutPass.enabled = false
                 } else if (isHoldPhase) {
                     // Phase 2: Hold at max pixelation, fade to white then back
                     pixelSize = endPixelSize
-                    crtTurnOnPass.enabled = true
+                    whiteOutPass.enabled = true
                     
                     let fadeAmount: number
                     if (holdElapsed < fadeOutDuration) {
@@ -244,7 +244,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                         fadeAmount = 1.0 - (fadeInElapsed / fadeInDuration) // 1 to 0
                     }
                     
-                    crtTurnOnPass.uniforms['fadeAmount'].value = fadeAmount
+                    whiteOutPass.uniforms['fadeAmount'].value = fadeAmount
                     
                     // Reduce vignette as white fade comes in (inverse of fadeAmount)
                     crtPass.uniforms['vignetteStrength'].value = 1.0 - fadeAmount
@@ -252,7 +252,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                     // Phase 3: Going down from 10 to 1.5
                     const t = (elapsed - upDuration - holdDuration) / downDuration // 0 to 1
                     pixelSize = endPixelSize - (endPixelSize - startPixelSize) * t
-                    crtTurnOnPass.enabled = false
+                    whiteOutPass.enabled = false
                 }
                 
                 // Update pixel size using the setPixelSize method
