@@ -1431,7 +1431,7 @@ function animate() {
 
     // Emergency Text Flashing
     if (state.emergencyText) {
-        if (state.isFocusingOnButton) {
+        if (state.isFocusingOnButton && !isInBackrooms) {
             state.emergencyText.visible = Math.floor(time * 2) % 2 === 0
         } else {
             state.emergencyText.visible = false
