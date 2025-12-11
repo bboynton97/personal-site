@@ -26,10 +26,11 @@ export interface AnimationDependencies {
     oscilloscope: Oscilloscope
     composer: EffectComposer
     renderPixelatedPass: RenderPixelatedPass
+    crtTurnOnPass: ShaderPass
 }
 
 export function createAnimationLoop(deps: AnimationDependencies): () => void {
-    const { controls, camera, state, crtPass, terminal, oscilloscope, composer, renderPixelatedPass } = deps
+    const { controls, camera, state, crtPass, terminal, oscilloscope, composer, renderPixelatedPass, crtTurnOnPass } = deps
 
     function animate(): void {
         requestAnimationFrame(animate)
@@ -211,24 +212,47 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
             const elapsed = (Date.now() - state.pixelationAnimationStartTime) / 1000 // seconds
             const startPixelSize = 1.5
             const endPixelSize = 10
-            const upDuration = 15 // 5 seconds to go up
-            const holdDuration = 1 // 5 seconds to hold at max
-            const downDuration = 10 // 5 seconds to go down
-            const duration = upDuration + holdDuration + downDuration // 15 seconds total
+            const upDuration = 15 // 15 seconds to go up
+            const fadeOutDuration = 5 // 5 seconds to fade out to white
+            const fadeInDuration = 5 // 5 seconds to fade back in
+            const downDuration = 10 // 10 seconds to go down
+            const holdDuration = fadeOutDuration + fadeInDuration
+            const duration = upDuration + holdDuration + downDuration // total duration
             
             if (elapsed < duration) {
                 let pixelSize: number
+                const isHoldPhase = elapsed >= upDuration && elapsed < upDuration + holdDuration
+                const holdElapsed = elapsed - upDuration
+                
                 if (elapsed < upDuration) {
-                    // Phase 1: Going up from 1.5 to 10 (0 to 5 seconds)
+                    // Phase 1: Going up from 1.5 to 10
                     const t = elapsed / upDuration // 0 to 1
                     pixelSize = startPixelSize + (endPixelSize - startPixelSize) * t
-                } else if (elapsed < upDuration + holdDuration) {
-                    // Phase 2: Hold at max (5 to 10 seconds)
+                    crtTurnOnPass.enabled = false
+                } else if (isHoldPhase) {
+                    // Phase 2: Hold at max pixelation, fade to white then back
                     pixelSize = endPixelSize
+                    crtTurnOnPass.enabled = true
+                    
+                    let fadeAmount: number
+                    if (holdElapsed < fadeOutDuration) {
+                        // Fade out to white
+                        fadeAmount = holdElapsed / fadeOutDuration // 0 to 1
+                    } else {
+                        // Fade back in from white
+                        const fadeInElapsed = holdElapsed - fadeOutDuration
+                        fadeAmount = 1.0 - (fadeInElapsed / fadeInDuration) // 1 to 0
+                    }
+                    
+                    crtTurnOnPass.uniforms['fadeAmount'].value = fadeAmount
+                    
+                    // Reduce vignette as white fade comes in (inverse of fadeAmount)
+                    crtPass.uniforms['vignetteStrength'].value = 1.0 - fadeAmount
                 } else {
-                    // Phase 3: Going down from 10 to 1.5 (10 to 15 seconds)
+                    // Phase 3: Going down from 10 to 1.5
                     const t = (elapsed - upDuration - holdDuration) / downDuration // 0 to 1
                     pixelSize = endPixelSize - (endPixelSize - startPixelSize) * t
+                    crtTurnOnPass.enabled = false
                 }
                 
                 // Update pixel size using the setPixelSize method
@@ -236,8 +260,13 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
             } else {
                 // Animation complete, reset to default
                 renderPixelatedPass.setPixelSize(startPixelSize)
+                crtTurnOnPass.enabled = false
+                crtPass.uniforms['vignetteStrength'].value = 1.0 // Restore default vignette
                 state.pixelationAnimationStartTime = undefined
             }
+        } else {
+            // Ensure fade effect is disabled when not animating
+            crtTurnOnPass.enabled = false
         }
 
         // Render
