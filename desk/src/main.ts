@@ -238,6 +238,48 @@ const whiteOutPass = new ShaderPass(WhiteOutShader)
 whiteOutPass.uniforms['resolution'].value = new THREE.Vector2(window.innerWidth, window.innerHeight)
 whiteOutPass.uniforms['fadeAmount'].value = 0.0
 whiteOutPass.enabled = false // Disabled by default
+
+// Load the animated GIF for the burn effect
+// Use img element with canvas to handle animated GIF
+const img = document.createElement('img')
+img.src = '/k.gif'
+img.crossOrigin = 'anonymous'
+
+// Create canvas to extract frames from animated GIF
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')!
+
+img.addEventListener('load', () => {
+    canvas.width = img.width
+    canvas.height = img.height
+    console.log('GIF loaded:', img.width, img.height)
+})
+
+// Create texture from canvas
+const burnImage = new THREE.CanvasTexture(canvas)
+burnImage.minFilter = THREE.LinearFilter
+burnImage.magFilter = THREE.LinearFilter
+burnImage.format = THREE.RGBAFormat
+
+// Update canvas each frame to capture animated GIF frames
+let lastUpdateTime = 0
+function updateGIFTexture() {
+    const now = Date.now()
+    // Update at ~30fps to capture GIF animation
+    if (now - lastUpdateTime > 33) {
+        if (img.complete && img.naturalWidth > 0) {
+            ctx.drawImage(img, 0, 0)
+            burnImage.needsUpdate = true
+        }
+        lastUpdateTime = now
+    }
+    requestAnimationFrame(updateGIFTexture)
+}
+updateGIFTexture()
+
+// Set the texture to the shader
+whiteOutPass.uniforms['tImage'].value = burnImage
+
 composer.addPass(whiteOutPass)
 
 const bloomPass = new UnrealBloomPass(

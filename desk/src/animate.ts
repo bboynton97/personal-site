@@ -57,6 +57,13 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         const time = Date.now() * 0.001
         crtPass.uniforms['time'].value = time
         whiteOutPass.uniforms['time'].value = time
+        
+        // Update canvas texture if it exists (for animated GIF)
+        if (whiteOutPass.uniforms['tImage'] && whiteOutPass.uniforms['tImage'].value instanceof THREE.CanvasTexture) {
+            const canvasTexture = whiteOutPass.uniforms['tImage'].value as THREE.CanvasTexture
+            // Canvas texture is updated in the main.ts animation loop
+            canvasTexture.needsUpdate = true
+        }
 
         // Check if in backrooms (used to disable animations)
         const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
