@@ -56,6 +56,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         // Update Uniforms
         const time = Date.now() * 0.001
         crtPass.uniforms['time'].value = time
+        whiteOutPass.uniforms['time'].value = time
 
         // Check if in backrooms (used to disable animations)
         const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
@@ -214,9 +215,10 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
             const endPixelSize = 10
             const upDuration = 15 // 15 seconds to go up
             const fadeOutDuration = 5 // 5 seconds to fade out to white
+            const whiteHoldDuration = 8 // 8 seconds to hold at full white (show pattern)
             const fadeInDuration = 5 // 5 seconds to fade back in
             const downDuration = 10 // 10 seconds to go down
-            const holdDuration = fadeOutDuration + fadeInDuration
+            const holdDuration = fadeOutDuration + whiteHoldDuration + fadeInDuration
             const duration = upDuration + holdDuration + downDuration // total duration
             
             if (elapsed < duration) {
@@ -230,7 +232,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                     pixelSize = startPixelSize + (endPixelSize - startPixelSize) * t
                     whiteOutPass.enabled = false
                 } else if (isHoldPhase) {
-                    // Phase 2: Hold at max pixelation, fade to white then back
+                    // Phase 2: Hold at max pixelation, fade to white, hold at white, then fade back
                     pixelSize = endPixelSize
                     whiteOutPass.enabled = true
                     
@@ -238,9 +240,12 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                     if (holdElapsed < fadeOutDuration) {
                         // Fade out to white
                         fadeAmount = holdElapsed / fadeOutDuration // 0 to 1
+                    } else if (holdElapsed < fadeOutDuration + whiteHoldDuration) {
+                        // Hold at full white (show pattern)
+                        fadeAmount = 1.0
                     } else {
                         // Fade back in from white
-                        const fadeInElapsed = holdElapsed - fadeOutDuration
+                        const fadeInElapsed = holdElapsed - fadeOutDuration - whiteHoldDuration
                         fadeAmount = 1.0 - (fadeInElapsed / fadeInDuration) // 1 to 0
                     }
                     
