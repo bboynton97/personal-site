@@ -16,14 +16,14 @@ export function setupInteractions(
     const pointer = new THREE.Vector2()
 
     window.addEventListener('mousemove', (event: MouseEvent) => {
-        // Only check for hover if focusing on the notepad
+        pointer.x = (event.clientX / window.innerWidth) * 2 - 1
+        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
+        raycaster.setFromCamera(pointer, camera)
+
+        let cursorStyle = "url('/pointer.png'), auto"
+
+        // Mode 1: Focusing on Notepad - check for specific links
         if (state.isFocusingOnNotepad && state.notepadPivot) {
-            pointer.x = (event.clientX / window.innerWidth) * 2 - 1
-            pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
-
-            raycaster.setFromCamera(pointer, camera)
-
-            // Find the paper mesh
             let paperMesh: THREE.Mesh | null = null
             state.notepadPivot.traverse(child => {
                 if (child instanceof THREE.Mesh && (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002'))) {
@@ -31,34 +31,16 @@ export function setupInteractions(
                 }
             })
 
+            let linkHovered = false
             if (paperMesh) {
                 const intersects = raycaster.intersectObject(paperMesh)
                 if (intersects.length > 0 && intersects[0].uv) {
                     const uv = intersects[0].uv
-                    // Canvas coordinates (1024x1024)
-                    // UV (0,0) is bottom-left, Canvas (0,0) is top-left
-                    // Texture is likely flipped or rotated, need to calibrate
-                    // Based on standard UV mapping:
 
-                    // Check if hovering over any blog post title
                     let hoveredIndex = -1
-
                     notepad.blogPosts.forEach((post, index) => {
-                        // Simple bounding box check
-                        // Canvas size is 1024x1448
-
-                        // Transform UV to Texture Space
-                        // We applied repeat: 1.2, offset: -0.1
-                        // Texture UV = (Mesh UV * repeat) + offset
-                        // But Wait! Texture offset moves the texture, so it shifts UV coordinates in the opposite direction for sampling.
-                        // Actually, gl_FragColor = texture2D(map, uv * repeat + offset)
-                        // So the UV we want to check against canvas coords is (uv * repeat + offset)
-
                         const texU = uv.x * 1.2 - 0.1
-                        // Use standard V orientation (Top-Down for Canvas)
-                        // (1 - uv.y) is standard flip. 
                         const texV = (1 - uv.y) * 1.2 - 0.1
-
                         const scaledX = texU * 1024
                         const scaledY = texV * 1448
 
@@ -68,17 +50,36 @@ export function setupInteractions(
                     })
 
                     notepad.setHovered(hoveredIndex)
-
-                    // Change cursor style
-                    document.body.style.cursor = hoveredIndex !== -1 ? 'pointer' : 'default'
+                    if (hoveredIndex !== -1) linkHovered = true
                 } else {
                     notepad.setHovered(-1)
-                    document.body.style.cursor = 'default'
                 }
+            } else {
+                notepad.setHovered(-1)
             }
-        } else {
-            document.body.style.cursor = 'default'
+
+            if (linkHovered) cursorStyle = "url('/click.png'), pointer"
+
         }
+        // Mode 2: General View - check for clickable objects
+        else if (state.isCameraLocked) {
+            let objectHovered = false
+
+            const checkIntersect = (pivot: THREE.Group | null | undefined) => {
+                if (!pivot) return false
+                return raycaster.intersectObjects(pivot.children, true).length > 0
+            }
+
+            // Check interactions based on click handler logic
+            if (checkIntersect(state.powerPilePivot)) objectHovered = true
+            else if (state.computerPivot && raycaster.intersectObjects(state.computerPivot.children, true).some(hit => hit.object.name.toLowerCase().includes('cube_screen_0'))) objectHovered = true
+            else if (checkIntersect(state.notepadPivot)) objectHovered = true
+            else if (checkIntersect(state.emergencyButtonPivot)) objectHovered = true
+
+            if (objectHovered) cursorStyle = "url('/click.png'), pointer"
+        }
+
+        document.body.style.cursor = cursorStyle
     })
 
     window.addEventListener('click', (event: MouseEvent) => {
@@ -101,7 +102,8 @@ export function setupInteractions(
 
         if (state.computerPivot) {
             const intersects = raycaster.intersectObjects(state.computerPivot.children, true)
-            if (intersects.length > 0) {
+            const hasScreen = intersects.some(hit => hit.object.name.toLowerCase().includes('cube_screen_0'))
+            if (hasScreen) {
                 if (state.isCameraLocked) {
                     state.isFocusingOnScreen = true
                     state.isFocusingOnNotepad = false

@@ -2,7 +2,9 @@ body {
   margin: 0;
   overflow: hidden;
   background-color: #050505;
+  cursor: url('/pointer.png'), auto;
 }
+
 canvas {
   display: block;
 }
