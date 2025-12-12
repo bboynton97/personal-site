@@ -1,6 +1,3 @@
-- desk chair under camera
-- k-hole feature
-    - the more you do, the deeper the hole
 - sounds
     - music is Blood and Sand - Dolby D
         - high cut a little bit
