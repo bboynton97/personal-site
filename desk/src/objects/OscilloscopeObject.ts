@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import type { Oscilloscope } from '../Oscilloscope'
+import type { Oscilloscope } from '../meshes/Oscilloscope'
 
 export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscilloscope: Oscilloscope): void {
     loader.load('/scope/scene.gltf', (gltf) => {
@@ -27,11 +27,11 @@ export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscillo
                 if (child.name === 'Cube012_Material102_0') {
                     oscilloscope.texture.center.set(0.5, 0.5)
                     oscilloscope.texture.rotation = -Math.PI / 2
-                    
+
                     // Width is compressed to 25% (repeat 4x)
                     // Height is compressed to 75% (repeat 1.33x)
-                    oscilloscope.texture.repeat.set(4, 1.33) 
-                    
+                    oscilloscope.texture.repeat.set(4, 1.33)
+
                     // Position 10% from left
                     // Calculation: We want the window (0.1 to 0.35) to map to texture (0 to 1)
                     // With repeat=4 and center=0.5:

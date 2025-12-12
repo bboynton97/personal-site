@@ -1,9 +1,7 @@
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type * as THREE from 'three'
 import type { AppState } from '../types'
-import type { Terminal } from '../Terminal'
-import type { Oscilloscope } from '../Oscilloscope'
-import type { Notepad } from '../Notepad'
+
 
 import { loadDesk } from './Desk'
 import { loadDeskChair } from './DeskChair'

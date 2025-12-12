@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
-import type { Terminal } from '../Terminal'
+import type { Terminal } from '../meshes/Terminal'
 
 export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: Terminal, state: AppState): void {
     loader.load('/computer/scene_converted.glb', (gltf) => {
@@ -55,28 +55,28 @@ export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: T
                     }
                 } else if (name.includes('cube_screen_0')) {
                     // The Main Screen (Convex)
-                    
+
                     // 1. Compute Planar UVs to map texture onto the curved surface
                     child.geometry.computeBoundingBox()
                     const box = child.geometry.boundingBox
                     if (!box) return
                     const size = new THREE.Vector3()
                     box.getSize(size)
-                    
+
                     // Identify the "flat" dimensions vs "depth"
                     // Assuming depth is the smallest dimension
                     const minDim = Math.min(size.x, size.y, size.z)
-                    
+
                     const positionAttribute = child.geometry.attributes.position
                     const uvAttribute = new THREE.BufferAttribute(new Float32Array(positionAttribute.count * 2), 2)
-                    
+
                     for (let i = 0; i < positionAttribute.count; i++) {
                         const x = positionAttribute.getX(i)
                         const y = positionAttribute.getY(i)
                         const z = positionAttribute.getZ(i)
-                        
+
                         let u: number, v: number
-                        
+
                         // Planar projection
                         if (size.x <= minDim + 0.001) {
                             // Projects along X
@@ -91,10 +91,10 @@ export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: T
                             u = (x - box.min.x) / size.x
                             v = (y - box.min.y) / size.y
                         }
-                        
+
                         uvAttribute.setXY(i, u, v)
                     }
-                    
+
                     child.geometry.setAttribute('uv', uvAttribute)
                     child.geometry.attributes.uv.needsUpdate = true
 

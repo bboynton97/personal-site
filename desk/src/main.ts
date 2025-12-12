@@ -9,11 +9,11 @@ import { RenderPixelatedPass } from 'three/examples/jsm/postprocessing/RenderPix
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
-import { CRTShader } from './CRTShader'
-import { WhiteOutShader } from './WhiteOutShader'
-import { Terminal } from './Terminal'
-import { Oscilloscope } from './Oscilloscope'
-import { Notepad } from './Notepad'
+import { CRTShader } from './shaders/CRTShader'
+import { WhiteOutShader } from './shaders/WhiteOutShader'
+import { Terminal } from './meshes/Terminal'
+import { Oscilloscope } from './meshes/Oscilloscope'
+import { Notepad } from './meshes/Notepad'
 import { loadSimpleObjects, loadComputer, loadOscilloscope, loadNotepad } from './objects/index'
 import type { AppState } from './types'
 import { createAnimationLoop } from './animate'
@@ -33,7 +33,7 @@ const state: AppState = {
     computerPivot: null,
     notepadPivot: null,
     powerPilePivot: null,
-    
+
     // Garage Assets
     floorPivots: [],
     barrierPivots: [],
@@ -41,7 +41,7 @@ const state: AppState = {
     speakerPivots: [],
     carPivot: null,
     bikePivot: null,
-    
+
     // Backrooms Assets
     backroomsPivot: null,
     backroomsLights: [],
@@ -121,7 +121,7 @@ const raveColors = [0xff0000, 0xffffff]
 // 1. RectAreaLights (Base wash)
 for (let i = -1; i <= 1; i++) {
     const speed = 0.5 + Math.random() * 0.5
-    
+
     // Upward
     const rectLight = new THREE.RectAreaLight(raveColors[(i + 1) % raveColors.length], 5, 20, 10)
     rectLight.position.set(i * 25, -9, -29)
@@ -141,11 +141,11 @@ for (let i = -1; i <= 1; i++) {
 for (let i = 0; i < 3; i++) {
     const speed = 0.5 + Math.random() * 0.5
     const zPos = -20 + i * 25 // Spaced along the wall
-    
+
     // Upward
     const rectLight = new THREE.RectAreaLight(raveColors[i % raveColors.length], 5, 20, 10)
     rectLight.position.set(-49, -9, zPos)
-    rectLight.lookAt(-50, 0, zPos) 
+    rectLight.lookAt(-50, 0, zPos)
     scene.add(rectLight)
     state.raveLights.push({ light: rectLight, type: 'rect', speed, offset: i + 5 })
 
@@ -168,16 +168,16 @@ for (let i = -2; i <= 2; i++) {
     spot.distance = 100
     spot.castShadow = true
     spot.shadow.bias = -0.0001
-    
+
     scene.add(spot)
     scene.add(spot.target)
-    state.raveLights.push({ 
-        light: spot, 
-        type: 'spot', 
-        baseX: i * 15, 
+    state.raveLights.push({
+        light: spot,
+        type: 'spot',
+        baseX: i * 15,
         targetBaseX: i * 10,
-        speed: 1 + Math.random(), 
-        offset: i * 2 
+        speed: 1 + Math.random(),
+        offset: i * 2
     })
 }
 
@@ -255,46 +255,46 @@ async function loadAnimatedGIF() {
             script.onerror = reject
             document.head.appendChild(script)
         })
-        
+
         // Fetch the GIF file
         const response = await fetch('/k.gif')
         const arrayBuffer = await response.arrayBuffer()
         const bytes = new Uint8Array(arrayBuffer)
-        
+
         // Decode GIF using omggif
         // @ts-ignore - omggif is loaded from CDN
         const gifReader = new GifReader(bytes)
         const numFrames = gifReader.numFrames()
         const width = gifReader.width
         const height = gifReader.height
-        
+
         console.log(`GIF decoded: ${width}x${height}, ${numFrames} frames`)
-        
+
         // Extract each frame
         gifFrames = []
         gifFrameDelays = []
-        
+
         for (let i = 0; i < numFrames; i++) {
             const frameInfo = gifReader.frameInfo(i)
             const frameData = new Uint8Array(width * height * 4)
             gifReader.decodeAndBlitFrameRGBA(i, frameData)
-            
+
             // Create texture from frame data
             const frameTexture = new THREE.DataTexture(frameData, width, height, THREE.RGBAFormat)
             frameTexture.minFilter = THREE.LinearFilter
             frameTexture.magFilter = THREE.LinearFilter
             frameTexture.flipY = true
             frameTexture.needsUpdate = true
-            
+
             gifFrames.push(frameTexture)
             gifFrameDelays.push(frameInfo.delay * 10) // Convert centiseconds to milliseconds
         }
-        
+
         // Set initial frame
         if (gifFrames.length > 0) {
             whiteOutPass.uniforms['tImage'].value = gifFrames[0]
             gifStartTime = Date.now()
-            
+
             // Expose to global scope for animation loop
             // @ts-ignore
             window.gifFrames = gifFrames
@@ -303,7 +303,7 @@ async function loadAnimatedGIF() {
             // @ts-ignore
             window.gifStartTime = gifStartTime
         }
-        
+
         console.log('GIF frames extracted:', gifFrames.length)
     } catch (error) {
         console.error('Error loading GIF:', error)
@@ -354,9 +354,9 @@ window.addEventListener('mousemove', (event: MouseEvent) => {
     if (state.isFocusingOnNotepad && state.notepadPivot) {
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1
         pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
-        
+
         raycaster.setFromCamera(pointer, camera)
-        
+
         // Find the paper mesh
         let paperMesh: THREE.Mesh | null = null
         state.notepadPivot.traverse(child => {
@@ -373,26 +373,26 @@ window.addEventListener('mousemove', (event: MouseEvent) => {
                 // UV (0,0) is bottom-left, Canvas (0,0) is top-left
                 // Texture is likely flipped or rotated, need to calibrate
                 // Based on standard UV mapping:
-                
+
                 // Check if hovering over any blog post title
                 let hoveredIndex = -1
-                
+
                 notepad.blogPosts.forEach((post, index) => {
                     // Simple bounding box check
                     // Canvas size is 1024x1448
-                    
+
                     // Transform UV to Texture Space
                     // We applied repeat: 1.2, offset: -0.1
                     // Texture UV = (Mesh UV * repeat) + offset
                     // But Wait! Texture offset moves the texture, so it shifts UV coordinates in the opposite direction for sampling.
                     // Actually, gl_FragColor = texture2D(map, uv * repeat + offset)
                     // So the UV we want to check against canvas coords is (uv * repeat + offset)
-                    
+
                     const texU = uv.x * 1.2 - 0.1
                     // Use standard V orientation (Top-Down for Canvas)
                     // (1 - uv.y) is standard flip. 
                     const texV = (1 - uv.y) * 1.2 - 0.1
-                    
+
                     const scaledX = texU * 1024
                     const scaledY = texV * 1448
 
@@ -400,9 +400,9 @@ window.addEventListener('mousemove', (event: MouseEvent) => {
                         hoveredIndex = index
                     }
                 })
-                
+
                 notepad.setHovered(hoveredIndex)
-                
+
                 // Change cursor style
                 document.body.style.cursor = hoveredIndex !== -1 ? 'pointer' : 'default'
             } else {
@@ -468,21 +468,21 @@ window.addEventListener('click', (event: MouseEvent) => {
             } else if (!state.isEmergencyStopped) {
                 // Sequence: Turn off rave lights -> Pause -> Zoom out -> Pause -> Turn off all lights
                 state.isEmergencyStopped = true
-                
+
                 // Hide the warning text
                 if (state.emergencyText) state.emergencyText.visible = false
-                
+
                 // 1. Rave lights off (handled by loop via state.isEmergencyStopped)
-                
+
                 // 2. Pause then Zoom out
                 setTimeout(() => {
                     state.isFocusingOnButton = false
-                    
+
                     // 3. Pause then Turn off all lights
                     setTimeout(() => {
                         state.isBlackout = true
                         state.roomLights.forEach(light => light.visible = false)
-                        
+
                         // 4. After 1s of darkness, swap environment
                         setTimeout(() => {
                             // Remove Garage Assets
@@ -492,19 +492,19 @@ window.addEventListener('click', (event: MouseEvent) => {
                             state.speakerPivots.forEach(p => p.visible = false)
                             if (state.carPivot) state.carPivot.visible = false
                             if (state.bikePivot) state.bikePivot.visible = false
-                            
+
                             // Show Backrooms
                             if (state.backroomsPivot) state.backroomsPivot.visible = true
-                            
+
                             // Disable fog for bright backrooms
                             scene.fog = null
-                            
+
                             // Reduce vignette for backrooms
                             crtPass.uniforms['vignetteStrength'].value = 0.3
-                            
+
                             // Enable Backrooms Lights
                             state.backroomsLights.forEach(light => light.visible = true)
-                            
+
                         }, 1000)
                     }, 1000)
                 }, 1000)
@@ -523,14 +523,14 @@ window.addEventListener('keydown', (event: KeyboardEvent) => {
 
     if (event.key === 'p' || event.key === 'P') {
         const isRetro = renderPixelatedPass.enabled
-        
+
         if (isRetro) {
             // Dev Mode
             renderPixelatedPass.enabled = false
             crtPass.enabled = false
             bloomPass.enabled = false
             renderPass.enabled = true
-            
+
             controls.enabled = true
             state.isCameraLocked = false
             state.isFocusingOnScreen = false
@@ -542,10 +542,10 @@ window.addEventListener('keydown', (event: KeyboardEvent) => {
             renderPixelatedPass.enabled = true
             crtPass.enabled = true
             bloomPass.enabled = true
-            
+
             controls.enabled = false
             state.isCameraLocked = true
-            
+
             camera.position.copy(DEFAULT_POS)
             camera.lookAt(DEFAULT_TARGET)
         }
@@ -566,17 +566,17 @@ window.addEventListener('keydown', (event: KeyboardEvent) => {
         // Skip directly to backrooms
         if (!state.isEmergencyStopped) {
             state.isEmergencyStopped = true
-            
+
             // Hide the warning text
             if (state.emergencyText) state.emergencyText.visible = false
-            
+
             // Turn off rave lights (handled by loop via state.isEmergencyStopped)
-            
+
             // Pause then Turn off all lights
             setTimeout(() => {
                 state.isBlackout = true
                 state.roomLights.forEach(light => light.visible = false)
-                
+
                 // After 1s of darkness, swap environment
                 setTimeout(() => {
                     // Remove Garage Assets
@@ -586,19 +586,19 @@ window.addEventListener('keydown', (event: KeyboardEvent) => {
                     state.speakerPivots.forEach(p => p.visible = false)
                     if (state.carPivot) state.carPivot.visible = false
                     if (state.bikePivot) state.bikePivot.visible = false
-                    
+
                     // Show Backrooms
                     if (state.backroomsPivot) state.backroomsPivot.visible = true
-                    
+
                     // Disable fog for bright backrooms
                     scene.fog = null
-                    
+
                     // Reduce vignette for backrooms
                     crtPass.uniforms['vignetteStrength'].value = 0.3
-                    
+
                     // Enable Backrooms Lights
                     state.backroomsLights.forEach(light => light.visible = true)
-                    
+
                 }, 1000)
             }, 1000)
         }
