@@ -15,6 +15,53 @@ export function setupInteractions(
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2()
 
+    // Audio Setup
+    const listener = new THREE.AudioListener()
+    camera.add(listener)
+
+    const sound = new THREE.Audio(listener)
+
+    // Create muffled effect (low-pass filter)
+    const filter = listener.context.createBiquadFilter()
+    filter.type = 'lowpass'
+    filter.frequency.value = 950 // Muffled sound like it's downstairs
+    sound.setFilter(filter)
+
+    // Add Reverb to the filtered signal
+    const convolver = listener.context.createConvolver()
+    const reverbGain = listener.context.createGain()
+    reverbGain.gain.value = 0.3
+
+    // Generate impulse response for reverb
+    const rate = listener.context.sampleRate
+    const length = rate * 1.5 // 1.5 seconds tail
+    const impulse = listener.context.createBuffer(2, length, rate)
+    const leftChannel = impulse.getChannelData(0)
+    const rightChannel = impulse.getChannelData(1)
+
+    for (let i = 0; i < length; i++) {
+        const decay = Math.pow(1 - i / length, 2.0)
+        // Add some noise to each channel
+        leftChannel[i] = (Math.random() * 2 - 1) * decay
+        rightChannel[i] = (Math.random() * 2 - 1) * decay
+    }
+    convolver.buffer = impulse
+
+    // Connect wet path: Filter -> Convolver -> ReverbGain -> MasterGain
+    filter.connect(convolver)
+    convolver.connect(reverbGain)
+    reverbGain.connect(sound.gain)
+
+    const audioLoader = new THREE.AudioLoader()
+    audioLoader.load('/berghain.mp3', function (buffer) {
+        sound.setBuffer(buffer)
+        sound.setLoop(true)
+        sound.setVolume(0.5)
+        sound.offset = 120 // Start at 2 minutes
+    })
+
+    let audioStarted = false
+
     window.addEventListener('mousemove', (event: MouseEvent) => {
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1
         pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
@@ -85,6 +132,17 @@ export function setupInteractions(
     window.addEventListener('click', (event: MouseEvent) => {
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1
         pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+        // Play audio on first click
+        if (!audioStarted) {
+            if (sound.context.state === 'suspended') {
+                sound.context.resume()
+            }
+            if (sound.buffer) {
+                sound.play()
+                audioStarted = true
+            }
+        }
 
         raycaster.setFromCamera(pointer, camera)
 
