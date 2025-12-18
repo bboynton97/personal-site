@@ -58,3 +58,26 @@ The API runs on `http://localhost:8000` by default.
 Interactive API documentation is available at:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
+
+## Database and Migrations
+
+This project uses PostgreSQL and Alembic for database migrations.
+
+1.  **Environment Setup**:
+    Create a `.env` file in the `api` directory based on `.env.example`:
+    ```bash
+    cp .env.example .env
+    ```
+    Update `DATABASE_URL` in `.env` with your PostgreSQL credentials.
+
+2.  **Run Migrations**:
+    Apply migrations to set up the database schema:
+    ```bash
+    uv run alembic upgrade head
+    ```
+
+3.  **create new migration**:
+    To create a new migration after modifying `models.py`:
+    ```bash
+    uv run alembic revision --autogenerate -m "description of changes"
+    ```
