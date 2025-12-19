@@ -201,10 +201,13 @@ export function setupInteractions(
                 return raycaster.intersectObjects(pivot.children, true).length > 0
             }
 
+            // Check if in backrooms (used to disable notepad interactions)
+            const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
+
             // Check interactions based on click handler logic
             if (checkIntersect(state.powerPilePivot)) objectHovered = true
             else if (state.computerPivot && raycaster.intersectObjects(state.computerPivot.children, true).some(hit => hit.object.name.toLowerCase().includes('cube_screen_0'))) objectHovered = true
-            else if (checkIntersect(state.notepadPivot)) objectHovered = true
+            else if (!isInBackrooms && checkIntersect(state.notepadPivot)) objectHovered = true
             else if (checkIntersect(state.emergencyButtonPivot)) objectHovered = true
             else if (checkIntersect(state.octocatPivot)) objectHovered = true
 
@@ -315,7 +318,9 @@ export function setupInteractions(
             }
         }
 
-        if (state.notepadPivot) {
+        // Notepad is not clickable in backrooms
+        const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
+        if (state.notepadPivot && !isInBackrooms) {
             const intersects = raycaster.intersectObjects(state.notepadPivot.children, true)
             if (intersects.length > 0) {
                 if (state.isCameraLocked && !state.isFocusingOnNotepad) {

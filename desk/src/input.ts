@@ -16,7 +16,6 @@ export function setupInputListeners(
     renderPass: RenderPass,
     controls: OrbitControls,
     camera: THREE.PerspectiveCamera,
-    scene: THREE.Scene,
     DEFAULT_POS: THREE.Vector3,
     DEFAULT_TARGET: THREE.Vector3
 ): void {
@@ -68,69 +67,6 @@ export function setupInputListeners(
                 state.currentLightShow = 'lightShow3'
             } else {
                 state.currentLightShow = 'lightShow1'
-            }
-        }
-
-        if (event.key === 'b' || event.key === 'B') {
-            // Skip directly to backrooms
-            if (!state.isEmergencyStopped) {
-                state.isEmergencyStopped = true
-
-                // Stop the techno music
-                if (state.technoMusic && state.technoMusic.isPlaying) {
-                    state.technoMusic.stop()
-                }
-
-                // Hide the warning text
-                if (state.emergencyText) state.emergencyText.visible = false
-
-                // Turn off rave lights (handled by loop via state.isEmergencyStopped)
-
-                // Pause then Turn off all lights
-                setTimeout(() => {
-                    state.isBlackout = true
-                    state.roomLights.forEach(light => {
-                        // @ts-ignore
-                        light.visible = false
-                    })
-
-                    // After 3s of darkness, swap environment
-                    setTimeout(() => {
-                        // Remove Garage Assets
-                        state.floorPivots.forEach(p => p.visible = false)
-                        state.barrierPivots.forEach(p => p.visible = false)
-                        state.wallPivots.forEach(p => p.visible = false)
-                        state.speakerPivots.forEach(p => p.visible = false)
-                        if (state.carPivot) state.carPivot.visible = false
-                        if (state.bikePivot) state.bikePivot.visible = false
-
-                        // Show Backrooms
-                        if (state.backroomsPivot) state.backroomsPivot.visible = true
-
-                        // Disable fog for bright backrooms
-                        scene.fog = null
-
-                        // Reduce vignette for backrooms
-                        crtPass.uniforms['vignetteStrength'].value = 0.3
-
-                        // Enable Backrooms Lights
-                        state.backroomsLights.forEach(light => light.visible = true)
-
-                        // Hide the octocat
-                        if (state.octocatPivot) state.octocatPivot.visible = false
-
-                        // Play lamp buzz sound on loop
-                        if (state.lampBuzzSound) {
-                            if (state.lampBuzzSound.context.state === 'suspended') {
-                                state.lampBuzzSound.context.resume()
-                            }
-                            if (!state.lampBuzzSound.isPlaying) {
-                                state.lampBuzzSound.play()
-                            }
-                        }
-
-                    }, 3000)
-                }, 1000)
             }
         }
     })

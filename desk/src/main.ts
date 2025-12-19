@@ -132,7 +132,6 @@ setupInputListeners(
     renderPass,
     controls,
     camera,
-    scene,
     DEFAULT_POS,
     DEFAULT_TARGET
 )
