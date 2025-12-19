@@ -70,8 +70,8 @@ export function setupInteractions(
 
         let cursorStyle = "url('/pointer.png'), auto"
 
-        // During intro, check for hovering over door UI elements
-        if (state.isIntro && state.introAnimationProgress === 0 && state.doorUI) {
+        // During intro, check for hovering over door UI elements (but not while glitching)
+        if (state.isIntro && state.introAnimationProgress === 0 && state.doorUI && !state.introGlitchStartTime) {
             const intersects = raycaster.intersectObjects(state.doorUI.children, true)
             
             // Reset all clickable elements to normal scale
@@ -178,7 +178,8 @@ export function setupInteractions(
                     
                     // Handle enter button click
                     if (hitName === 'door_enter') {
-                        state.introAnimationProgress = 0.001 // Start the animation
+                        // Start glitch effect (camera movement happens after glitch + scene ready)
+                        state.introGlitchStartTime = Date.now()
                         
                         // Play audio on enter
                         if (!audioStarted) {

@@ -31,10 +31,13 @@ export interface AppState {
     isAudioPlaying: boolean
     isIntro: boolean
     introAnimationProgress: number
+    introGlitchStartTime: number | null
+    introSceneReady: boolean
     doorPivot: THREE.Group | null
     doorLight: THREE.SpotLight | null
     doorWalls: THREE.Group[]
     doorUI: THREE.Group | null
+    doorEnterMesh: THREE.Mesh | null
     computerPivot: THREE.Group | null
     notepadPivot: THREE.Group | null
     powerPilePivot: THREE.Group | null

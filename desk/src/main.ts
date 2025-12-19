@@ -73,6 +73,11 @@ loadDoor(loader, scene, state).then(() => {
     loadComputer(loader, scene, terminal, state)
     loadOscilloscope(loader, scene, oscilloscope)
     loadNotepad(loader, scene, state, notepad)
+    
+    // Mark scene as ready after a minimum delay to ensure assets load
+    setTimeout(() => {
+        state.introSceneReady = true
+    }, 1500)
 })
 
 // --- POST PROCESSING ---

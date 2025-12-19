@@ -148,6 +148,7 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         doorUI.add(enterMesh)
 
         state.doorUI = doorUI
+        state.doorEnterMesh = enterMesh
 
         // Add a light in front of the door to illuminate it
         const doorLight = new THREE.SpotLight(0xffffff, 200)

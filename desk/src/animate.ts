@@ -37,6 +37,42 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         updateRaveLights(state, time)
         updateEffects(crtPass, whiteOutPass, renderPixelatedPass, state)
 
+        // Pulsate enter button opacity (0.6 to 1.0) - only when not glitching
+        if (state.isIntro && state.doorEnterMesh && !state.introGlitchStartTime) {
+            const material = state.doorEnterMesh.material as THREE.MeshBasicMaterial
+            // Pulsate using sine wave: oscillates between 0.6 and 1.0
+            material.opacity = 0.8 + 0.2 * Math.sin(time * 2)
+        }
+
+        // Handle intro glitch effect
+        if (state.isIntro && state.introGlitchStartTime && state.doorUI) {
+            const glitchElapsed = Date.now() - state.introGlitchStartTime
+            const glitchDuration = 800 // 0.8 seconds of glitching
+            
+            if (glitchElapsed < glitchDuration) {
+                // Glitch effect: rapidly toggle visibility with random timing
+                const glitchSpeed = 50 + Math.random() * 100
+                const visible = Math.sin(glitchElapsed / glitchSpeed * Math.PI) > 0
+                state.doorUI.visible = visible
+                
+                // Also randomly offset position slightly for extra glitch feel
+                if (state.doorUI.visible) {
+                    state.doorUI.position.x = (Math.random() - 0.5) * 0.1
+                    state.doorUI.position.y = 2.5 + (Math.random() - 0.5) * 0.1
+                }
+            } else {
+                // Glitch done - hide UI completely
+                state.doorUI.visible = false
+                state.doorUI.position.x = 0
+                state.doorUI.position.y = 2.5
+                
+                // Start camera movement only if scene is ready
+                if (state.introSceneReady && state.introAnimationProgress === 0) {
+                    state.introAnimationProgress = 0.001
+                }
+            }
+        }
+
         // Render
         terminal.update()
         // Check if in backrooms (used to disable oscilloscope)
