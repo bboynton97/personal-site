@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="A personal blog featuring articles on technology, development, and creative pursuits.">
+    <meta name="keywords" content="blog, articles, technology, development">
+    <meta name="author" content="Your Name">
+    <title>My Blog</title>
+</head>
+
+<body>
+    <header>
+        <h1>My Blog</h1>
+        <nav>
+            <a href="/">Home</a> |
+            <a href="#about">About</a> |
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Recent Posts</h2>
+        <div id="posts-container">
+            <!-- Posts will be loaded here from posts.json -->
+        </div>
+    </main>
+
+    <footer>
+        <hr>
+        <h3>About</h3>
+        <p>A personal blog exploring technology, creativity, and the art of building meaningful things.</p>
+
+        <h3>Connect</h3>
+        <ul>
+            <li><a href="https://twitter.com/yourusername">Twitter</a></li>
+            <li><a href="https://github.com/yourusername">GitHub</a></li>
+            <li><a href="mailto:you@example.com">Email</a></li>
+        </ul>
+
+        <p>&copy; 2025 My Blog. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Load posts from posts.json
+        fetch('posts.json')
+            .then(response => response.json())
+            .then(posts => {
+                const container = document.getElementById('posts-container');
+
+                posts.forEach((post, index) => {
+                    const article = document.createElement('article');
+
+                    const title = document.createElement('h3');
+                    const link = document.createElement('a');
+                    link.href = `posts/${post.slug}.html`;
+                    link.textContent = post.title;
+                    title.appendChild(link);
+
+                    const meta = document.createElement('p');
+                    const time = document.createElement('time');
+                    time.setAttribute('datetime', post.date);
+                    time.textContent = new Date(post.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    meta.appendChild(time);
+                    meta.appendChild(document.createTextNode(` • ${post.readTime}`));
+
+                    const description = document.createElement('p');
+                    description.textContent = post.description;
+
+                    const tags = document.createElement('p');
+                    const strong = document.createElement('strong');
+                    strong.textContent = 'Tags: ';
+                    tags.appendChild(strong);
+                    tags.appendChild(document.createTextNode(post.tags.join(', ')));
+
+                    article.appendChild(title);
+                    article.appendChild(meta);
+                    article.appendChild(description);
+                    article.appendChild(tags);
+
+                    container.appendChild(article);
+
+                    // Add separator except after last post
+                    if (index < posts.length - 1) {
+                        container.appendChild(document.createElement('hr'));
+                    }
+                });
+            })
+            .catch(error => console.error('Error loading posts:', error));
+    </script>
+</body>
+
+</html>

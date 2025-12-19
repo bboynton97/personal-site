@@ -1,0 +1,46 @@
+[
+    {
+        "title": "Building with Simplicity: Why Less is More",
+        "slug": "building-with-simplicity",
+        "date": "2025-12-15",
+        "readTime": "5 min read",
+        "description": "Exploring how embracing simplicity in software development leads to more maintainable, elegant solutions that stand the test of time.",
+        "tags": [
+            "Development",
+            "Philosophy"
+        ]
+    },
+    {
+        "title": "My Creative Coding Journey",
+        "slug": "creative-coding-journey",
+        "date": "2025-12-10",
+        "readTime": "8 min read",
+        "description": "From traditional programming to generative art - how I discovered the joy of creating visual experiences through code.",
+        "tags": [
+            "Creative Coding",
+            "Art"
+        ]
+    },
+    {
+        "title": "The Evolving Web: What's Next?",
+        "slug": "future-of-web",
+        "date": "2025-12-05",
+        "readTime": "6 min read",
+        "description": "A deep dive into emerging web technologies and what they mean for developers and users in the coming years.",
+        "tags": [
+            "Web Development",
+            "Future Tech"
+        ]
+    },
+    {
+        "title": "Creating a Minimalist Digital Workspace",
+        "slug": "minimalist-workspace",
+        "date": "2025-11-28",
+        "readTime": "4 min read",
+        "description": "Tips and tricks for decluttering your digital environment to boost focus and productivity.",
+        "tags": [
+            "Productivity",
+            "Minimalism"
+        ]
+    }
+]
