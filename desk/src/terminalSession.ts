@@ -85,7 +85,7 @@ export class TerminalSession {
         }
     }
 
-    async executeCommand(command: string): Promise<string> {
+    async executeCommand(command: string, isRetry = false): Promise<string> {
         if (!this.isSessionValid()) {
             // Try to reinitialize
             const success = await this.initSession()
@@ -114,10 +114,15 @@ export class TerminalSession {
             const data: ExecuteResponse = await response.json()
 
             if (data.error) {
-                // Session might be expired
-                if (data.error.includes('expired') || data.error.includes('not found')) {
+                // Session might be expired - request a new one and retry (once)
+                if (!isRetry && (data.error.includes('expired') || data.error.includes('not found'))) {
                     this.clearSession()
-                    return 'Session expired. Please try again.'
+                    const success = await this.initSession()
+                    if (success) {
+                        // Retry the command with the new session
+                        return this.executeCommand(command, true)
+                    }
+                    return 'Error: Could not establish new terminal session'
                 }
                 return `Error: ${data.error}`
             }
