@@ -48,6 +48,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         if (state.isIntro && state.introGlitchStartTime && state.doorUI) {
             const glitchElapsed = Date.now() - state.introGlitchStartTime
             const glitchDuration = 800 // 0.8 seconds of glitching
+            const postGlitchDelay = 2000
             
             if (glitchElapsed < glitchDuration) {
                 // Glitch effect: rapidly toggle visibility with random timing
@@ -66,8 +67,9 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                 state.doorUI.position.x = 0
                 state.doorUI.position.y = 2.5
                 
-                // Start camera movement only if scene is ready
-                if (state.introSceneReady && state.introAnimationProgress === 0) {
+                // Wait additional 1 second after glitch, then start camera movement if scene is ready
+                if (glitchElapsed >= glitchDuration + postGlitchDelay && 
+                    state.introSceneReady && state.introAnimationProgress === 0) {
                     state.introAnimationProgress = 0.001
                 }
             }
