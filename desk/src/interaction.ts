@@ -70,6 +70,12 @@ export function setupInteractions(
 
         let cursorStyle = "url('/pointer.png'), auto"
 
+        // During intro, show click cursor to indicate user should click
+        if (state.isIntro && state.introAnimationProgress === 0) {
+            document.body.style.cursor = "url('/click.png'), pointer"
+            return
+        }
+
         // Mode 1: Focusing on Notepad - check for specific links
         if (state.isFocusingOnNotepad && state.notepadPivot) {
             let paperMesh: THREE.Mesh | null = null
@@ -135,7 +141,25 @@ export function setupInteractions(
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1
         pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
 
-        // Play audio on first click
+        // Handle intro click - start camera animation to move forward through the door
+        if (state.isIntro && state.introAnimationProgress === 0) {
+            state.introAnimationProgress = 0.001 // Start the animation
+            
+            // Play audio on intro click
+            if (!audioStarted) {
+                if (sound.context.state === 'suspended') {
+                    sound.context.resume()
+                }
+                if (sound.buffer) {
+                    sound.play()
+                    audioStarted = true
+                    state.isAudioPlaying = true
+                }
+            }
+            return // Don't process other clicks during intro
+        }
+
+        // Play audio on first click (if not started during intro)
         if (!audioStarted) {
             if (sound.context.state === 'suspended') {
                 sound.context.resume()

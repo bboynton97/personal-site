@@ -27,6 +27,8 @@ import { setupInputListeners } from './input'
 // --- CONSTANTS ---
 const DEFAULT_POS = new THREE.Vector3(1, 4, 8)
 const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0)
+const INTRO_POS = new THREE.Vector3(1, 4, 20)
+const INTRO_TARGET = new THREE.Vector3(0, 0, 0)
 
 // --- SCENE SETUP ---
 const scene = new THREE.Scene()
@@ -34,8 +36,9 @@ scene.fog = new THREE.FogExp2(0x050505, 0.02)
 RectAreaLightUniformsLib.init()
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.copy(DEFAULT_POS)
-camera.lookAt(DEFAULT_TARGET)
+// Start camera at intro position (further back, behind the door)
+camera.position.copy(INTRO_POS)
+camera.lookAt(INTRO_TARGET)
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)

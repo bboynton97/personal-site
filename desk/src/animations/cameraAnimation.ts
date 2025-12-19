@@ -12,7 +12,51 @@ const BUTTON_ZOOM_TARGET = new THREE.Vector3(3.0, 0.5, -1.5)
 const DEFAULT_POS = new THREE.Vector3(1, 4, 8)
 const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0)
 
+// Intro camera position (further back, behind the door)
+const INTRO_POS = new THREE.Vector3(1, 4, 20)
+const INTRO_TARGET = new THREE.Vector3(0, 0, 0)
+
 export function updateCamera(camera: THREE.PerspectiveCamera, controls: OrbitControls, state: AppState): void {
+    // During intro, keep camera at intro position until user clicks
+    if (state.isIntro) {
+        if (state.introAnimationProgress === 0) {
+            // Waiting for click - keep camera at intro position
+            return
+        }
+        
+        // Animate from intro to default position
+        const progress = Math.min(state.introAnimationProgress, 1)
+        
+        // Use easeOutCubic for smooth deceleration
+        const eased = 1 - Math.pow(1 - progress, 3)
+        
+        const targetPos = new THREE.Vector3().lerpVectors(INTRO_POS, DEFAULT_POS, eased)
+        const targetLookAt = new THREE.Vector3().lerpVectors(INTRO_TARGET, DEFAULT_TARGET, eased)
+        
+        camera.position.copy(targetPos)
+        controls.target.copy(targetLookAt)
+        
+        // Update animation progress
+        state.introAnimationProgress += 0.015
+        
+        // Animation complete
+        if (state.introAnimationProgress >= 1) {
+            state.isIntro = false
+            state.introAnimationProgress = 0
+            // Hide the door, light, and walls after animation
+            if (state.doorPivot) {
+                state.doorPivot.visible = false
+            }
+            if (state.doorLight) {
+                state.doorLight.visible = false
+            }
+            state.doorWalls.forEach(wall => {
+                wall.visible = false
+            })
+        }
+        return
+    }
+    
     if (state.isFocusingOnScreen) {
         camera.position.lerp(ZOOM_POS, 0.05)
         controls.target.lerp(ZOOM_TARGET, 0.05)

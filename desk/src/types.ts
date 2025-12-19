@@ -29,6 +29,11 @@ export interface AppState {
     isEmergencyStopped: boolean
     isBlackout: boolean
     isAudioPlaying: boolean
+    isIntro: boolean
+    introAnimationProgress: number
+    doorPivot: THREE.Group | null
+    doorLight: THREE.SpotLight | null
+    doorWalls: THREE.Group[]
     computerPivot: THREE.Group | null
     notepadPivot: THREE.Group | null
     powerPilePivot: THREE.Group | null
