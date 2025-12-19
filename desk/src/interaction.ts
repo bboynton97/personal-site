@@ -20,7 +20,16 @@ export function setupInteractions(
     const listener = new THREE.AudioListener()
     camera.add(listener)
 
-    const sound = new THREE.Audio(listener)
+    // Create position helpers for directional audio (relative to camera)
+    const technoPosition = new THREE.Object3D()
+    technoPosition.position.set(0, -2, -5) // Below and in front of camera
+    camera.add(technoPosition)
+
+    const sound = new THREE.PositionalAudio(listener)
+    sound.setRefDistance(5)
+    sound.setRolloffFactor(0.5)
+    technoPosition.add(sound)
+    state.technoMusic = sound
 
     // Create muffled effect (low-pass filter) - starts very muffled, opens up when door opens
     const filter = listener.context.createBiquadFilter()
@@ -61,6 +70,54 @@ export function setupInteractions(
         sound.setVolume(0.5)
         sound.offset = 120 // Start at 2 minutes
     })
+
+    // Emergency switch sound
+    const emergencySwitchSound = new THREE.Audio(listener)
+    audioLoader.load('/loud-switch.mp3', function (buffer) {
+        emergencySwitchSound.setBuffer(buffer)
+        emergencySwitchSound.setLoop(false)
+        emergencySwitchSound.setVolume(1.0)
+    })
+    state.emergencySwitchSound = emergencySwitchSound
+
+    // Lamp buzz sound for backrooms (with reverb) - positioned above camera
+    const buzzPosition = new THREE.Object3D()
+    buzzPosition.position.set(0, 4, 0) // Above the camera
+    camera.add(buzzPosition)
+    
+    const lampBuzzSound = new THREE.PositionalAudio(listener)
+    lampBuzzSound.setRefDistance(3)
+    lampBuzzSound.setRolloffFactor(0.3)
+    buzzPosition.add(lampBuzzSound)
+    
+    // Create reverb for lamp buzz
+    const buzzConvolver = listener.context.createConvolver()
+    const buzzReverbGain = listener.context.createGain()
+    buzzReverbGain.gain.value = 0.15 // Subtle reverb
+    
+    // Generate impulse response for reverb (shorter tail for ambient hum)
+    const buzzLength = rate * 0.8 // 0.8 seconds tail
+    const buzzImpulse = listener.context.createBuffer(2, buzzLength, rate)
+    const buzzLeft = buzzImpulse.getChannelData(0)
+    const buzzRight = buzzImpulse.getChannelData(1)
+    
+    for (let i = 0; i < buzzLength; i++) {
+        const decay = Math.pow(1 - i / buzzLength, 2.5)
+        buzzLeft[i] = (Math.random() * 2 - 1) * decay
+        buzzRight[i] = (Math.random() * 2 - 1) * decay
+    }
+    buzzConvolver.buffer = buzzImpulse
+    
+    audioLoader.load('/lamp-buzz.mov', function (buffer) {
+        lampBuzzSound.setBuffer(buffer)
+        lampBuzzSound.setLoop(true)
+        
+        // Connect reverb: source -> convolver -> reverbGain -> output
+        lampBuzzSound.gain.connect(buzzConvolver)
+        buzzConvolver.connect(buzzReverbGain)
+        buzzReverbGain.connect(listener.context.destination)
+    })
+    state.lampBuzzSound = lampBuzzSound
 
     let audioStarted = false
 
@@ -320,6 +377,17 @@ export function setupInteractions(
                     // Sequence: Turn off rave lights -> Pause -> Zoom out -> Pause -> Turn off all lights
                     state.isEmergencyStopped = true
 
+                    // Play emergency switch sound
+                    if (state.emergencySwitchSound) {
+                        if (state.emergencySwitchSound.isPlaying) state.emergencySwitchSound.stop()
+                        state.emergencySwitchSound.play()
+                    }
+
+                    // Stop the techno music
+                    if (state.technoMusic && state.technoMusic.isPlaying) {
+                        state.technoMusic.stop()
+                    }
+
                     // Hide the warning text
                     if (state.emergencyText) state.emergencyText.visible = false
 
@@ -332,12 +400,19 @@ export function setupInteractions(
                         // 3. Pause then Turn off all lights
                         setTimeout(() => {
                             state.isBlackout = true
+
+                            // Play emergency switch sound again for lights off
+                            if (state.emergencySwitchSound) {
+                                if (state.emergencySwitchSound.isPlaying) state.emergencySwitchSound.stop()
+                                state.emergencySwitchSound.play()
+                            }
+
                             state.roomLights.forEach(light => {
                                 // @ts-ignore
                                 light.visible = false
                             })
 
-                            // 4. After 1s of darkness, swap environment
+                            // 4. After 3s of darkness, swap environment
                             setTimeout(() => {
                                 // Remove Garage Assets
                                 state.floorPivots.forEach(p => p.visible = false)
@@ -359,7 +434,23 @@ export function setupInteractions(
                                 // Enable Backrooms Lights
                                 state.backroomsLights.forEach(light => light.visible = true)
 
-                            }, 1000)
+                                // Hide the octocat
+                                if (state.octocatPivot) state.octocatPivot.visible = false
+
+                                // Play lamp buzz sound on loop
+                                if (state.lampBuzzSound) {
+                                    if (state.lampBuzzSound.context.state === 'suspended') {
+                                        state.lampBuzzSound.context.resume()
+                                    }
+                                    if (!state.lampBuzzSound.isPlaying) {
+                                        state.lampBuzzSound.play()
+                                    }
+                                }
+
+                                // Switch notepad to demonic backrooms mode
+                                notepad.setBackroomsMode(true)
+
+                            }, 3000)
                         }, 1000)
                     }, 1000)
                 }

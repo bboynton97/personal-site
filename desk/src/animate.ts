@@ -116,10 +116,32 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
 
         // Render
         terminal.update()
-        // Check if in backrooms (used to disable oscilloscope)
+        // Check if in backrooms (used to disable oscilloscope and show horror monster)
         const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
         if (!isInBackrooms) {
             oscilloscope.update()
+        }
+
+        // Show horror monster when focusing on something in the backrooms (stays visible once revealed)
+        if (state.horrorMonsterPivot) {
+            const isFocusingOnSomething = state.isFocusingOnScreen || state.isFocusingOnNotepad
+            
+            // Once revealed, monster stays visible
+            if (!!isInBackrooms && isFocusingOnSomething && !state.horrorMonsterPivot.visible) {
+                console.log('Horror monster revealed!', {
+                    isInBackrooms: !!isInBackrooms,
+                    isFocusingOnScreen: state.isFocusingOnScreen,
+                    isFocusingOnNotepad: state.isFocusingOnNotepad
+                })
+                state.horrorMonsterPivot.visible = true
+            }
+            
+            // Subtle creepy movement when visible
+            if (state.horrorMonsterPivot.visible) {
+                // Slight swaying motion
+                state.horrorMonsterPivot.rotation.y = Math.PI * 0.3 + Math.sin(time * 0.5) * 0.05
+                state.horrorMonsterPivot.position.y = Math.sin(time * 0.3) * 0.3
+            }
         }
 
         // Camera Rumble (140 BPM)
@@ -127,7 +149,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         let shakeY = 0
         let shakeZ = 0
 
-        if (state.isAudioPlaying) {
+        if (state.isAudioPlaying && !state.isEmergencyStopped) {
             // 140 BPM = 2.333 beats per second
             const beatFreq = 140 / 60
             // Sawtooth wave 0->1 for beat timing
@@ -151,7 +173,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         composer.render()
 
         // Restore camera position to prevent drift/fighting with controls
-        if (state.isAudioPlaying) {
+        if (state.isAudioPlaying && !state.isEmergencyStopped) {
             camera.position.x -= shakeX
             camera.position.y -= shakeY
             camera.position.z -= shakeZ

@@ -16,6 +16,9 @@ export const state: AppState = {
     doorOpenSound: null,
     doorKnockSound: null,
     sniffSound: null,
+    emergencySwitchSound: null,
+    lampBuzzSound: null,
+    technoMusic: null,
     musicFilter: null,
     doorPivot: null,
     doorHingePivot: null,
@@ -38,6 +41,7 @@ export const state: AppState = {
     // Backrooms Assets
     backroomsPivot: null,
     backroomsLights: [],
+    horrorMonsterPivot: null,
 
     armSegments: { base: null, arm: null },
     roomLights: [],

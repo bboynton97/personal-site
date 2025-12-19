@@ -37,6 +37,9 @@ export interface AppState {
     doorOpenSound: THREE.Audio | null
     doorKnockSound: THREE.Audio | null
     sniffSound: THREE.Audio | null
+    emergencySwitchSound: THREE.Audio | null
+    lampBuzzSound: THREE.PositionalAudio | null
+    technoMusic: THREE.PositionalAudio | null
     musicFilter: BiquadFilterNode | null
     doorPivot: THREE.Group | null
     doorHingePivot: THREE.Group | null
@@ -59,6 +62,7 @@ export interface AppState {
     // Backrooms Assets
     backroomsPivot: THREE.Group | null
     backroomsLights: THREE.Light[]
+    horrorMonsterPivot: THREE.Group | null
 
     armSegments: {
         base: THREE.Group | null

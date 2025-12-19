@@ -76,6 +76,11 @@ export function setupInputListeners(
             if (!state.isEmergencyStopped) {
                 state.isEmergencyStopped = true
 
+                // Stop the techno music
+                if (state.technoMusic && state.technoMusic.isPlaying) {
+                    state.technoMusic.stop()
+                }
+
                 // Hide the warning text
                 if (state.emergencyText) state.emergencyText.visible = false
 
@@ -89,7 +94,7 @@ export function setupInputListeners(
                         light.visible = false
                     })
 
-                    // After 1s of darkness, swap environment
+                    // After 3s of darkness, swap environment
                     setTimeout(() => {
                         // Remove Garage Assets
                         state.floorPivots.forEach(p => p.visible = false)
@@ -111,7 +116,20 @@ export function setupInputListeners(
                         // Enable Backrooms Lights
                         state.backroomsLights.forEach(light => light.visible = true)
 
-                    }, 1000)
+                        // Hide the octocat
+                        if (state.octocatPivot) state.octocatPivot.visible = false
+
+                        // Play lamp buzz sound on loop
+                        if (state.lampBuzzSound) {
+                            if (state.lampBuzzSound.context.state === 'suspended') {
+                                state.lampBuzzSound.context.resume()
+                            }
+                            if (!state.lampBuzzSound.isPlaying) {
+                                state.lampBuzzSound.play()
+                            }
+                        }
+
+                    }, 3000)
                 }, 1000)
             }
         }

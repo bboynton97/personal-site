@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 
-export function loadCocainePile(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadKPile(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
     loader.load('/Cocaine Pile 3D Model.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -39,7 +39,7 @@ export function loadCocainePile(loader: GLTFLoader, scene: THREE.Scene, state: A
         const sniffSound = new THREE.Audio(listener)
         audioLoader.load('/snifff.mp3', (buffer) => {
             sniffSound.setBuffer(buffer)
-            sniffSound.setVolume(0.1)
+            sniffSound.setVolume(0.3)
             state.sniffSound = sniffSound
         })
     })

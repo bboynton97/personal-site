@@ -12,10 +12,11 @@ import { loadFloor } from './Floor'
 import { loadSpeaker } from './Speaker'
 import { loadCar } from './Car'
 import { loadBike } from './Bike'
-import { loadCocainePile } from './CocainePile'
+import { loadKPile } from './KPile'
 import { loadEmergencyButton } from './EmergencyButton'
 import { loadBackrooms } from './Backrooms'
 import { loadGitHubOctocat } from './GitHubOctocat'
+import { loadHorrorMonster } from './HorrorMonster'
 // Re-export objects that need additional parameters
 export { loadComputer } from './Computer'
 export { loadOscilloscope } from './OscilloscopeObject'
@@ -34,8 +35,9 @@ export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state:
     loadSpeaker(loader, scene, state)
     loadCar(loader, scene, state)
     loadBike(loader, scene, state)
-    loadCocainePile(loader, scene, state)
+    loadKPile(loader, scene, state)
     loadEmergencyButton(loader, scene, state)
     loadBackrooms(loader, scene, state)
     loadGitHubOctocat(loader, scene, state)
+    loadHorrorMonster(loader, scene, state)
 }
