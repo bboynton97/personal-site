@@ -3,6 +3,7 @@ import type { AppState } from './types'
 import type { Terminal } from './meshes/Terminal'
 import type { Notepad } from './meshes/Notepad'
 import type { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { terminalSession } from './terminalSession'
 
 export function setupInteractions(
     camera: THREE.PerspectiveCamera,
@@ -141,6 +142,7 @@ export function setupInteractions(
             if (sound.buffer) {
                 sound.play()
                 audioStarted = true
+                state.isAudioPlaying = true
             }
         }
 
@@ -166,6 +168,17 @@ export function setupInteractions(
                     state.isFocusingOnScreen = true
                     state.isFocusingOnNotepad = false
                     terminal.setFocused(true)
+
+                    // Initialize terminal session on first click
+                    if (!terminalSession.isSessionValid()) {
+                        terminalSession.initSession().then(success => {
+                            if (success) {
+                                console.log('Terminal session initialized successfully')
+                            } else {
+                                console.error('Failed to initialize terminal session')
+                            }
+                        })
+                    }
                 }
             }
         }

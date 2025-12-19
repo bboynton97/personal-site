@@ -44,7 +44,41 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         if (!isInBackrooms) {
             oscilloscope.update()
         }
+
+        // Camera Rumble (140 BPM)
+        let shakeX = 0
+        let shakeY = 0
+        let shakeZ = 0
+
+        if (state.isAudioPlaying) {
+            // 140 BPM = 2.333 beats per second
+            const beatFreq = 140 / 60
+            // Sawtooth wave 0->1 for beat timing
+            const beat = (time * beatFreq) % 1
+
+            // Sharp decay envelope (starts at 1, drops fast) creates the "kick" rhythmic feel
+            const envelope = Math.pow(1 - beat, 4)
+
+            // High frequency rumble (noise) synced to the beat envelope
+            // "Sharp" vibration comes from random noise + fast attack
+            const intensity = 0.025
+            shakeX = (Math.random() - 0.5) * intensity * envelope
+            shakeY = (Math.random() - 0.5) * intensity * envelope
+            shakeZ = (Math.random() - 0.5) * intensity * envelope
+
+            camera.position.x += shakeX
+            camera.position.y += shakeY
+            camera.position.z += shakeZ
+        }
+
         composer.render()
+
+        // Restore camera position to prevent drift/fighting with controls
+        if (state.isAudioPlaying) {
+            camera.position.x -= shakeX
+            camera.position.y -= shakeY
+            camera.position.z -= shakeZ
+        }
     }
 
     return animate

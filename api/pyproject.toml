@@ -14,8 +14,9 @@ dependencies = [
     "alembic>=1.14.1",
     "sqlalchemy>=2.0.45",
     "psycopg2-binary>=2.9.10",
-    "python-dotenv>=1.0.1",
     "pydantic-settings>=2.8.1",
+    "e2b-code-interpreter>=1.0.5",
+    "python-dotenv>=1.0.1",
 ]
 
 [project.scripts]

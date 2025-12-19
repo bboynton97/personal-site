@@ -5,3 +5,6 @@
     - add hum to backrooms
     - safety switch slam on lights off
 - backrooms creature
+- website starts from closed industrial door
+    - link tree here
+    - enter button

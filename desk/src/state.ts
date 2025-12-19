@@ -7,6 +7,7 @@ export const state: AppState = {
     isFocusingOnButton: false,
     isEmergencyStopped: false,
     isBlackout: false,
+    isAudioPlaying: false,
     computerPivot: null,
     notepadPivot: null,
     powerPilePivot: null,

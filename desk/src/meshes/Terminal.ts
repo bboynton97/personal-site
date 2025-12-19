@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { terminalSession } from '../terminalSession'
 
 export class Terminal {
     canvas: HTMLCanvasElement
@@ -10,6 +11,7 @@ export class Terminal {
     lastBlink: number
     isFocused: boolean
     logo: HTMLImageElement
+    isInitializing: boolean
 
     constructor(width = 1024, height = 768) {
         this.canvas = document.createElement('canvas')
@@ -25,17 +27,18 @@ export class Terminal {
 
         this.lines = [
             '> System initialized...',
-            '> Accordion AI loaded.',
-            '> Ready for input.'
+            '> System loaded.',
+            '> Connecting to terminal...'
         ]
         this.currentInput = ''
         this.cursorVisible = true
         this.lastBlink = 0
         this.isFocused = false
+        this.isInitializing = false
 
         // Load Logo
         this.logo = new Image()
-        this.logo.src = '/accordion-wide-logo.svg'
+        this.logo.src = '/logo.svg'
         this.logo.onload = () => {
             this.draw()
             this.texture.needsUpdate = true
@@ -60,19 +63,35 @@ export class Terminal {
         })
     }
 
-    handleCommand(input: string): void {
+    async handleCommand(input: string): Promise<void> {
         this.lines.push(`> ${input}`)
-        const cmd = input.trim().toLowerCase()
+        const cmd = input.trim()
+
+        if (cmd === '') {
+            // Keep history limited
+            if (this.lines.length > 14) {
+                this.lines = this.lines.slice(this.lines.length - 14)
+            }
+            return
+        }
 
         if (cmd === 'clear') {
             this.lines = ['> System cleared.']
-        } else if (cmd === 'help') {
-            this.lines.push('> Commands: help, clear, about')
-        } else if (cmd === 'about') {
-            this.lines.push('> Accordion AI Lab: Building the future.')
-        } else if (cmd !== '') {
-            this.lines.push(`> Command not found: ${cmd}`)
+            return
         }
+
+        // Execute command via E2B API
+        this.lines.push('> Executing...')
+        const output = await terminalSession.executeCommand(cmd)
+
+        // Remove "Executing..." line
+        this.lines.pop()
+
+        // Add output (split by lines for better display)
+        const outputLines = output.split('\n').filter(line => line.trim() !== '')
+        outputLines.forEach(line => {
+            this.lines.push(line)
+        })
 
         // Keep history limited
         if (this.lines.length > 14) {
@@ -94,7 +113,7 @@ export class Terminal {
         }
 
         this.draw()
-        
+
         if (this.texture) {
             this.texture.needsUpdate = true
         }
@@ -110,8 +129,8 @@ export class Terminal {
         // Header
         ctx.fillStyle = '#00ff00'
         ctx.font = 'bold 32px monospace'
-        ctx.fillText('ACCORDION AI TERMINAL v1.0', 40, 50)
-        
+        ctx.fillText('TERMINAL v1.0', 40, 50)
+
         // Header Line
         ctx.strokeStyle = '#00ff00'
         ctx.lineWidth = 2

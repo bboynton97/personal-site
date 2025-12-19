@@ -28,10 +28,11 @@ export interface AppState {
     isFocusingOnButton: boolean
     isEmergencyStopped: boolean
     isBlackout: boolean
+    isAudioPlaying: boolean
     computerPivot: THREE.Group | null
     notepadPivot: THREE.Group | null
     powerPilePivot: THREE.Group | null
-    
+
     // Garage Assets
     floorPivots: THREE.Group[]
     barrierPivots: THREE.Group[]
@@ -39,11 +40,11 @@ export interface AppState {
     speakerPivots: THREE.Group[]
     carPivot: THREE.Group | null
     bikePivot: THREE.Group | null
-    
+
     // Backrooms Assets
     backroomsPivot: THREE.Group | null
     backroomsLights: THREE.Light[]
-    
+
     armSegments: {
         base: THREE.Group | null
         arm: THREE.Group | null
