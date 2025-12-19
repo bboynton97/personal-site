@@ -123,6 +123,7 @@ export function setupInteractions(
             else if (state.computerPivot && raycaster.intersectObjects(state.computerPivot.children, true).some(hit => hit.object.name.toLowerCase().includes('cube_screen_0'))) objectHovered = true
             else if (checkIntersect(state.notepadPivot)) objectHovered = true
             else if (checkIntersect(state.emergencyButtonPivot)) objectHovered = true
+            else if (checkIntersect(state.octocatPivot)) objectHovered = true
 
             if (objectHovered) cursorStyle = "url('/click.png'), pointer"
         }
@@ -220,6 +221,14 @@ export function setupInteractions(
                         }
                     }
                 }
+            }
+        }
+
+        if (state.octocatPivot) {
+            const intersects = raycaster.intersectObjects(state.octocatPivot.children, true)
+            if (intersects.length > 0) {
+                window.open('https://github.com/bboynton97/personal-site', '_blank')
+                return
             }
         }
 

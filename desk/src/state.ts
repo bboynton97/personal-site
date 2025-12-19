@@ -33,5 +33,6 @@ export const state: AppState = {
         lightShow2: null, // Will store white strobe configuration
         lightShow3: null  // Will store bouncing red light
     },
-    bouncingLight: null // Single light for Light Show 3
+    bouncingLight: null, // Single light for Light Show 3
+    octocatPivot: null
 }

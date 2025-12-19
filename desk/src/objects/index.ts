@@ -15,6 +15,7 @@ import { loadBike } from './Bike'
 import { loadCocainePile } from './CocainePile'
 import { loadEmergencyButton } from './EmergencyButton'
 import { loadBackrooms } from './Backrooms'
+import { loadGitHubOctocat } from './GitHubOctocat'
 
 // Re-export objects that need additional parameters
 export { loadComputer } from './Computer'
@@ -35,4 +36,5 @@ export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state:
     loadCocainePile(loader, scene, state)
     loadEmergencyButton(loader, scene, state)
     loadBackrooms(loader, scene, state)
+    loadGitHubOctocat(loader, scene, state)
 }
