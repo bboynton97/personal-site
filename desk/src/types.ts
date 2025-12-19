@@ -35,6 +35,8 @@ export interface AppState {
     introSceneReady: boolean
     introDoorOpenStartTime: number | null
     doorOpenSound: THREE.Audio | null
+    doorKnockSound: THREE.Audio | null
+    musicFilter: BiquadFilterNode | null
     doorPivot: THREE.Group | null
     doorHingePivot: THREE.Group | null
     doorLight: THREE.SpotLight | null

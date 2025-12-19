@@ -22,11 +22,12 @@ export function setupInteractions(
 
     const sound = new THREE.Audio(listener)
 
-    // Create muffled effect (low-pass filter)
+    // Create muffled effect (low-pass filter) - starts very muffled, opens up when door opens
     const filter = listener.context.createBiquadFilter()
     filter.type = 'lowpass'
-    filter.frequency.value = 950 // Muffled sound like it's downstairs
+    filter.frequency.value = 400 // Start very muffled, will increase when door opens
     sound.setFilter(filter)
+    state.musicFilter = filter
 
     // Add Reverb to the filtered signal
     const convolver = listener.context.createConvolver()
@@ -178,6 +179,11 @@ export function setupInteractions(
                     
                     // Handle enter button click
                     if (hitName === 'door_enter') {
+                        // Play knock sound
+                        if (state.doorKnockSound && !state.doorKnockSound.isPlaying) {
+                            state.doorKnockSound.play()
+                        }
+                        
                         // Start glitch effect (camera movement happens after glitch + scene ready)
                         state.introGlitchStartTime = Date.now()
                         

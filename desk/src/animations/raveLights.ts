@@ -2,6 +2,12 @@ import * as THREE from 'three'
 import type { AppState, LightShowConfig } from '../types'
 
 export function updateRaveLights(state: AppState, time: number): void {
+    // Switch between lightShow1 and lightShow2 every 15 seconds
+    if (state.isAudioPlaying && !state.isEmergencyStopped) {
+        const cyclePosition = Math.floor(time / 15) % 2
+        state.currentLightShow = cyclePosition === 0 ? 'lightShow2' : 'lightShow1'
+    }
+
     if (!state.isEmergencyStopped) {
         const activeConfig = state.lightShows[state.currentLightShow]
         if (activeConfig && Array.isArray(activeConfig)) {

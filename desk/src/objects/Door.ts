@@ -262,15 +262,26 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         state.doorUI = doorUI
         state.doorEnterMesh = enterMesh
 
-        // Load door open sound
+        // Load door sounds
         const audioLoader = new THREE.AudioLoader()
         const listener = new THREE.AudioListener()
+        
+        // Door open sound
         const doorOpenSound = new THREE.Audio(listener)
         audioLoader.load('/sfx/open-aim.mp3', (buffer) => {
             doorOpenSound.setBuffer(buffer)
             doorOpenSound.setVolume(0.5)
             state.doorOpenSound = doorOpenSound
             console.log('Door open sound loaded')
+        })
+        
+        // Door knock sound (plays when enter is clicked)
+        const doorKnockSound = new THREE.Audio(listener)
+        audioLoader.load('/knock-on-the-door.mp3', (buffer) => {
+            doorKnockSound.setBuffer(buffer)
+            doorKnockSound.setVolume(0.7)
+            state.doorKnockSound = doorKnockSound
+            console.log('Door knock sound loaded')
         })
 
         // Add a light in front of the door to illuminate it

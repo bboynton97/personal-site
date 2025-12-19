@@ -86,6 +86,13 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
             const doorOpenDuration = 2500 // 2.5 seconds to open door
             const targetAngle = (130 * Math.PI) / 180 // 130 degrees (opens to the right)
             
+            // Animate the low-pass filter frequency as door opens (400 -> 2500 Hz)
+            if (state.musicFilter) {
+                const filterProgress = Math.min(doorElapsed / doorOpenDuration, 1)
+                const filterEased = 1 - Math.pow(1 - filterProgress, 2)
+                state.musicFilter.frequency.value = 400 + (2100 * filterEased)
+            }
+            
             if (state.doorHingePivot) {
                 if (doorElapsed < doorOpenDuration) {
                     // Ease out cubic for smooth door opening

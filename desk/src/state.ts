@@ -14,6 +14,8 @@ export const state: AppState = {
     introSceneReady: false,
     introDoorOpenStartTime: null,
     doorOpenSound: null,
+    doorKnockSound: null,
+    musicFilter: null,
     doorPivot: null,
     doorHingePivot: null,
     doorLight: null,
@@ -39,7 +41,7 @@ export const state: AppState = {
     armSegments: { base: null, arm: null },
     roomLights: [],
     raveLights: [],
-    currentLightShow: 'lightShow1',
+    currentLightShow: 'lightShow2',
     lightShows: {
         lightShow1: null, // Will store original configuration
         lightShow2: null, // Will store white strobe configuration
