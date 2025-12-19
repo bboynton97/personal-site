@@ -88,11 +88,11 @@ export function setupInteractions(
                     let hoveredIndex = -1
                     notepad.blogPosts.forEach((post, index) => {
                         const texU = uv.x * 1.2 - 0.1
-                        const texV = (1 - uv.y) * 1.2 - 0.1
+                        const texV = uv.y * 1.2 - 0.1
                         const scaledX = texU * 1024
                         const scaledY = texV * 1448
 
-                        if (scaledX > 250 && scaledX < 850 && scaledY > post.y - 40 && scaledY < post.y + 40) {
+                        if (scaledX > 140 && scaledX < 900 && scaledY > post.y + 350 && scaledY < post.y + 450) {
                             hoveredIndex = index
                         }
                     })
@@ -186,10 +186,39 @@ export function setupInteractions(
         if (state.notepadPivot) {
             const intersects = raycaster.intersectObjects(state.notepadPivot.children, true)
             if (intersects.length > 0) {
-                if (state.isCameraLocked) {
+                if (state.isCameraLocked && !state.isFocusingOnNotepad) {
+                    // First click: zoom into notepad
                     state.isFocusingOnNotepad = true
                     state.isFocusingOnScreen = false
                     terminal.setFocused(false)
+                } else if (state.isFocusingOnNotepad) {
+                    // Already focused on notepad - check if clicking a blog post
+                    let paperMesh: THREE.Mesh | null = null
+                    state.notepadPivot.traverse(child => {
+                        if (child instanceof THREE.Mesh && (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002'))) {
+                            paperMesh = child
+                        }
+                    })
+
+                    if (paperMesh) {
+                        const paperIntersects = raycaster.intersectObject(paperMesh)
+                        if (paperIntersects.length > 0 && paperIntersects[0].uv) {
+                            const uv = paperIntersects[0].uv
+
+                            notepad.blogPosts.forEach((post) => {
+                                const texU = uv.x * 1.2 - 0.1
+                                const texV = uv.y * 1.2 - 0.1
+                                const scaledX = texU * 1024
+                                const scaledY = texV * 1448
+
+                                if (scaledX > 140 && scaledX < 900 && scaledY > post.y + 350 && scaledY < post.y + 450) {
+                                    // Open blog post in new tab
+                                    const url = notepad.getPostUrl(post.slug)
+                                    window.open(url, '_blank')
+                                }
+                            })
+                        }
+                    }
                 }
             }
         }

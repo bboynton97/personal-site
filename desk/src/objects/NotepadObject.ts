@@ -33,11 +33,23 @@ export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppSt
                 // The paper part of the notepad (identified as the larger mesh from GLTF inspection)
                 // Name in GLTF is Torus.002_Material.002_0
                 if (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002')) {
-                    // Adjust texture scaling/offset
-                    notepad.texture.center.set(0.5, 0.5)
-                    notepad.texture.rotation = 0
-                    notepad.texture.repeat.set(1.25, 1.25)
-                    notepad.texture.offset.set(0, 0)
+                    // === TEXTURE MAPPING SETTINGS (tweak these!) ===
+                    const textureSettings = {
+                        centerX: 0.5,
+                        centerY: 0.5,
+                        rotation: 0,
+                        repeatX: 1.85,
+                        repeatY: 1.15,
+                        offsetX: -0.5,
+                        offsetY: -0.275
+                    }
+                    
+                    console.log('Notepad texture settings:', textureSettings)
+                    
+                    notepad.texture.center.set(textureSettings.centerX, textureSettings.centerY)
+                    notepad.texture.rotation = textureSettings.rotation
+                    notepad.texture.repeat.set(textureSettings.repeatX, textureSettings.repeatY)
+                    notepad.texture.offset.set(textureSettings.offsetX, textureSettings.offsetY)
 
                     child.material = new THREE.MeshStandardMaterial({
                         map: notepad.texture,
