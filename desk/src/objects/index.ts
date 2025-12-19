@@ -16,18 +16,15 @@ import { loadCocainePile } from './CocainePile'
 import { loadEmergencyButton } from './EmergencyButton'
 import { loadBackrooms } from './Backrooms'
 import { loadGitHubOctocat } from './GitHubOctocat'
-import { loadDoor } from './Door'
-
 // Re-export objects that need additional parameters
 export { loadComputer } from './Computer'
 export { loadOscilloscope } from './OscilloscopeObject'
 export { loadNotepad } from './NotepadObject'
+export { loadDoor } from './Door'
 
 // Load all simple objects that only need loader, scene, and state (or just loader and scene)
+// Note: Door is loaded separately in main.ts to ensure it loads first
 export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
-    // Load door first for intro sequence
-    loadDoor(loader, scene, state)
-    
     loadDesk(loader, scene)
     loadDeskChair(loader, scene)
     loadRoboticArm(loader, scene, state)

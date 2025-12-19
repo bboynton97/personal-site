@@ -13,6 +13,7 @@ export const state: AppState = {
     doorPivot: null,
     doorLight: null,
     doorWalls: [],
+    doorUI: null,
     computerPivot: null,
     notepadPivot: null,
     powerPilePivot: null,

@@ -34,6 +34,7 @@ export interface AppState {
     doorPivot: THREE.Group | null
     doorLight: THREE.SpotLight | null
     doorWalls: THREE.Group[]
+    doorUI: THREE.Group | null
     computerPivot: THREE.Group | null
     notepadPivot: THREE.Group | null
     powerPilePivot: THREE.Group | null

@@ -43,12 +43,15 @@ export function updateCamera(camera: THREE.PerspectiveCamera, controls: OrbitCon
         if (state.introAnimationProgress >= 1) {
             state.isIntro = false
             state.introAnimationProgress = 0
-            // Hide the door, light, and walls after animation
+            // Hide the door, light, walls, and UI after animation
             if (state.doorPivot) {
                 state.doorPivot.visible = false
             }
             if (state.doorLight) {
                 state.doorLight.visible = false
+            }
+            if (state.doorUI) {
+                state.doorUI.visible = false
             }
             state.doorWalls.forEach(wall => {
                 wall.visible = false

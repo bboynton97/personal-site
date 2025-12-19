@@ -14,7 +14,7 @@ import { WhiteOutShader } from './shaders/WhiteOutShader'
 import { Terminal } from './meshes/Terminal'
 import { Oscilloscope } from './meshes/Oscilloscope'
 import { Notepad } from './meshes/Notepad'
-import { loadSimpleObjects, loadComputer, loadOscilloscope, loadNotepad } from './objects/index'
+import { loadSimpleObjects, loadComputer, loadOscilloscope, loadNotepad, loadDoor } from './objects/index'
 import { createAnimationLoop } from './animate'
 
 // New Modules
@@ -64,13 +64,16 @@ const notepad = new Notepad()
 // --- ASSET LOADING ---
 const loader = new GLTFLoader()
 
-// Load simple objects (only need loader, scene, state)
-loadSimpleObjects(loader, scene, state)
+// Load door and walls first, then load everything else
+loadDoor(loader, scene, state).then(() => {
+    // Load simple objects (only need loader, scene, state)
+    loadSimpleObjects(loader, scene, state)
 
-// Load objects that need additional parameters
-loadComputer(loader, scene, terminal, state)
-loadOscilloscope(loader, scene, oscilloscope)
-loadNotepad(loader, scene, state, notepad)
+    // Load objects that need additional parameters
+    loadComputer(loader, scene, terminal, state)
+    loadOscilloscope(loader, scene, oscilloscope)
+    loadNotepad(loader, scene, state, notepad)
+})
 
 // --- POST PROCESSING ---
 const composer = new EffectComposer(renderer)
