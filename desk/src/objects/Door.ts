@@ -29,7 +29,8 @@ const SOCIAL_URLS = {
     x: 'https://x.com/braelyn_ai',
     instagram: 'https://instagram.com/braelyn.b__',
     linkedin: 'https://www.linkedin.com/in/braelyn-ai/',
-    onlyfans: 'https://www.youtube.com/watch?v=xvFZjo5PgG0'
+    onlyfans: 'https://www.youtube.com/watch?v=xvFZjo5PgG0',
+    blog: 'https://blog.braelyn.ai'
 }
 
 export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
@@ -236,6 +237,15 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         ofMesh.name = 'social_onlyfans'
         ofMesh.userData.url = SOCIAL_URLS.onlyfans
         doorUI.add(ofMesh)
+
+        // Blog - third row, centered
+        const blogTexture = createTextTexture('blog', 48)
+        const blogMaterial = new THREE.MeshBasicMaterial({ map: blogTexture, transparent: true, side: THREE.DoubleSide })
+        const blogMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.5), blogMaterial)
+        blogMesh.position.set(0, linksBaseY - linkSpacingY * 2, 0)
+        blogMesh.name = 'social_blog'
+        blogMesh.userData.url = SOCIAL_URLS.blog
+        doorUI.add(blogMesh)
 
         // "enter" button
         const enterTexture = createTextTexture('enter', 72)
