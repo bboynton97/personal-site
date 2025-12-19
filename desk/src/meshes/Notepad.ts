@@ -167,12 +167,12 @@ export class Notepad {
                 const lines = this.wrapText(post.title, 24)
                 
                 // Draw date on the left
-                ctx.font = '22px "Courier New", monospace'
-                ctx.fillStyle = '#888888'
+                ctx.font = '32px "Courier New", monospace'
+                ctx.fillStyle = '#333333'
                 const dateObj = new Date(post.date)
                 const months = ['January', 'February', 'March', 'April', 'May', 'June', 
                                'July', 'August', 'September', 'October', 'November', 'December']
-                const formattedDate = `${months[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`
+                const formattedDate = `${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`
                 ctx.fillText(formattedDate, dateStartX, post.y)
                 
                 // Draw title
