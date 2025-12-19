@@ -73,11 +73,6 @@ export class TerminalSession {
             this.expiresAt = new Date(data.expires_at)
             this.saveToStorage()
 
-            console.log('Terminal session started:', {
-                token: this.token,
-                expiresAt: this.expiresAt,
-            })
-
             return true
         } catch (error) {
             console.error('Failed to initialize session:', error)

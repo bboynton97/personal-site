@@ -60,15 +60,12 @@ export class Notepad {
 
     async fetchBlogPosts(): Promise<void> {
         try {
-            console.log('Fetching blog posts...')
             // Use proxy in dev, direct URL in production
             const blogApiUrl = import.meta.env.DEV 
                 ? '/api/blog/posts.json' 
                 : `${import.meta.env.VITE_BLOG_API_URL}/posts.json`
             const response = await fetch(blogApiUrl)
-            console.log('Response status:', response.status)
             const posts: ApiBlogPost[] = await response.json()
-            console.log('Fetched posts:', posts)
             
             // Convert API posts to internal format with y positions
             this.blogPosts = posts.map((post, index) => ({
@@ -79,7 +76,6 @@ export class Notepad {
                 isHovered: false
             }))
             
-            console.log('Processed blogPosts:', this.blogPosts)
             this.isLoading = false
             this.draw()
         } catch (error) {

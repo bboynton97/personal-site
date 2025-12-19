@@ -44,8 +44,6 @@ export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppSt
                         offsetY: -0.275
                     }
                     
-                    console.log('Notepad texture settings:', textureSettings)
-                    
                     notepad.texture.center.set(textureSettings.centerX, textureSettings.centerY)
                     notepad.texture.rotation = textureSettings.rotation
                     notepad.texture.repeat.set(textureSettings.repeatX, textureSettings.repeatY)

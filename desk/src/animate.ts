@@ -137,11 +137,6 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
             if (state.horrorMonsterRevealTime && !state.horrorMonsterPivot.visible) {
                 const elapsed = Date.now() - state.horrorMonsterRevealTime
                 if (elapsed >= 500) {
-                    console.log('Horror monster revealed!', {
-                        isInBackrooms: !!isInBackrooms,
-                        isFocusingOnScreen: state.isFocusingOnScreen,
-                        isFocusingOnNotepad: state.isFocusingOnNotepad
-                    })
                     state.horrorMonsterPivot.visible = true
                     // Reset opacity to full when revealing
                     state.horrorMonsterPivot.traverse(child => {

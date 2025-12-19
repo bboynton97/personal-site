@@ -47,8 +47,6 @@ export async function loadAnimatedGIF(whiteOutPass: ShaderPass): Promise<void> {
         const width = gifReader.width
         const height = gifReader.height
 
-        console.log(`GIF decoded: ${width}x${height}, ${numFrames} frames`)
-
         // Extract each frame
         gifFrames = []
         gifFrameDelays = []
@@ -80,7 +78,6 @@ export async function loadAnimatedGIF(whiteOutPass: ShaderPass): Promise<void> {
             win.gifStartTime = gifStartTime
         }
 
-        console.log('GIF frames extracted:', gifFrames.length)
     } catch (error) {
         console.error('Error loading GIF:', error)
         // Fallback: use canvas approach

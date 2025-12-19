@@ -5,6 +5,34 @@ import type { Notepad } from './meshes/Notepad'
 import type { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { terminalSession } from './terminalSession'
 
+// Helper to detect mobile devices
+function isMobileDevice(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 768 && 'ontouchstart' in window)
+}
+
+// Helper to create text texture (for updating enter button)
+function createTextTexture(text: string, fontSize: number = 64, color: string = '#ffffff'): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')!
+    
+    canvas.width = 512
+    canvas.height = 128
+    
+    ctx.fillStyle = 'transparent'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    
+    ctx.font = `bold ${fontSize}px Arial, sans-serif`
+    ctx.fillStyle = color
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2)
+    
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.needsUpdate = true
+    return texture
+}
+
 export function setupInteractions(
     camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
@@ -244,9 +272,6 @@ export function setupInteractions(
                             state.doorKnockSound.play()
                         }
                         
-                        // Start glitch effect (camera movement happens after glitch + scene ready)
-                        state.introGlitchStartTime = Date.now()
-                        
                         // Play audio on enter
                         if (!audioStarted) {
                             if (sound.context.state === 'suspended') {
@@ -258,6 +283,33 @@ export function setupInteractions(
                                 state.isAudioPlaying = true
                             }
                         }
+                        
+                        // On mobile, show message and block entering
+                        if (isMobileDevice()) {
+                            const enterMesh = hitObject as THREE.Mesh
+                            const material = enterMesh.material as THREE.MeshBasicMaterial
+                            
+                            // Update texture to show mobile message
+                            const newTexture = createTextTexture('view on desktop only', 32)
+                            material.map = newTexture
+                            material.needsUpdate = true
+                            
+                            // Update geometry to be wider for the longer text
+                            enterMesh.geometry.dispose()
+                            enterMesh.geometry = new THREE.PlaneGeometry(5, 1)
+                            
+                            // After a delay, show the second line
+                            setTimeout(() => {
+                                const secondTexture = createTextTexture("(it's worth it i promise)", 28)
+                                material.map = secondTexture
+                                material.needsUpdate = true
+                            }, 2000)
+                            
+                            return
+                        }
+                        
+                        // Start glitch effect (camera movement happens after glitch + scene ready)
+                        state.introGlitchStartTime = Date.now()
                         return
                     }
                 }
@@ -306,13 +358,7 @@ export function setupInteractions(
 
                     // Initialize terminal session on first click
                     if (!terminalSession.isSessionValid()) {
-                        terminalSession.initSession().then(success => {
-                            if (success) {
-                                console.log('Terminal session initialized successfully')
-                            } else {
-                                console.error('Failed to initialize terminal session')
-                            }
-                        })
+                        terminalSession.initSession()
                     }
                 }
             }

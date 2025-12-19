@@ -1,15 +1,10 @@
-import asyncio
 import uuid
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 from e2b_code_interpreter import Sandbox
-from sqlalchemy.orm import Session
 from .database import SessionLocal
 from .models import TerminalSession
-from .config import settings
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from .e2b_setup import populate_example_files
 
 class SessionManager:
     """Manages E2B terminal sessions with in-memory client storage and PostgreSQL persistence."""
@@ -19,32 +14,15 @@ class SessionManager:
         
     async def start_session(self) -> dict:
         """Create a new E2B terminal session."""
-        import logging
-        logger = logging.getLogger(__name__)
-        
-        # Generate unique identifiers
         session_id = str(uuid.uuid4())
         token = str(uuid.uuid4())
         expires_at = datetime.utcnow() + timedelta(minutes=10)
         
-        logger.info(f"Creating E2B sandbox for session {session_id}...")
-        
-        # Create E2B sandbox
         try:
             sandbox = Sandbox.create()
-            logger.info("E2B sandbox created successfully")
-            
-            # Populate with example files
-            logger.info("Populating example files...")
-            await self._populate_example_files(sandbox)
-            logger.info("Example files populated")
-            
-            # Store in memory
+            populate_example_files(sandbox)
             self.sessions[token] = sandbox
-            logger.info(f"Session stored in memory, total sessions: {len(self.sessions)}")
             
-            # Store in database
-            logger.info("Saving to database...")
             db = SessionLocal()
             try:
                 db_session = TerminalSession(
@@ -55,10 +33,6 @@ class SessionManager:
                 )
                 db.add(db_session)
                 db.commit()
-                logger.info("Session saved to database")
-            except Exception as db_error:
-                logger.error(f"Database error: {db_error}", exc_info=True)
-                raise
             finally:
                 db.close()
             
@@ -68,84 +42,7 @@ class SessionManager:
                 "expires_in": 600
             }
         except Exception as e:
-            logger.error(f"Failed to create session: {type(e).__name__}: {str(e)}", exc_info=True)
             raise Exception(f"Failed to create session: {str(e)}")
-    
-    async def _populate_example_files(self, sandbox: Sandbox):
-        """Populate E2B sandbox with example files."""
-        # README.md
-        sandbox.files.write(
-            "/home/user/README.md",
-            """# Welcome to Terminal
-
-This is a live sandbox environment powered by E2B.
-
-## Available Files
-- `hello.py` - Simple Python script
-- `data.json` - Sample JSON data
-- `notes.txt` - Text notes
-
-## Try These Commands
-- `ls` - List files
-- `cat README.md` - Display this file
-- `python hello.py` - Run the Python script
-- `cat data.json` - View JSON data
-
-You have full access to a Linux environment with Python, Node.js, and common tools.
-"""
-        )
-        
-        # hello.py
-        sandbox.files.write(
-            "/home/user/hello.py",
-            """#!/usr/bin/env python3
-import sys
-
-def main():
-    print("Hello from the Terminal!")
-    print(f"Python version: {sys.version}")
-    print("This script is running in an E2B sandbox.")
-    
-    # Simple calculation
-    result = sum(range(1, 11))
-    print(f"\\nSum of 1-10: {result}")
-
-if __name__ == "__main__":
-    main()
-"""
-        )
-        
-        # data.json
-        sandbox.files.write(
-            "/home/user/data.json",
-            """{
-  "project": "Terminal",
-  "version": "1.0.0",
-  "features": [
-    "E2B Terminal Integration",
-    "Real-time Command Execution",
-    "Session Management"
-  ],
-  "stats": {
-    "files": 4,
-    "languages": ["Python", "JSON", "Markdown"]
-  }
-}
-"""
-        )
-        
-        # notes.txt
-        sandbox.files.write(
-            "/home/user/notes.txt",
-            """Personal Notes
-==============
-
-This is a sample text file in your terminal session.
-Feel free to create, edit, and delete files as needed.
-
-Session expires in 10 minutes.
-"""
-        )
     
     def get_session(self, token: str) -> Optional[Sandbox]:
         """Retrieve an active session by token."""

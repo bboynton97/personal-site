@@ -10,15 +10,9 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
     audioLoader.load(
         '/creepy-knock.m4a',
         (buffer) => {
-            console.log('Creepy knock buffer received:', buffer)
             creepyKnockSound.setBuffer(buffer)
             creepyKnockSound.setVolume(0.8)
             state.creepyKnockSound = creepyKnockSound
-            console.log('Creepy knock sound loaded')
-        },
-        undefined,
-        (error) => {
-            console.error('Error loading creepy knock sound:', error)
         }
     )
     
@@ -30,11 +24,6 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
             horrorFadeSound.setBuffer(buffer)
             horrorFadeSound.setVolume(0.7)
             state.horrorFadeSound = horrorFadeSound
-            console.log('Horror fade sound loaded')
-        },
-        undefined,
-        (error) => {
-            console.error('Error loading horror fade sound:', error)
         }
     )
     
@@ -46,11 +35,6 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
             jumpscareSound.setBuffer(buffer)
             jumpscareSound.setVolume(0.8)
             state.jumpscareSound = jumpscareSound
-            console.log('Jumpscare sound loaded')
-        },
-        undefined,
-        (error) => {
-            console.error('Error loading jumpscare sound:', error)
         }
     )
     loader.load('/smily_horror_monster.glb', (gltf) => {
