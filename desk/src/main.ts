@@ -23,6 +23,7 @@ import { loadAnimatedGIF } from './utils/gifLoader'
 import { setupLights } from './setup/lights'
 import { setupInteractions } from './interaction'
 import { setupInputListeners } from './input'
+import { createDeathOverlay } from './utils/deathScreen'
 
 // --- CONSTANTS ---
 const DEFAULT_POS = new THREE.Vector3(1, 4, 8)
@@ -97,6 +98,9 @@ whiteOutPass.enabled = false // Disabled by default
 
 // Load potentially async assets
 loadAnimatedGIF(whiteOutPass)
+
+// Create death screen overlay
+createDeathOverlay()
 
 composer.addPass(whiteOutPass)
 

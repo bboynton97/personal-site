@@ -10,6 +10,7 @@ import { updateCamera } from './animations/cameraAnimation'
 import { updateRaveLights } from './animations/raveLights'
 import { updateEffects } from './animations/effects'
 import { updateScene } from './animations/sceneUpdates'
+import { updateDeathScreen } from './utils/deathScreen'
 
 export interface AnimationDependencies {
     controls: OrbitControls
@@ -185,7 +186,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                 const elapsed = Date.now() - state.horrorMonsterFadeStartTime
                 const waitTime = 3000
                 const fadeDuration = 3000
-                const jumpscareTime = 4000 // 4 seconds after zoom out
+                const jumpscareTime = 10000 // 10 seconds after zoom out
                 
                 // Trigger jumpscare at 4 seconds
                 if (elapsed >= jumpscareTime && !state.jumpscareTriggered) {
@@ -219,6 +220,23 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                             }
                         }
                     })
+                    
+                    // Start death sequence 2 second after jumpscare
+                    state.deathSequenceStartTime = Date.now() + 2000
+                }
+                
+                // Handle death sequence
+                if (state.deathSequenceStartTime && Date.now() >= state.deathSequenceStartTime) {
+                    const deathElapsed = Date.now() - state.deathSequenceStartTime
+                    const deathDuration = 5000 // 5 seconds for full death sequence
+                    const deathProgress = Math.min(deathElapsed / deathDuration, 1)
+                    
+                    updateDeathScreen(deathProgress)
+                    
+                    // Refresh page after death sequence completes
+                    if (deathProgress >= 1) {
+                        window.location.reload()
+                    }
                 }
                 
                 // Normal fade logic (only if jumpscare hasn't triggered)

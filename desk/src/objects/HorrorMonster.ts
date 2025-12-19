@@ -28,7 +28,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
         '/horror-sound-lurking-horror-monster-189948.mp3',
         (buffer) => {
             horrorFadeSound.setBuffer(buffer)
-            horrorFadeSound.setVolume(0.4)
+            horrorFadeSound.setVolume(0.7)
             state.horrorFadeSound = horrorFadeSound
             console.log('Horror fade sound loaded')
         },
@@ -44,7 +44,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
         '/jumpscare.mp3',
         (buffer) => {
             jumpscareSound.setBuffer(buffer)
-            jumpscareSound.setVolume(2.0)
+            jumpscareSound.setVolume(0.8)
             state.jumpscareSound = jumpscareSound
             console.log('Jumpscare sound loaded')
         },

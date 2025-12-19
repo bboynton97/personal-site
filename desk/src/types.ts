@@ -69,6 +69,7 @@ export interface AppState {
     horrorFadeSound: THREE.Audio | null
     jumpscareSound: THREE.Audio | null
     jumpscareTriggered: boolean
+    deathSequenceStartTime: number | null
 
     armSegments: {
         base: THREE.Group | null

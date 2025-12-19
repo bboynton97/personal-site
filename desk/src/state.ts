@@ -48,6 +48,7 @@ export const state: AppState = {
     horrorFadeSound: null,
     jumpscareSound: null,
     jumpscareTriggered: false,
+    deathSequenceStartTime: null,
 
     armSegments: { base: null, arm: null },
     roomLights: [],
