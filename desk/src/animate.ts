@@ -122,25 +122,138 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
             oscilloscope.update()
         }
 
-        // Show horror monster when focusing on something in the backrooms (stays visible once revealed)
+        // Show horror monster when focusing on something in the backrooms
         if (state.horrorMonsterPivot) {
             const isFocusingOnSomething = state.isFocusingOnScreen || state.isFocusingOnNotepad
             
-            // Once revealed, monster stays visible
-            if (!!isInBackrooms && isFocusingOnSomething && !state.horrorMonsterPivot.visible) {
-                console.log('Horror monster revealed!', {
-                    isInBackrooms: !!isInBackrooms,
-                    isFocusingOnScreen: state.isFocusingOnScreen,
-                    isFocusingOnNotepad: state.isFocusingOnNotepad
-                })
-                state.horrorMonsterPivot.visible = true
+            // Start reveal timer when focusing on something (0.5s delay)
+            if (!!isInBackrooms && isFocusingOnSomething && !state.horrorMonsterPivot.visible && !state.horrorMonsterRevealTime) {
+                state.horrorMonsterRevealTime = Date.now()
+                state.horrorMonsterFadeStartTime = null // Reset fade if re-focusing
             }
             
-            // Subtle creepy movement when visible
-            if (state.horrorMonsterPivot.visible) {
-                // Slight swaying motion
-                state.horrorMonsterPivot.rotation.y = Math.PI * 0.3 + Math.sin(time * 0.5) * 0.05
-                state.horrorMonsterPivot.position.y = Math.sin(time * 0.3) * 0.3
+            // Reveal monster after 0.5s delay
+            if (state.horrorMonsterRevealTime && !state.horrorMonsterPivot.visible) {
+                const elapsed = Date.now() - state.horrorMonsterRevealTime
+                if (elapsed >= 500) {
+                    console.log('Horror monster revealed!', {
+                        isInBackrooms: !!isInBackrooms,
+                        isFocusingOnScreen: state.isFocusingOnScreen,
+                        isFocusingOnNotepad: state.isFocusingOnNotepad
+                    })
+                    state.horrorMonsterPivot.visible = true
+                    // Reset opacity to full when revealing
+                    state.horrorMonsterPivot.traverse(child => {
+                        if (child instanceof THREE.Mesh) {
+                            const material = child.material as THREE.MeshStandardMaterial
+                            if (material && material.isMeshStandardMaterial) {
+                                material.opacity = 1
+                            }
+                        }
+                    })
+                    // Play creepy knock sound
+                    if (state.creepyKnockSound && state.creepyKnockSound.buffer && !state.creepyKnockSound.isPlaying) {
+                        if (state.creepyKnockSound.context.state === 'suspended') {
+                            state.creepyKnockSound.context.resume()
+                        }
+                        state.creepyKnockSound.play()
+                    }
+                }
+            }
+            
+            // Start fade timer when zooming out (3s wait + 3s fade)
+            if (state.horrorMonsterPivot.visible && !isFocusingOnSomething && !state.horrorMonsterFadeStartTime) {
+                state.horrorMonsterFadeStartTime = Date.now()
+            }
+            
+            // Cancel fade if focusing again
+            if (isFocusingOnSomething && state.horrorMonsterFadeStartTime) {
+                state.horrorMonsterFadeStartTime = null
+                // Reset opacity to full
+                state.horrorMonsterPivot.traverse(child => {
+                    if (child instanceof THREE.Mesh) {
+                        const material = child.material as THREE.MeshStandardMaterial
+                        if (material && material.isMeshStandardMaterial) {
+                            material.opacity = 1
+                        }
+                    }
+                })
+            }
+            
+            // Handle fade out: 3s wait, then 3s fade, then jumpscare at 4s
+            if (state.horrorMonsterFadeStartTime && state.horrorMonsterPivot.visible) {
+                const elapsed = Date.now() - state.horrorMonsterFadeStartTime
+                const waitTime = 3000
+                const fadeDuration = 3000
+                const jumpscareTime = 4000 // 4 seconds after zoom out
+                
+                // Trigger jumpscare at 4 seconds
+                if (elapsed >= jumpscareTime && !state.jumpscareTriggered) {
+                    state.jumpscareTriggered = true
+                    
+                    // Play jumpscare sound
+                    if (state.jumpscareSound && state.jumpscareSound.buffer) {
+                        if (state.jumpscareSound.context.state === 'suspended') {
+                            state.jumpscareSound.context.resume()
+                        }
+                        if (state.jumpscareSound.isPlaying) state.jumpscareSound.stop()
+                        state.jumpscareSound.play()
+                    }
+                    
+                    // Stop horror fade sound if playing
+                    if (state.horrorFadeSound && state.horrorFadeSound.isPlaying) {
+                        state.horrorFadeSound.stop()
+                    }
+                    
+                    // Move monster right in front of camera
+                    const cameraDirection = new THREE.Vector3()
+                    camera.getWorldDirection(cameraDirection)
+                    state.horrorMonsterPivot.position.set(1, 1, 2)
+                    
+                    // Set opacity back to 1 instantly
+                    state.horrorMonsterPivot.traverse(child => {
+                        if (child instanceof THREE.Mesh) {
+                            const material = child.material as THREE.MeshStandardMaterial
+                            if (material && material.isMeshStandardMaterial) {
+                                material.opacity = 1
+                            }
+                        }
+                    })
+                }
+                
+                // Normal fade logic (only if jumpscare hasn't triggered)
+                if (elapsed >= waitTime && !state.jumpscareTriggered) {
+                    const fadeProgress = Math.min((elapsed - waitTime) / fadeDuration, 1)
+                    const opacity = 1 - fadeProgress
+                    
+                    // Play horror fade sound when fade starts
+                    if (state.horrorFadeSound && state.horrorFadeSound.buffer && !state.horrorFadeSound.isPlaying) {
+                        if (state.horrorFadeSound.context.state === 'suspended') {
+                            state.horrorFadeSound.context.resume()
+                        }
+                        state.horrorFadeSound.play()
+                    }
+                    
+                    state.horrorMonsterPivot.traverse(child => {
+                        if (child instanceof THREE.Mesh) {
+                            const material = child.material as THREE.MeshStandardMaterial
+                            if (material && material.isMeshStandardMaterial) {
+                                material.opacity = opacity
+                            }
+                        }
+                    })
+                }
+            }
+            
+            // Sporadic head bobbing animation when visible
+            if (state.horrorMonsterPivot.visible && !state.jumpscareTriggered) {
+                const baseY = -3.5 // Original y position from HorrorMonster.ts
+                // Combine multiple sine waves at different frequencies for unpredictable movement
+                const bob1 = Math.sin(time * 0.7) * 0.15          // Slow primary bob
+                const bob2 = Math.sin(time * 1.9) * 0.08          // Medium frequency
+                const bob3 = Math.sin(time * 4.3) * 0.04          // Quick jitter
+                const bob4 = Math.sin(time * 0.3) * 0.1           // Very slow drift
+                state.horrorMonsterPivot.position.y = baseY + bob1 + bob2 + bob3 + bob4
             }
         }
 

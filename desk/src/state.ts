@@ -42,6 +42,12 @@ export const state: AppState = {
     backroomsPivot: null,
     backroomsLights: [],
     horrorMonsterPivot: null,
+    horrorMonsterRevealTime: null,
+    horrorMonsterFadeStartTime: null,
+    creepyKnockSound: null,
+    horrorFadeSound: null,
+    jumpscareSound: null,
+    jumpscareTriggered: false,
 
     armSegments: { base: null, arm: null },
     roomLights: [],

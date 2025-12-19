@@ -63,6 +63,12 @@ export interface AppState {
     backroomsPivot: THREE.Group | null
     backroomsLights: THREE.Light[]
     horrorMonsterPivot: THREE.Group | null
+    horrorMonsterRevealTime: number | null
+    horrorMonsterFadeStartTime: number | null
+    creepyKnockSound: THREE.Audio | null
+    horrorFadeSound: THREE.Audio | null
+    jumpscareSound: THREE.Audio | null
+    jumpscareTriggered: boolean
 
     armSegments: {
         base: THREE.Group | null
