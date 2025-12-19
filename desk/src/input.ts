@@ -21,14 +21,15 @@ export function setupInputListeners(
     DEFAULT_TARGET: THREE.Vector3
 ): void {
     window.addEventListener('keydown', (event: KeyboardEvent) => {
-        if (event.key === 'Escape') {
+        if (event.key === 'Escape' || (event.ctrlKey && (event.key === 'c' || event.key === 'C'))) {
             state.isFocusingOnScreen = false
             state.isFocusingOnNotepad = false
             state.isFocusingOnButton = false
             terminal.setFocused(false)
         }
 
-        if (event.key === 'p' || event.key === 'P') {
+        if (event.ctrlKey && (event.key === 'p' || event.key === 'P')) {
+            event.preventDefault()
             const isRetro = renderPixelatedPass.enabled
 
             if (isRetro) {
@@ -58,7 +59,8 @@ export function setupInputListeners(
             }
         }
 
-        if (event.key === 'l' || event.key === 'L') {
+        if (event.ctrlKey && (event.key === 'l' || event.key === 'L')) {
+            event.preventDefault()
             // Cycle through light shows
             if (state.currentLightShow === 'lightShow1') {
                 state.currentLightShow = 'lightShow2'
