@@ -32,5 +32,15 @@ export function loadCocainePile(loader: GLTFLoader, scene: THREE.Scene, state: A
                 child.receiveShadow = true
             }
         })
+
+        // Load sniff sound
+        const audioLoader = new THREE.AudioLoader()
+        const listener = new THREE.AudioListener()
+        const sniffSound = new THREE.Audio(listener)
+        audioLoader.load('/snifff.mp3', (buffer) => {
+            sniffSound.setBuffer(buffer)
+            sniffSound.setVolume(0.1)
+            state.sniffSound = sniffSound
+        })
     })
 }

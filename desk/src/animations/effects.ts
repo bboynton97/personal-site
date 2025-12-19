@@ -15,7 +15,7 @@ export function updateEffects(
     whiteOutPass.uniforms['time'].value = time
 
     // Update GIF frame animation if frames are loaded
-    if (whiteOutPass.enabled && whiteOutPass.uniforms['fadeAmount'].value > 0.85) {
+    if (whiteOutPass.enabled && whiteOutPass.uniforms['fadeAmount'].value > 0.4) {
         // Access gifFrames and gifFrameDelays from global scope (set in main.ts)
         // @ts-ignore - accessing global variables
         const frames = (window as any).gifFrames
@@ -64,6 +64,10 @@ export function updateEffects(
         const holdDuration = fadeOutDuration + whiteHoldDuration + fadeInDuration
         const duration = upDuration + holdDuration + downDuration // total duration
 
+        // Music filter: normal is ~2500Hz, muffled is ~800Hz
+        const normalFilterFreq = 2500
+        const muffledFilterFreq = 800
+
         if (elapsed < duration) {
             let pixelSize: number
             const isHoldPhase = elapsed >= upDuration && elapsed < upDuration + holdDuration
@@ -74,10 +78,20 @@ export function updateEffects(
                 const t = elapsed / upDuration // 0 to 1
                 pixelSize = startPixelSize + (endPixelSize - startPixelSize) * t
                 whiteOutPass.enabled = false
+
+                // Gradually lower the music filter as animation sets in
+                if (state.musicFilter) {
+                    state.musicFilter.frequency.value = normalFilterFreq - (normalFilterFreq - muffledFilterFreq) * t
+                }
             } else if (isHoldPhase) {
                 // Phase 2: Hold at max pixelation, fade to white, hold at white, then fade back
                 pixelSize = endPixelSize
                 whiteOutPass.enabled = true
+
+                // Keep music muffled during hold phase
+                if (state.musicFilter) {
+                    state.musicFilter.frequency.value = muffledFilterFreq
+                }
 
                 let fadeAmount: number
                 if (holdElapsed < fadeOutDuration) {
@@ -101,6 +115,11 @@ export function updateEffects(
                 const t = (elapsed - upDuration - holdDuration) / downDuration // 0 to 1
                 pixelSize = endPixelSize - (endPixelSize - startPixelSize) * t
                 whiteOutPass.enabled = false
+
+                // Gradually return music filter to normal as animation fades out
+                if (state.musicFilter) {
+                    state.musicFilter.frequency.value = muffledFilterFreq + (normalFilterFreq - muffledFilterFreq) * t
+                }
             }
 
             // Update pixel size using the setPixelSize method
@@ -110,6 +129,10 @@ export function updateEffects(
             renderPixelatedPass.setPixelSize(startPixelSize)
             whiteOutPass.enabled = false
             crtPass.uniforms['vignetteStrength'].value = 1.0 // Restore default vignette
+            // Restore music filter to normal
+            if (state.musicFilter) {
+                state.musicFilter.frequency.value = normalFilterFreq
+            }
             state.pixelationAnimationStartTime = undefined
         }
     } else {

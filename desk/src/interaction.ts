@@ -226,6 +226,10 @@ export function setupInteractions(
                 if (state.isCameraLocked && !state.pixelationAnimationStartTime) {
                     // Start pixelation animation
                     state.pixelationAnimationStartTime = Date.now()
+                    // Play sniff sound
+                    if (state.sniffSound && !state.sniffSound.isPlaying) {
+                        state.sniffSound.play()
+                    }
                 }
                 return // Don't process other clicks
             }

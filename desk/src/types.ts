@@ -36,6 +36,7 @@ export interface AppState {
     introDoorOpenStartTime: number | null
     doorOpenSound: THREE.Audio | null
     doorKnockSound: THREE.Audio | null
+    sniffSound: THREE.Audio | null
     musicFilter: BiquadFilterNode | null
     doorPivot: THREE.Group | null
     doorHingePivot: THREE.Group | null

@@ -36,7 +36,7 @@ export async function loadAnimatedGIF(whiteOutPass: ShaderPass): Promise<void> {
         })
 
         // Fetch the GIF file
-        const response = await fetch('/k.gif')
+        const response = await fetch('/k2.gif')
         const arrayBuffer = await response.arrayBuffer()
         const bytes = new Uint8Array(arrayBuffer)
 
@@ -85,7 +85,7 @@ export async function loadAnimatedGIF(whiteOutPass: ShaderPass): Promise<void> {
         console.error('Error loading GIF:', error)
         // Fallback: use canvas approach
         const img = new Image()
-        img.src = '/k.gif'
+        img.src = '/k2.gif'
         img.onload = () => {
             const canvas = document.createElement('canvas')
             const ctx = canvas.getContext('2d')!

@@ -15,6 +15,7 @@ export const state: AppState = {
     introDoorOpenStartTime: null,
     doorOpenSound: null,
     doorKnockSound: null,
+    sniffSound: null,
     musicFilter: null,
     doorPivot: null,
     doorHingePivot: null,
