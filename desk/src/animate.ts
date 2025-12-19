@@ -48,7 +48,7 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
         if (state.isIntro && state.introGlitchStartTime && state.doorUI) {
             const glitchElapsed = Date.now() - state.introGlitchStartTime
             const glitchDuration = 800 // 0.8 seconds of glitching
-            const postGlitchDelay = 2000
+            const postGlitchDelay = 1500
             
             if (glitchElapsed < glitchDuration) {
                 // Glitch effect: rapidly toggle visibility with random timing
@@ -67,9 +67,41 @@ export function createAnimationLoop(deps: AnimationDependencies): () => void {
                 state.doorUI.position.x = 0
                 state.doorUI.position.y = 2.5
                 
-                // Wait additional 1 second after glitch, then start camera movement if scene is ready
+                // Wait additional delay after glitch, then start door opening if scene is ready
                 if (glitchElapsed >= glitchDuration + postGlitchDelay && 
-                    state.introSceneReady && state.introAnimationProgress === 0) {
+                    state.introSceneReady && !state.introDoorOpenStartTime) {
+                    state.introDoorOpenStartTime = Date.now()
+                    
+                    // Play door open sound
+                    if (state.doorOpenSound && !state.doorOpenSound.isPlaying) {
+                        state.doorOpenSound.play()
+                    }
+                }
+            }
+        }
+
+        // Handle door opening animation
+        if (state.isIntro && state.introDoorOpenStartTime) {
+            const doorElapsed = Date.now() - state.introDoorOpenStartTime
+            const doorOpenDuration = 2500 // 2.5 seconds to open door
+            const targetAngle = (130 * Math.PI) / 180 // 130 degrees (opens to the right)
+            
+            if (state.doorHingePivot) {
+                if (doorElapsed < doorOpenDuration) {
+                    // Ease out cubic for smooth door opening
+                    const progress = doorElapsed / doorOpenDuration
+                    const eased = 1 - Math.pow(1 - progress, 3)
+                    state.doorHingePivot.rotation.y = targetAngle * eased
+                } else {
+                    // Door fully open - start camera movement
+                    state.doorHingePivot.rotation.y = targetAngle
+                    if (state.introAnimationProgress === 0) {
+                        state.introAnimationProgress = 0.001
+                    }
+                }
+            } else {
+                // No door hinge found, just start camera after duration
+                if (doorElapsed >= doorOpenDuration && state.introAnimationProgress === 0) {
                     state.introAnimationProgress = 0.001
                 }
             }

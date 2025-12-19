@@ -33,7 +33,10 @@ export interface AppState {
     introAnimationProgress: number
     introGlitchStartTime: number | null
     introSceneReady: boolean
+    introDoorOpenStartTime: number | null
+    doorOpenSound: THREE.Audio | null
     doorPivot: THREE.Group | null
+    doorHingePivot: THREE.Group | null
     doorLight: THREE.SpotLight | null
     doorWalls: THREE.Group[]
     doorUI: THREE.Group | null

@@ -59,6 +59,11 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         // Rotate to face the camera
         pivot.rotation.y = Math.PI
 
+        // Find the door mesh and create a hinge pivot for it
+        let largestMesh: THREE.Mesh | null = null
+        let largestVolume = 0
+        const handleMeshes: THREE.Mesh[] = []
+        
         model.traverse(child => {
             if (child instanceof THREE.Mesh) {
                 child.castShadow = true
@@ -71,8 +76,115 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
                         mat.roughness = 1
                     }
                 }
+                
+                // Log mesh names and sizes to find the door
+                const meshBox = new THREE.Box3().setFromObject(child)
+                const meshSize = meshBox.getSize(new THREE.Vector3())
+                const volume = meshSize.x * meshSize.y * meshSize.z
+                console.log('Door mesh:', child.name, 'size:', meshSize, 'volume:', volume)
+                
+                const nameLower = child.name.toLowerCase()
+                
+                // Collect handle/knob meshes to move with door
+                if (nameLower.includes('handle') || nameLower.includes('knob') || nameLower.includes('door')) {
+                    if (!nameLower.includes('frame') && !nameLower.includes('jamb')) {
+                        handleMeshes.push(child)
+                    }
+                }
+                
+                // Track the largest mesh (likely the door panel)
+                if (volume > largestVolume) {
+                    // Exclude frame, jamb, handle, knob for the main door panel
+                    if (!nameLower.includes('frame') && !nameLower.includes('jamb') && 
+                        !nameLower.includes('handle') && !nameLower.includes('knob')) {
+                        largestVolume = volume
+                        largestMesh = child
+                    }
+                }
             }
         })
+        
+        // Use the largest mesh as the door (most likely the door panel)
+        if (largestMesh !== null) {
+            const doorPanel = largestMesh as THREE.Mesh
+            console.log('Selected door mesh:', doorPanel.name)
+            
+            // Compute bounding box in the mesh's local space
+            doorPanel.geometry.computeBoundingBox()
+            const localBox = doorPanel.geometry.boundingBox!
+            const localMin = localBox.min.clone()
+            const localMax = localBox.max.clone()
+            const doorWidth = localMax.x - localMin.x
+            
+            console.log('Door local bounds:', localMin, localMax, 'width:', doorWidth)
+            
+            // Create hinge pivot
+            const hingePivot = new THREE.Group()
+            hingePivot.name = 'doorHingePivot'
+            
+            // Get the door's parent
+            const doorParent = doorPanel.parent
+            if (doorParent) {
+                // Store door's original local transform
+                const origPos = doorPanel.position.clone()
+                const origRot = doorPanel.rotation.clone()
+                const origScale = doorPanel.scale.clone()
+                
+                // Position hinge at the door's position but at the LEFT edge (max X from camera view)
+                // Since door is rotated 180 degrees, left from camera is max X in local space
+                hingePivot.position.set(
+                    origPos.x + localMax.x * origScale.x,
+                    origPos.y,
+                    origPos.z
+                )
+                hingePivot.rotation.copy(origRot)
+                
+                doorParent.add(hingePivot)
+                
+                // Move the door to the hinge pivot
+                doorPanel.removeFromParent()
+                hingePivot.add(doorPanel)
+                
+                // Reset door rotation (hinge has the rotation now)
+                doorPanel.rotation.set(0, 0, 0)
+                
+                // Offset door so its left edge (max X) is at the hinge pivot origin
+                doorPanel.position.set(
+                    -localMax.x * origScale.x,
+                    0,
+                    0
+                )
+                doorPanel.scale.copy(origScale)
+                
+                // Also move handle/knob meshes to the hinge pivot
+                handleMeshes.forEach(handleMesh => {
+                    if (handleMesh !== doorPanel && handleMesh.parent) {
+                        // Get handle's world position before reparenting
+                        const handleWorldPos = new THREE.Vector3()
+                        handleMesh.getWorldPosition(handleWorldPos)
+                        
+                        const handleOrigRot = handleMesh.rotation.clone()
+                        const handleOrigScale = handleMesh.scale.clone()
+                        
+                        handleMesh.removeFromParent()
+                        hingePivot.add(handleMesh)
+                        
+                        // Convert world position to hinge pivot's local space
+                        hingePivot.worldToLocal(handleWorldPos)
+                        handleMesh.position.copy(handleWorldPos)
+                        handleMesh.rotation.copy(handleOrigRot)
+                        handleMesh.scale.copy(handleOrigScale)
+                        
+                        console.log('Moved handle to hinge pivot:', handleMesh.name)
+                    }
+                })
+            }
+            
+            state.doorHingePivot = hingePivot
+            console.log('Door hinge pivot created at left edge')
+        } else {
+            console.log('No door mesh found - will try to animate the whole model')
+        }
 
         // Create door UI group (positioned in front of door, facing camera)
         const doorUI = new THREE.Group()
@@ -149,6 +261,17 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
 
         state.doorUI = doorUI
         state.doorEnterMesh = enterMesh
+
+        // Load door open sound
+        const audioLoader = new THREE.AudioLoader()
+        const listener = new THREE.AudioListener()
+        const doorOpenSound = new THREE.Audio(listener)
+        audioLoader.load('/sfx/open-aim.mp3', (buffer) => {
+            doorOpenSound.setBuffer(buffer)
+            doorOpenSound.setVolume(0.5)
+            state.doorOpenSound = doorOpenSound
+            console.log('Door open sound loaded')
+        })
 
         // Add a light in front of the door to illuminate it
         const doorLight = new THREE.SpotLight(0xffffff, 200)
