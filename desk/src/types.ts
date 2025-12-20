@@ -88,4 +88,6 @@ export interface AppState {
     emergencyText?: THREE.Mesh
     pixelationAnimationStartTime?: number
     octocatPivot: THREE.Group | null
+    bagelPivot: THREE.Group | null
+    napkinPivot: THREE.Group | null
 }

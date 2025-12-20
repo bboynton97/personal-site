@@ -131,6 +131,11 @@ export class Terminal {
         ctx.font = 'bold 32px monospace'
         ctx.fillText('TERMINAL v1.0', 40, 50)
 
+        // Braelyn.ai branding (top right)
+        ctx.textAlign = 'right'
+        ctx.fillText('Braelyn.ai', canvas.width - 40, 50)
+        ctx.textAlign = 'left'
+
         // Header Line
         ctx.strokeStyle = '#00ff00'
         ctx.lineWidth = 2

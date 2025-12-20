@@ -38,8 +38,9 @@ RectAreaLightUniformsLib.init()
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 // Start camera at intro position (further back, behind the door)
-camera.position.copy(INTRO_POS)
-camera.lookAt(INTRO_TARGET)
+// DEBUG: Start at default position instead of intro
+camera.position.copy(DEFAULT_POS)
+camera.lookAt(DEFAULT_TARGET)
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)

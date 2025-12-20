@@ -17,6 +17,8 @@ import { loadEmergencyButton } from './EmergencyButton'
 import { loadBackrooms } from './Backrooms'
 import { loadGitHubOctocat } from './GitHubOctocat'
 import { loadHorrorMonster } from './HorrorMonster'
+import { loadEverythingBagel } from './EverythingBagel'
+import { loadNapkin } from './Napkin'
 // Re-export objects that need additional parameters
 export { loadComputer } from './Computer'
 export { loadOscilloscope } from './OscilloscopeObject'
@@ -40,4 +42,6 @@ export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state:
     loadBackrooms(loader, scene, state)
     loadGitHubOctocat(loader, scene, state)
     loadHorrorMonster(loader, scene, state)
+    loadEverythingBagel(loader, scene, state)
+    loadNapkin(loader, scene, state)
 }

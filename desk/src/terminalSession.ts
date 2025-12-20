@@ -101,23 +101,33 @@ export class TerminalSession {
                 }),
             })
 
+            // Handle HTTP errors that might indicate session expiry
             if (!response.ok) {
-                const error = await response.text()
-                throw new Error(error)
+                const errorText = await response.text()
+                const isSessionError = 
+                    response.status === 401 || 
+                    response.status === 403 ||
+                    errorText.includes('expired') || 
+                    errorText.includes('not found') ||
+                    errorText.includes('Session')
+                
+                if (!isRetry && isSessionError) {
+                    return this.retryWithNewSession(command)
+                }
+                throw new Error(errorText)
             }
 
             const data: ExecuteResponse = await response.json()
 
             if (data.error) {
                 // Session might be expired - request a new one and retry (once)
-                if (!isRetry && (data.error.includes('expired') || data.error.includes('not found'))) {
-                    this.clearSession()
-                    const success = await this.initSession()
-                    if (success) {
-                        // Retry the command with the new session
-                        return this.executeCommand(command, true)
-                    }
-                    return 'Error: Could not establish new terminal session'
+                const isSessionError = 
+                    data.error.includes('expired') || 
+                    data.error.includes('not found') ||
+                    data.error.includes('Session')
+                
+                if (!isRetry && isSessionError) {
+                    return this.retryWithNewSession(command)
                 }
                 return `Error: ${data.error}`
             }
@@ -125,8 +135,28 @@ export class TerminalSession {
             return data.output || ''
         } catch (error) {
             console.error('Command execution failed:', error)
+            
+            // On network/unknown errors, try getting a new session if not already retrying
+            if (!isRetry) {
+                const errorMsg = error instanceof Error ? error.message : ''
+                if (errorMsg.includes('expired') || errorMsg.includes('not found') || errorMsg.includes('Session')) {
+                    return this.retryWithNewSession(command)
+                }
+            }
+            
             return `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
         }
+    }
+
+    private async retryWithNewSession(command: string): Promise<string> {
+        console.log('Session expired, requesting new session...')
+        this.clearSession()
+        const success = await this.initSession()
+        if (success) {
+            // Retry the command with the new session
+            return this.executeCommand(command, true)
+        }
+        return 'Error: Could not establish new terminal session'
     }
 
     async endSession(): Promise<void> {

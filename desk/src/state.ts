@@ -8,7 +8,7 @@ export const state: AppState = {
     isEmergencyStopped: false,
     isBlackout: false,
     isAudioPlaying: false,
-    isIntro: true,
+    isIntro: false, // DEBUG: Skip intro
     introAnimationProgress: 0,
     introGlitchStartTime: null,
     introSceneReady: false,
@@ -60,5 +60,7 @@ export const state: AppState = {
         lightShow3: null  // Will store bouncing red light
     },
     bouncingLight: null, // Single light for Light Show 3
-    octocatPivot: null
+    octocatPivot: null,
+    bagelPivot: null,
+    napkinPivot: null
 }
