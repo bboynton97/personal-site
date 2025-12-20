@@ -12,6 +12,10 @@ RUN bun install --frozen-lockfile
 # Copy source files
 COPY . .
 
+# Build args for Vite environment variables
+ARG VITE_BLOG_API_URL
+ENV VITE_BLOG_API_URL=$VITE_BLOG_API_URL
+
 # Build the app
 RUN bun run build
 
