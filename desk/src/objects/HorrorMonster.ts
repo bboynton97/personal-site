@@ -8,7 +8,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
     const audioLoader = new THREE.AudioLoader()
     const creepyKnockSound = new THREE.Audio(listener)
     audioLoader.load(
-        '/creepy-knock.m4a',
+        '/creepy-knock.mp3',
         (buffer) => {
             creepyKnockSound.setBuffer(buffer)
             creepyKnockSound.setVolume(0.8)

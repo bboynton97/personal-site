@@ -136,7 +136,7 @@ export function setupInteractions(
     }
     buzzConvolver.buffer = buzzImpulse
     
-    audioLoader.load('/lamp-buzz.mov', function (buffer) {
+    audioLoader.load('/lamp-buzz.mp3', function (buffer) {
         lampBuzzSound.setBuffer(buffer)
         lampBuzzSound.setLoop(true)
         
