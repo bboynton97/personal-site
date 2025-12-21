@@ -5,6 +5,8 @@ from e2b_code_interpreter import Sandbox
 from .database import SessionLocal
 from .models import TerminalSession
 from .e2b_setup import populate_example_files
+from dotenv import load_dotenv
+load_dotenv()
 
 class SessionManager:
     """Manages E2B terminal sessions with in-memory client storage and PostgreSQL persistence."""

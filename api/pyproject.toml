@@ -17,6 +17,7 @@ dependencies = [
     "pydantic-settings>=2.8.1",
     "e2b-code-interpreter>=1.0.5",
     "python-dotenv>=1.0.1",
+    "httpx>=0.24.0",
 ]
 
 [project.scripts]

@@ -1,8 +1,10 @@
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import httpx
 from .session_manager import session_manager
 
 
@@ -57,6 +59,49 @@ async def health_check():
 async def hello():
     """Simple hello endpoint"""
     return {"message": "Hello from the API!"}
+
+
+@app.get("/api/lastfm/now-playing")
+async def get_lastfm_now_playing():
+    """Get the last scrobbled track from Last.fm."""
+    api_key = os.getenv("LASTFM_API_KEY")
+    username = os.getenv("LASTFM_USERNAME", "braelinux")
+    
+    if not api_key:
+        raise HTTPException(status_code=500, detail="LASTFM_API_KEY not configured")
+    
+    url = "https://ws.audioscrobbler.com/2.0/"
+    params = {
+        "method": "user.getrecenttracks",
+        "user": username,
+        "api_key": api_key,
+        "format": "json",
+        "limit": 1,
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, params=params)
+        
+        if response.status_code != 200:
+            raise HTTPException(status_code=502, detail="Failed to fetch from Last.fm")
+        
+        data = response.json()
+        
+        try:
+            track = data["recenttracks"]["track"][0]
+            now_playing = track.get("@attr", {}).get("nowplaying", "false") == "true"
+            
+            return {
+                "artist": track["artist"]["#text"],
+                "track": track["name"],
+                "album": track["album"]["#text"],
+                "now_playing": now_playing,
+                "url": track["url"],
+                "image": track["image"][-1]["#text"] if track["image"] else None,
+            }
+        except (KeyError, IndexError):
+            raise HTTPException(status_code=404, detail="No recent tracks found")
+
 
 @app.post("/api/terminal/session/start")
 async def start_terminal_session():
