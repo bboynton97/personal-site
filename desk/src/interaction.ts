@@ -238,6 +238,7 @@ export function setupInteractions(
             else if (!isInBackrooms && checkIntersect(state.notepadPivot)) objectHovered = true
             else if (checkIntersect(state.emergencyButtonPivot)) objectHovered = true
             else if (checkIntersect(state.octocatPivot)) objectHovered = true
+            else if (checkIntersect(state.bagelPivot)) objectHovered = true
 
             if (objectHovered) cursorStyle = "url('/click.png'), pointer"
         }
@@ -410,6 +411,14 @@ export function setupInteractions(
             const intersects = raycaster.intersectObjects(state.octocatPivot.children, true)
             if (intersects.length > 0) {
                 window.open('https://github.com/bboynton97/personal-site', '_blank')
+                return
+            }
+        }
+
+        if (state.bagelPivot) {
+            const intersects = raycaster.intersectObjects(state.bagelPivot.children, true)
+            if (intersects.length > 0) {
+                window.open('https://goldenboy.pizza/bagel-ratings', '_blank')
                 return
             }
         }

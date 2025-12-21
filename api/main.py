@@ -39,7 +39,12 @@ app = FastAPI(title="Personal Site API", version="1.0.0", lifespan=lifespan)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure this properly for production
+    allow_origins=[
+        "https://braelyn.ai",
+        "https://www.braelyn.ai",
+        "http://localhost:4200",  # Angular dev server
+        "http://localhost:5173",  # Vite dev server
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
