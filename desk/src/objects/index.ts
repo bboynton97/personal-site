@@ -19,6 +19,7 @@ import { loadGitHubOctocat } from './GitHubOctocat'
 import { loadHorrorMonster } from './HorrorMonster'
 import { loadEverythingBagel } from './EverythingBagel'
 import { loadNapkin } from './Napkin'
+import { loadIpodClassic } from './IpodClassic'
 // Re-export objects that need additional parameters
 export { loadComputer } from './Computer'
 export { loadOscilloscope } from './OscilloscopeObject'
@@ -44,4 +45,5 @@ export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state:
     loadHorrorMonster(loader, scene, state)
     loadEverythingBagel(loader, scene, state)
     loadNapkin(loader, scene, state)
+    loadIpodClassic(loader, scene, state)
 }

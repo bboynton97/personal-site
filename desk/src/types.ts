@@ -90,4 +90,5 @@ export interface AppState {
     octocatPivot: THREE.Group | null
     bagelPivot: THREE.Group | null
     napkinPivot: THREE.Group | null
+    ipodPivot: THREE.Group | null
 }

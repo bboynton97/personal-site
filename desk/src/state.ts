@@ -62,5 +62,6 @@ export const state: AppState = {
     bouncingLight: null, // Single light for Light Show 3
     octocatPivot: null,
     bagelPivot: null,
-    napkinPivot: null
+    napkinPivot: null,
+    ipodPivot: null
 }
