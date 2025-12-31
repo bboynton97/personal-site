@@ -24,6 +24,7 @@ export function setupInputListeners(
             state.isFocusingOnScreen = false
             state.isFocusingOnNotepad = false
             state.isFocusingOnButton = false
+            state.isFocusingOnIpod = false
             terminal.setFocused(false)
         }
 

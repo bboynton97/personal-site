@@ -239,6 +239,7 @@ export function setupInteractions(
             else if (checkIntersect(state.emergencyButtonPivot)) objectHovered = true
             else if (checkIntersect(state.octocatPivot)) objectHovered = true
             else if (checkIntersect(state.bagelPivot)) objectHovered = true
+            else if (checkIntersect(state.ipodPivot)) objectHovered = true
 
             if (objectHovered) cursorStyle = "url('/click.png'), pointer"
         }
@@ -419,6 +420,20 @@ export function setupInteractions(
             const intersects = raycaster.intersectObjects(state.bagelPivot.children, true)
             if (intersects.length > 0) {
                 window.open('https://goldenboy.pizza/bagel-ratings', '_blank')
+                return
+            }
+        }
+
+        if (state.ipodPivot) {
+            const intersects = raycaster.intersectObjects(state.ipodPivot.children, true)
+            if (intersects.length > 0) {
+                if (state.isCameraLocked && !state.isFocusingOnIpod) {
+                    state.isFocusingOnIpod = true
+                    state.isFocusingOnScreen = false
+                    state.isFocusingOnNotepad = false
+                    state.isFocusingOnButton = false
+                    terminal.setFocused(false)
+                }
                 return
             }
         }
