@@ -2,9 +2,9 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 from e2b_code_interpreter import Sandbox
-from .database import SessionLocal
-from .models import TerminalSession
-from .e2b_setup import populate_example_files
+from database import SessionLocal
+from models import TerminalSession
+from e2b_setup import populate_example_files
 from dotenv import load_dotenv
 load_dotenv()
 

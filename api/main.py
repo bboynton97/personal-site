@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
-from .session_manager import session_manager
+from session_manager import session_manager
 
 
 class ExecuteCommandRequest(BaseModel):
