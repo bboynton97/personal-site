@@ -4,7 +4,3 @@ dockerfilePath = "Dockerfile"
 [build.args]
 VITE_BLOG_API_URL = "${{VITE_BLOG_API_URL}}"
 
-[deploy]
-healthcheckPath = "/"
-healthcheckTimeout = 100
-
