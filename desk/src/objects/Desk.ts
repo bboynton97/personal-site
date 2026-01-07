@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export function loadDesk(loader: GLTFLoader, scene: THREE.Scene): void {
-    loader.load('/metal_desk/scene.gltf', (gltf) => {
+    loader.load('/metal_desk/scene.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

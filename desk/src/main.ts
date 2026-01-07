@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { MeshoptDecoder } from 'three-stdlib'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { RenderPixelatedPass } from 'three/examples/jsm/postprocessing/RenderPixelatedPass.js'
@@ -38,9 +39,8 @@ RectAreaLightUniformsLib.init()
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 // Start camera at intro position (further back, behind the door)
-// DEBUG: Start at default position instead of intro
-camera.position.copy(DEFAULT_POS)
-camera.lookAt(DEFAULT_TARGET)
+camera.position.copy(INTRO_POS)
+camera.lookAt(INTRO_TARGET)
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -66,20 +66,26 @@ const notepad = new Notepad()
 // --- ASSET LOADING ---
 const loader = new GLTFLoader()
 
-// Load door and walls first, then load everything else
-loadDoor(loader, scene, state).then(() => {
-    // Load simple objects (only need loader, scene, state)
-    loadSimpleObjects(loader, scene, state)
-
-    // Load objects that need additional parameters
-    loadComputer(loader, scene, terminal, state)
-    loadOscilloscope(loader, scene, oscilloscope)
-    loadNotepad(loader, scene, state, notepad)
+// Initialize meshopt decoder and then load assets
+const meshoptDecoder = MeshoptDecoder()
+meshoptDecoder.ready.then(() => {
+    loader.setMeshoptDecoder(meshoptDecoder)
     
-    // Mark scene as ready after a minimum delay to ensure assets load
-    setTimeout(() => {
-        state.introSceneReady = true
-    }, 1500)
+    // Load door and walls first, then load everything else
+    loadDoor(loader, scene, state).then(() => {
+        // Load simple objects (only need loader, scene, state)
+        loadSimpleObjects(loader, scene, state)
+
+        // Load objects that need additional parameters
+        loadComputer(loader, scene, terminal, state)
+        loadOscilloscope(loader, scene, oscilloscope)
+        loadNotepad(loader, scene, state, notepad)
+        
+        // Mark scene as ready after a minimum delay to ensure assets load
+        setTimeout(() => {
+            state.introSceneReady = true
+        }, 1500)
+    })
 })
 
 // --- POST PROCESSING ---

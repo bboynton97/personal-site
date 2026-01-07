@@ -9,7 +9,7 @@ export const state: AppState = {
     isEmergencyStopped: false,
     isBlackout: false,
     isAudioPlaying: false,
-    isIntro: false, // DEBUG: Skip intro
+    isIntro: true,
     introAnimationProgress: 0,
     introGlitchStartTime: null,
     introSceneReady: false,

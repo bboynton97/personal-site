@@ -2,8 +2,47 @@ import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 
-// Create the iPod screen texture with "now listening" text
-function createScreenTexture(): THREE.CanvasTexture {
+const API_BASE = 'http://localhost:8000'
+
+interface NowPlayingResponse {
+    track: string
+    artist: string
+    album: string
+    now_playing: boolean
+    url: string
+    image: string | null
+}
+
+// Fetch last played track from API
+async function fetchLastPlayed(): Promise<{ track: string; artist: string } | null> {
+    try {
+        const response = await fetch(`${API_BASE}/api/lastfm/now-playing`)
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`)
+        }
+        const data: NowPlayingResponse = await response.json()
+        return {
+            track: data.track,
+            artist: data.artist
+        }
+    } catch (error) {
+        console.error('Failed to fetch Last.fm data:', error)
+    }
+    return null
+}
+
+// Truncate text to fit width
+function truncateText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+    if (ctx.measureText(text).width <= maxWidth) return text
+    let truncated = text
+    while (ctx.measureText(truncated + '...').width > maxWidth && truncated.length > 0) {
+        truncated = truncated.slice(0, -1)
+    }
+    return truncated + '...'
+}
+
+// Create the iPod screen texture with track info
+function createScreenTexture(track: string = 'loading...', artist: string = ''): THREE.CanvasTexture {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')!
     
@@ -24,15 +63,17 @@ function createScreenTexture(): THREE.CanvasTexture {
     ctx.textBaseline = 'top'
     ctx.fillText('now listening to:', canvas.width / 2, 30)
     
-    // Song title
-    ctx.font = 'bold 28px "Chicago", "Geneva", Arial, sans-serif'
+    // Song title (truncate if too long)
+    ctx.font = 'bold 26px "Chicago", "Geneva", Arial, sans-serif'
     ctx.fillStyle = '#000000'
-    ctx.fillText('xxxx', canvas.width / 2, 80)
+    const truncatedTrack = truncateText(ctx, track, canvas.width - 20)
+    ctx.fillText(truncatedTrack, canvas.width / 2, 75)
     
-    // Artist
-    ctx.font = '24px "Chicago", "Geneva", Arial, sans-serif'
+    // Artist (truncate if too long)
+    ctx.font = '22px "Chicago", "Geneva", Arial, sans-serif'
     ctx.fillStyle = '#333333'
-    ctx.fillText('aaaaaaaaaaa', canvas.width / 2, 120)
+    const truncatedArtist = truncateText(ctx, artist, canvas.width - 20)
+    ctx.fillText(truncatedArtist, canvas.width / 2, 115)
     
     const texture = new THREE.CanvasTexture(canvas)
     texture.needsUpdate = true
@@ -83,7 +124,7 @@ export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: A
         })
 
         // Add screen overlay with "now listening" text
-        const screenTexture = createScreenTexture()
+        let screenTexture = createScreenTexture()
         const screenMaterial = new THREE.MeshBasicMaterial({
             map: screenTexture,
             side: THREE.DoubleSide
@@ -94,11 +135,21 @@ export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: A
         const screenMesh = new THREE.Mesh(screenGeometry, screenMaterial)
         
         // Position directly in world space, at iPod location, facing up
-        screenMesh.position.set(1.5, 0.12, 1.37)  // On iPod screen area
+        screenMesh.position.set(1.5, 0.09, 1.34)  // On iPod screen area
         screenMesh.rotation.x = -Math.PI / 2  // Face up
         
-        // Add directly to scene for debugging
+        // Add directly to scene
         scene.add(screenMesh)
+        
+        // Fetch Last.fm data and update texture
+        fetchLastPlayed().then(data => {
+            if (data) {
+                screenTexture.dispose()
+                screenTexture = createScreenTexture(data.track, data.artist)
+                screenMaterial.map = screenTexture
+                screenMaterial.needsUpdate = true
+            }
+        })
 
         state.ipodPivot = pivot
     })

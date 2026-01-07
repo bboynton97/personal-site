@@ -4,7 +4,7 @@ import type { AppState } from '../types'
 import type { Notepad } from '../meshes/Notepad'
 
 export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppState, notepad: Notepad): void {
-    loader.load('/Notepad/scene.gltf', (gltf) => {
+    loader.load('/Notepad/scene.glb', (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())
