@@ -64,5 +64,6 @@ export const state: AppState = {
     octocatPivot: null,
     bagelPivot: null,
     napkinPivot: null,
-    ipodPivot: null
+    ipodPivot: null,
+    ipodScreenMesh: null
 }

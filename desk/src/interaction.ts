@@ -229,13 +229,10 @@ export function setupInteractions(
                 return raycaster.intersectObjects(pivot.children, true).length > 0
             }
 
-            // Check if in backrooms (used to disable notepad interactions)
-            const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
-
             // Check interactions based on click handler logic
             if (checkIntersect(state.powerPilePivot)) objectHovered = true
             else if (state.computerPivot && raycaster.intersectObjects(state.computerPivot.children, true).some(hit => hit.object.name.toLowerCase().includes('cube_screen_0'))) objectHovered = true
-            else if (!isInBackrooms && checkIntersect(state.notepadPivot)) objectHovered = true
+            else if (checkIntersect(state.notepadPivot)) objectHovered = true
             else if (checkIntersect(state.emergencyButtonPivot)) objectHovered = true
             else if (checkIntersect(state.octocatPivot)) objectHovered = true
             else if (checkIntersect(state.bagelPivot)) objectHovered = true
@@ -366,9 +363,7 @@ export function setupInteractions(
             }
         }
 
-        // Notepad is not clickable in backrooms
-        const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
-        if (state.notepadPivot && !isInBackrooms) {
+        if (state.notepadPivot) {
             const intersects = raycaster.intersectObjects(state.notepadPivot.children, true)
             if (intersects.length > 0) {
                 if (state.isCameraLocked && !state.isFocusingOnNotepad) {
@@ -451,6 +446,9 @@ export function setupInteractions(
                 } else if (!state.isEmergencyStopped) {
                     // Sequence: Turn off rave lights -> Pause -> Zoom out -> Pause -> Turn off all lights
                     state.isEmergencyStopped = true
+                    
+                    // Start button press animation
+                    state.emergencyButtonPressTime = Date.now()
 
                     // Play emergency switch sound
                     if (state.emergencySwitchSound) {
@@ -512,6 +510,16 @@ export function setupInteractions(
                                 // Hide the octocat
                                 if (state.octocatPivot) state.octocatPivot.visible = false
 
+                                // Hide the bagel
+                                if (state.bagelPivot) state.bagelPivot.visible = false
+
+                                // Hide the iPod and its screen
+                                if (state.ipodPivot) state.ipodPivot.visible = false
+                                if (state.ipodScreenMesh) state.ipodScreenMesh.visible = false
+
+                                // Hide the napkin
+                                if (state.napkinPivot) state.napkinPivot.visible = false
+
                                 // Play lamp buzz sound on loop
                                 if (state.lampBuzzSound) {
                                     if (state.lampBuzzSound.context.state === 'suspended') {
@@ -522,8 +530,9 @@ export function setupInteractions(
                                     }
                                 }
 
-                                // Switch notepad to demonic backrooms mode
+                                // Switch notepad and terminal to demonic backrooms mode
                                 notepad.setBackroomsMode(true)
+                                terminal.setBackroomsMode(true)
 
                             }, 3000)
                         }, 1000)

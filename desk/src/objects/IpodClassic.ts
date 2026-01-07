@@ -140,6 +140,7 @@ export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: A
         
         // Add directly to scene
         scene.add(screenMesh)
+        state.ipodScreenMesh = screenMesh
         
         // Fetch Last.fm data and update texture
         fetchLastPlayed().then(data => {

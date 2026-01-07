@@ -28,4 +28,21 @@ export function updateScene(state: AppState, time: number): void {
             state.emergencyText.visible = false
         }
     }
+
+    // Emergency Button Press Animation
+    if (state.emergencyButtonTopPivot && state.emergencyButtonPressTime) {
+        const elapsed = Date.now() - state.emergencyButtonPressTime
+        const pressDuration = 150 // Quick press down in 150ms
+        const pressDepth = 0.15 // How far down the top moves (in local units)
+        
+        if (elapsed < pressDuration) {
+            // Ease out for snappy press feel
+            const progress = elapsed / pressDuration
+            const eased = 1 - Math.pow(1 - progress, 3)
+            state.emergencyButtonTopPivot.position.y = -pressDepth * eased
+        } else {
+            // Keep pressed down
+            state.emergencyButtonTopPivot.position.y = -pressDepth
+        }
+    }
 }

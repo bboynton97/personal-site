@@ -1,11 +1,11 @@
-- sounds
-    - music is Blood and Sand - Dolby D
-        - high cut a little bit
-    - maybe slight crowd noise too
-    - add hum to backrooms
-    - safety switch slam on lights off
-- backrooms creature
-- website starts from closed industrial door
-    - link tree here
-    - enter button
-- blog
+- animate backrooms button
+- edit terminal files
+    - zork bash
+    - fake ssh key
+- bagel on desk
+    - linka to favorite bagel list
+- use e2p PTY to stream an actual terminal instead of commands to run
+    - would enable playing zork
+
+bugs:
+- slash kept opening the search 

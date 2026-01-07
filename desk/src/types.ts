@@ -86,10 +86,13 @@ export interface AppState {
     }
     bouncingLight: THREE.PointLight | null
     emergencyButtonPivot?: THREE.Group
+    emergencyButtonTopPivot?: THREE.Group
+    emergencyButtonPressTime?: number
     emergencyText?: THREE.Mesh
     pixelationAnimationStartTime?: number
     octocatPivot: THREE.Group | null
     bagelPivot: THREE.Group | null
     napkinPivot: THREE.Group | null
     ipodPivot: THREE.Group | null
+    ipodScreenMesh: THREE.Mesh | null
 }

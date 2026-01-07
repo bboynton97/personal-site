@@ -25,13 +25,41 @@ export function loadEmergencyButton(loader: GLTFLoader, scene: THREE.Scene, stat
 
         // Position to the left of the arm (arm is at x=5, z=-1.5)
         pivot.position.set(3.0, (size.y * scale / 2), -1.5)
+
+        // Separate top 20% of meshes for press animation
+        const topThreshold = box.max.y - (size.y * 0.20)
+        const topPivot = new THREE.Group()
+        topPivot.name = 'buttonTop'
+        state.emergencyButtonTopPivot = topPivot
         
+        // Collect meshes that are in the top 20%
+        const meshesToMove: THREE.Mesh[] = []
         model.traverse(child => {
             if (child instanceof THREE.Mesh) {
                 child.castShadow = true
                 child.receiveShadow = true
+                
+                // Get the mesh's world bounding box
+                const meshBox = new THREE.Box3().setFromObject(child)
+                // If the mesh's min Y is above the top threshold, it's in the top portion
+                if (meshBox.min.y >= topThreshold) {
+                    meshesToMove.push(child)
+                }
             }
         })
+        
+        // Move top meshes to the top pivot
+        meshesToMove.forEach(mesh => {
+            const worldPos = new THREE.Vector3()
+            mesh.getWorldPosition(worldPos)
+            mesh.removeFromParent()
+            topPivot.add(mesh)
+            // Restore position relative to new parent
+            mesh.position.copy(worldPos)
+            topPivot.worldToLocal(mesh.position)
+        })
+        
+        model.add(topPivot)
 
         // Add "EMERGENCY STOP" text
         const fontLoader = new FontLoader()
