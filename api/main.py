@@ -69,11 +69,15 @@ async def hello():
 @app.get("/api/lastfm/now-playing")
 async def get_lastfm_now_playing():
     """Get the last scrobbled track from Last.fm."""
-    api_key = os.getenv("LASTFM_API_KEY")
-    username = os.getenv("LASTFM_USERNAME", "braelinux")
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    api_key = os.getenv("LAST_FM_API_KEY")
+    username = os.getenv("LAST_FM_USERNAME", "braelinux")
     
     if not api_key:
-        raise HTTPException(status_code=500, detail="LASTFM_API_KEY not configured")
+        logger.error("LAST_FM_API_KEY not configured")
+        raise HTTPException(status_code=500, detail="LAST_FM_API_KEY not configured")
     
     url = "https://ws.audioscrobbler.com/2.0/"
     params = {
@@ -84,15 +88,16 @@ async def get_lastfm_now_playing():
         "limit": 1,
     }
     
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, params=params)
-        
-        if response.status_code != 200:
-            raise HTTPException(status_code=502, detail="Failed to fetch from Last.fm")
-        
-        data = response.json()
-        
-        try:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params)
+            
+            if response.status_code != 200:
+                logger.error(f"Last.fm API returned {response.status_code}: {response.text}")
+                raise HTTPException(status_code=502, detail="Failed to fetch from Last.fm")
+            
+            data = response.json()
+            
             track = data["recenttracks"]["track"][0]
             now_playing = track.get("@attr", {}).get("nowplaying", "false") == "true"
             
@@ -104,8 +109,14 @@ async def get_lastfm_now_playing():
                 "url": track["url"],
                 "image": track["image"][-1]["#text"] if track["image"] else None,
             }
-        except (KeyError, IndexError):
-            raise HTTPException(status_code=404, detail="No recent tracks found")
+    except HTTPException:
+        raise
+    except (KeyError, IndexError) as e:
+        logger.error(f"Failed to parse Last.fm response: {e}")
+        raise HTTPException(status_code=404, detail="No recent tracks found")
+    except Exception as e:
+        logger.error(f"Unexpected error in lastfm endpoint: {type(e).__name__}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/terminal/session/start")
