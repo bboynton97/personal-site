@@ -30,5 +30,7 @@ export function loadCar(loader: GLTFLoader, scene: THREE.Scene, state: AppState)
                 child.receiveShadow = true
             }
         })
+    }, undefined, (error) => {
+        console.error("Failed to load Mazda RX-7 Akagi's White Comet Remake/scene.glb:", error)
     })
 }

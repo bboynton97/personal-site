@@ -97,6 +97,8 @@ export function setupInteractions(
         sound.setLoop(true)
         sound.setVolume(0.5)
         sound.offset = 120 // Start at 2 minutes
+    }, undefined, function (error) {
+        console.warn('Failed to load berghain.mp3:', error)
     })
 
     // Emergency switch sound
@@ -105,6 +107,8 @@ export function setupInteractions(
         emergencySwitchSound.setBuffer(buffer)
         emergencySwitchSound.setLoop(false)
         emergencySwitchSound.setVolume(1.0)
+    }, undefined, function (error) {
+        console.warn('Failed to load loud-switch.mp3:', error)
     })
     state.emergencySwitchSound = emergencySwitchSound
 
@@ -144,6 +148,8 @@ export function setupInteractions(
         lampBuzzSound.gain.connect(buzzConvolver)
         buzzConvolver.connect(buzzReverbGain)
         buzzReverbGain.connect(listener.context.destination)
+    }, undefined, function (error) {
+        console.warn('Failed to load lamp-buzz.mp3:', error)
     })
     state.lampBuzzSound = lampBuzzSound
 

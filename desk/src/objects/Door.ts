@@ -273,6 +273,8 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
             doorOpenSound.setBuffer(buffer)
             doorOpenSound.setVolume(0.5)
             state.doorOpenSound = doorOpenSound
+        }, undefined, (error) => {
+            console.warn('Failed to load sfx/open-aim.mp3:', error)
         })
         
         // Door knock sound (plays when enter is clicked)
@@ -281,6 +283,8 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
             doorKnockSound.setBuffer(buffer)
             doorKnockSound.setVolume(0.7)
             state.doorKnockSound = doorKnockSound
+        }, undefined, (error) => {
+            console.warn('Failed to load knock-on-the-door.mp3:', error)
         })
 
         // Add a light in front of the door to illuminate it
@@ -357,7 +361,13 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
 
             state.doorWalls = [leftWallPivot, rightWallPivot]
             resolve()
+        }, undefined, (error) => {
+            console.error('Failed to load Concrete Wall 3D Model.glb:', error)
+            resolve() // Still resolve to prevent hanging
         })
+    }, undefined, (error) => {
+        console.error('Failed to load door.glb:', error)
+        resolve() // Still resolve to prevent hanging
     })
     })
 }

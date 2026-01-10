@@ -25,5 +25,7 @@ export function loadDesk(loader: GLTFLoader, scene: THREE.Scene): void {
                 child.castShadow = true
             }
         })
+    }, undefined, (error) => {
+        console.error('Failed to load metal_desk/scene.glb:', error)
     })
 }

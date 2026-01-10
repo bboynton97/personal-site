@@ -99,5 +99,7 @@ export function loadBackrooms(loader: GLTFLoader, scene: THREE.Scene, state: App
         rectLight2.visible = false
         scene.add(rectLight2)
         state.backroomsLights.push(rectLight2)
+    }, undefined, (error) => {
+        console.error('Failed to load backrooms_map_packed_blender_3.2.0.glb:', error)
     })
 }

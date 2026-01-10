@@ -35,5 +35,7 @@ export function loadGitHubOctocat(loader: GLTFLoader, scene: THREE.Scene, state:
         })
 
         state.octocatPivot = pivot
+    }, undefined, (error) => {
+        console.error('Failed to load github-octocat/source/scene.glb:', error)
     })
 }

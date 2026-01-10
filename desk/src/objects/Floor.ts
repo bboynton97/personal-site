@@ -41,5 +41,7 @@ export function loadFloor(loader: GLTFLoader, scene: THREE.Scene, state: AppStat
         pivot3.position.x += 40
         state.floorPivots.push(pivot3)
         scene.add(pivot3)
+    }, undefined, (error) => {
+        console.error('Failed to load floor.glb:', error)
     })
 }

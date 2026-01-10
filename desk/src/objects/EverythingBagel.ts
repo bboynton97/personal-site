@@ -59,6 +59,8 @@ export function loadEverythingBagel(loader: GLTFLoader, scene: THREE.Scene, stat
         })
 
         state.bagelPivot = pivot
+    }, undefined, (error) => {
+        console.error('Failed to load everything_bagel.glb:', error)
     })
 }
 

@@ -86,5 +86,7 @@ export function loadEmergencyButton(loader: GLTFLoader, scene: THREE.Scene, stat
         scene.add(textMesh)
         state.emergencyText = textMesh
         textMesh.visible = false
+    }, undefined, (error) => {
+        console.error('Failed to load Emergency Stop Button 3D Model.glb:', error)
     })
 }

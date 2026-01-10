@@ -45,5 +45,7 @@ export function loadSpeaker(loader: GLTFLoader, scene: THREE.Scene, state: AppSt
         
         state.speakerPivots.push(pivot2)
         scene.add(pivot2)
+    }, undefined, (error) => {
+        console.error('Failed to load speaker/scene.glb:', error)
     })
 }
