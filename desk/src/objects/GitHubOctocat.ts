@@ -37,5 +37,15 @@ export function loadGitHubOctocat(loader: GLTFLoader, scene: THREE.Scene, state:
         state.octocatPivot = pivot
     }, undefined, (error) => {
         console.error('Failed to load github-octocat/source/scene.glb:', error)
+        // Try to fetch the file directly to diagnose
+        fetch('/github-octocat/source/scene.glb', { method: 'HEAD' })
+            .then(res => {
+                const contentType = res.headers.get('Content-Type')
+                console.error(`GLB file HTTP status: ${res.status}, Content-Type: ${contentType}, Size: ${res.headers.get('Content-Length')}`)
+                if (contentType && contentType.includes('text/html')) {
+                    console.error('⚠️ Server is returning HTML instead of GLB file! Check nginx configuration.')
+                }
+            })
+            .catch(err => console.error('Could not check GLB file:', err))
     })
 }
