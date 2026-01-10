@@ -53,6 +53,6 @@ export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscillo
             }
         })
     }, undefined, (error) => {
-        console.error('Failed to load scope/scene.gltf:', error)
+        console.error('Failed to load scope/scene.gltf. File may be corrupted or not served correctly:', error)
     })
 }

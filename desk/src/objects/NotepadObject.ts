@@ -59,6 +59,6 @@ export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppSt
             }
         })
     }, undefined, (error) => {
-        console.error('Failed to load Notepad/scene.glb:', error)
+        console.error('Failed to load Notepad/scene.glb. File may not be served correctly by the server:', error)
     })
 }

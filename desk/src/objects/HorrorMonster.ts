@@ -16,7 +16,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
         },
         undefined,
         (error) => {
-            console.warn('Failed to load creepy-knock.mp3:', error)
+            console.warn('Failed to load creepy-knock.mp3. File may be corrupted or not served correctly:', error)
         }
     )
     
@@ -31,7 +31,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
         },
         undefined,
         (error) => {
-            console.warn('Failed to load horror-sound-lurking-horror-monster-189948.mp3:', error)
+            console.warn('Failed to load horror-sound-lurking-horror-monster-189948.mp3. File may be corrupted or not served correctly:', error)
         }
     )
     
@@ -46,7 +46,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
         },
         undefined,
         (error) => {
-            console.warn('Failed to load jumpscare.mp3:', error)
+            console.warn('Failed to load jumpscare.mp3. File may be corrupted or not served correctly:', error)
         }
     )
     loader.load('/smily_horror_monster.glb', (gltf) => {
