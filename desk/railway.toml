@@ -3,4 +3,6 @@ dockerfilePath = "Dockerfile"
 
 [build.args]
 VITE_BLOG_API_URL = "${{VITE_BLOG_API_URL}}"
+RAILWAY_GIT_REPO_URL = "${{RAILWAY_GIT_REPO_URL}}"
+RAILWAY_GIT_COMMIT_SHA = "${{RAILWAY_GIT_COMMIT_SHA}}"
 
