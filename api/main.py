@@ -2,9 +2,12 @@ import asyncio
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
+import boto3
+from botocore.config import Config
 from session_manager import session_manager
 
 
@@ -117,6 +120,46 @@ async def get_lastfm_now_playing():
     except Exception as e:
         logger.error(f"Unexpected error in lastfm endpoint: {type(e).__name__}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# S3 client for presigned URLs
+def get_s3_client():
+    return boto3.client(
+        's3',
+        endpoint_url=os.getenv('BUCKET_ENDPOINT'),
+        aws_access_key_id=os.getenv('BUCKET_ACCESS_KEY'),
+        aws_secret_access_key=os.getenv('BUCKET_SECRET_ACCESS_KEY'),
+        config=Config(signature_version='s3v4'),
+        region_name='auto'
+    )
+
+
+@app.get("/api/assets/{path:path}")
+async def get_asset_url(path: str):
+    """Generate a presigned URL for an asset and redirect to it."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    bucket_name = os.getenv('BUCKET_NAME')
+    if not bucket_name:
+        logger.error("BUCKET_NAME not configured")
+        raise HTTPException(status_code=500, detail="Storage not configured")
+    
+    try:
+        s3 = get_s3_client()
+        # Assets are stored under desk/ prefix in the bucket
+        key = f"desk/{path}"
+        
+        presigned_url = s3.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': bucket_name, 'Key': key},
+            ExpiresIn=3600  # 1 hour
+        )
+        
+        return RedirectResponse(url=presigned_url, status_code=302)
+    except Exception as e:
+        logger.error(f"Failed to generate presigned URL for {path}: {e}")
+        raise HTTPException(status_code=404, detail="Asset not found")
 
 
 @app.post("/api/terminal/session/start")

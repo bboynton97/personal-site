@@ -1,20 +1,19 @@
 /**
  * Returns the full URL for an asset.
- * In production, assets are served from S3/CDN.
+ * In production, assets are served via API presigned URLs.
  * In development, assets are served locally from /public.
  */
 export function assetUrl(path: string): string {
-  const cdnBase = import.meta.env.VITE_ASSET_CDN_URL ?? `${import.meta.env.VITE_BUCKET_ENDPOINT}/${import.meta.env.VITE_BUCKET_NAME}`
+  const apiBase = import.meta.env.VITE_API_URL
 
   // Remove leading slash if present for consistent joining
   const cleanPath = path.startsWith('/') ? path.slice(1) : path
 
-  if (cdnBase) {
-    // Production: use CDN
-    return `${cdnBase.replace(/\/$/, '')}/${cleanPath}`
+  if (apiBase) {
+    // Production: use API to get presigned URL (redirects to S3)
+    return `${apiBase.replace(/\/$/, '')}/api/assets/${cleanPath}`
   }
 
   // Development: use local path
   return `/${cleanPath}`
 }
-
