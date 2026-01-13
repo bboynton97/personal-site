@@ -69,5 +69,7 @@ export function loadWall(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         pivotLeftLower.position.y -= size.y * scale
         state.wallPivots.push(pivotLeftLower)
         scene.add(pivotLeftLower)
+    }, undefined, (error) => {
+        console.error('Failed to load Industrial Factory Wall 3D Model (1).glb:', error)
     })
 }

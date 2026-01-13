@@ -13,6 +13,21 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
             creepyKnockSound.setBuffer(buffer)
             creepyKnockSound.setVolume(0.8)
             state.creepyKnockSound = creepyKnockSound
+        },
+        (progress) => {
+            // Progress callback for debugging
+            if (progress.total > 0) {
+                console.debug(`Loading creepy-knock.mp3: ${(progress.loaded / progress.total * 100).toFixed(1)}%`)
+            }
+        },
+        (error) => {
+            console.warn('Failed to load creepy-knock.mp3. File may be corrupted or not served correctly:', error)
+            // Try to fetch the file directly to diagnose
+            fetch('/creepy-knock.mp3', { method: 'HEAD' })
+                .then(res => {
+                    console.warn(`Audio file HTTP status: ${res.status}, Content-Type: ${res.headers.get('Content-Type')}, Size: ${res.headers.get('Content-Length')}`)
+                })
+                .catch(err => console.warn('Could not check audio file:', err))
         }
     )
     
@@ -24,6 +39,10 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
             horrorFadeSound.setBuffer(buffer)
             horrorFadeSound.setVolume(0.7)
             state.horrorFadeSound = horrorFadeSound
+        },
+        undefined,
+        (error) => {
+            console.warn('Failed to load horror-sound-lurking-horror-monster-189948.mp3. File may be corrupted or not served correctly:', error)
         }
     )
     
@@ -35,6 +54,16 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
             jumpscareSound.setBuffer(buffer)
             jumpscareSound.setVolume(0.8)
             state.jumpscareSound = jumpscareSound
+        },
+        undefined,
+        (error) => {
+            console.warn('Failed to load jumpscare.mp3. File may be corrupted or not served correctly:', error)
+            // Try to fetch the file directly to diagnose
+            fetch('/jumpscare.mp3', { method: 'HEAD' })
+                .then(res => {
+                    console.warn(`Audio file HTTP status: ${res.status}, Content-Type: ${res.headers.get('Content-Type')}, Size: ${res.headers.get('Content-Length')}`)
+                })
+                .catch(err => console.warn('Could not check audio file:', err))
         }
     )
     loader.load('/smily_horror_monster.glb', (gltf) => {
@@ -81,5 +110,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
                 }
             }
         })
+    }, undefined, (error) => {
+        console.error('Failed to load smily_horror_monster.glb:', error)
     })
 }

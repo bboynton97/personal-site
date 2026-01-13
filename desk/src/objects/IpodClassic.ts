@@ -153,6 +153,8 @@ export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: A
         })
 
         state.ipodPivot = pivot
+    }, undefined, (error) => {
+        console.error('Failed to load ipod_classic.glb. File may not be served correctly by the server:', error)
     })
 }
 

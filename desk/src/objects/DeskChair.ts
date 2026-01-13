@@ -29,5 +29,7 @@ export function loadDeskChair(loader: GLTFLoader, scene: THREE.Scene): void {
                 child.receiveShadow = true
             }
         })
+    }, undefined, (error) => {
+        console.error('Failed to load Wooden Desk Chair 3D Model.glb:', error)
     })
 }

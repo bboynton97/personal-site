@@ -93,6 +93,11 @@ export class Terminal {
             this.draw()
             this.texture.needsUpdate = true
         }
+        this.logo.onerror = () => {
+            // Silently fail if logo doesn't exist - it's optional
+            this.draw()
+            this.texture.needsUpdate = true
+        }
 
         this.setupInput()
         this.draw()

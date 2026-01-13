@@ -54,5 +54,7 @@ export function loadRoboticArm(loader: GLTFLoader, scene: THREE.Scene, state: Ap
         armLight.position.set(5.0 - 1, 3, -1.5 + 2)
         scene.add(armLight)
         state.roomLights.push(armLight)
+    }, undefined, (error) => {
+        console.error('Failed to load arm/Robotic Arm.glb:', error)
     })
 }

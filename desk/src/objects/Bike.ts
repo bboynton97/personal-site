@@ -33,5 +33,7 @@ export function loadBike(loader: GLTFLoader, scene: THREE.Scene, state: AppState
                 child.receiveShadow = true
             }
         })
+    }, undefined, (error) => {
+        console.error('Failed to load Yamaha R1 3D Model.glb:', error)
     })
 }

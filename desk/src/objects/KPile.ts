@@ -41,6 +41,10 @@ export function loadKPile(loader: GLTFLoader, scene: THREE.Scene, state: AppStat
             sniffSound.setBuffer(buffer)
             sniffSound.setVolume(0.3)
             state.sniffSound = sniffSound
+        }, undefined, (error) => {
+            console.warn('Failed to load snifff.mp3:', error)
         })
+    }, undefined, (error) => {
+        console.error('Failed to load Cocaine Pile 3D Model.glb:', error)
     })
 }

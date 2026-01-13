@@ -36,6 +36,8 @@ export function loadNapkin(loader: GLTFLoader, scene: THREE.Scene, state: AppSta
         })
 
         state.napkinPivot = pivot
+    }, undefined, (error) => {
+        console.error('Failed to load napkin.glb. File may not be served correctly by the server:', error)
     })
 }
 

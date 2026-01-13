@@ -42,5 +42,7 @@ export function loadBarrier(loader: GLTFLoader, scene: THREE.Scene, state: AppSt
         pivot3.position.x += 20
         state.barrierPivots.push(pivot3)
         scene.add(pivot3)
+    }, undefined, (error) => {
+        console.error('Failed to load Steel Road Barrier 3D Model.glb:', error)
     })
 }

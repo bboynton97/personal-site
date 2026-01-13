@@ -120,5 +120,7 @@ export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: T
                 }
             }
         })
+    }, undefined, (error) => {
+        console.error('Failed to load computer/scene_converted.glb. File may not be served correctly by the server:', error)
     })
 }
