@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
+import { assetUrl } from '../utils/assetUrl'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -81,7 +82,7 @@ function createScreenTexture(track: string = 'loading...', artist: string = ''):
 }
 
 export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
-    loader.load('/ipod_classic.glb', (gltf) => {
+    loader.load(assetUrl('ipod_classic.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

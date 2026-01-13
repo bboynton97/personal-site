@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadNapkin(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
-    loader.load('/napkin.glb', (gltf) => {
+    loader.load(assetUrl('napkin.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

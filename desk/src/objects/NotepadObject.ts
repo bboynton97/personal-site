@@ -2,9 +2,10 @@ import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import type { Notepad } from '../meshes/Notepad'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppState, notepad: Notepad): void {
-    loader.load('/Notepad/scene.glb', (gltf) => {
+    loader.load(assetUrl('Notepad/scene.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

@@ -1,4 +1,9 @@
+# Large assets tracked with Git LFS
+# These are synced to S3/CDN via GitHub Actions (.github/workflows/sync-assets.yml)
+# and excluded from Docker builds via .dockerignore
 *.glb filter=lfs diff=lfs merge=lfs -text
+*.gltf filter=lfs diff=lfs merge=lfs -text
 *.bin filter=lfs diff=lfs merge=lfs -text
 *.mp3 filter=lfs diff=lfs merge=lfs -text
 *.mov filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text

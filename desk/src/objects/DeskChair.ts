@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadDeskChair(loader: GLTFLoader, scene: THREE.Scene): void {
-    loader.load('/Wooden Desk Chair 3D Model.glb', (gltf) => {
+    loader.load(assetUrl('Wooden Desk Chair 3D Model.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

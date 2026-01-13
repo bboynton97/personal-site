@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadCar(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
-    loader.load("/Mazda RX-7 Akagi's White Comet Remake/scene.glb", (gltf) => {
+    loader.load(assetUrl("Mazda RX-7 Akagi's White Comet Remake/scene.glb"), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

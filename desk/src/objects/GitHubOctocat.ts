@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadGitHubOctocat(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
-    loader.load('/github-octocat/source/scene.glb', (gltf) => {
+    loader.load(assetUrl('github-octocat/source/scene.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
+import { assetUrl } from '../utils/assetUrl'
 
 // Helper to create text texture
 function createTextTexture(text: string, fontSize: number = 64, color: string = '#ffffff'): THREE.CanvasTexture {
@@ -35,7 +36,7 @@ const SOCIAL_URLS = {
 
 export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
     return new Promise((resolve) => {
-        loader.load('/door.glb', (gltf) => {
+        loader.load(assetUrl('door.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())
@@ -269,7 +270,7 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         
         // Door open sound
         const doorOpenSound = new THREE.Audio(listener)
-        audioLoader.load('/sfx/open-aim.mp3', (buffer) => {
+        audioLoader.load(assetUrl('sfx/open-aim.mp3'), (buffer) => {
             doorOpenSound.setBuffer(buffer)
             doorOpenSound.setVolume(0.5)
             state.doorOpenSound = doorOpenSound
@@ -279,7 +280,7 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         
         // Door knock sound (plays when enter is clicked)
         const doorKnockSound = new THREE.Audio(listener)
-        audioLoader.load('/knock-on-the-door.mp3', (buffer) => {
+        audioLoader.load(assetUrl('knock-on-the-door.mp3'), (buffer) => {
             doorKnockSound.setBuffer(buffer)
             doorKnockSound.setVolume(0.7)
             state.doorKnockSound = doorKnockSound
@@ -304,7 +305,7 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         const doorScaledWidth = size.x * scale
 
         // Load walls on either side of the door
-        loader.load('/Concrete Wall 3D Model.glb', (wallGltf) => {
+        loader.load(assetUrl('Concrete Wall 3D Model.glb'), (wallGltf) => {
             const wallModel = wallGltf.scene
             const wallBox = new THREE.Box3().setFromObject(wallModel)
             const wallSize = wallBox.getSize(new THREE.Vector3())

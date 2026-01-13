@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { Oscilloscope } from '../meshes/Oscilloscope'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscilloscope: Oscilloscope): void {
-    loader.load('/scope/scene.gltf', (gltf) => {
+    loader.load(assetUrl('scope/scene.gltf'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

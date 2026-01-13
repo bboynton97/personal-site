@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
     // Load creepy knock sound
@@ -8,7 +9,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
     const audioLoader = new THREE.AudioLoader()
     const creepyKnockSound = new THREE.Audio(listener)
     audioLoader.load(
-        '/creepy-knock.mp3',
+        assetUrl('creepy-knock.mp3'),
         (buffer) => {
             creepyKnockSound.setBuffer(buffer)
             creepyKnockSound.setVolume(0.8)
@@ -34,7 +35,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
     // Load horror fade sound (plays when monster starts fading out)
     const horrorFadeSound = new THREE.Audio(listener)
     audioLoader.load(
-        '/horror-sound-lurking-horror-monster-189948.mp3',
+        assetUrl('horror-sound-lurking-horror-monster-189948.mp3'),
         (buffer) => {
             horrorFadeSound.setBuffer(buffer)
             horrorFadeSound.setVolume(0.7)
@@ -49,7 +50,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
     // Load jumpscare sound
     const jumpscareSound = new THREE.Audio(listener)
     audioLoader.load(
-        '/jumpscare.mp3',
+        assetUrl('jumpscare.mp3'),
         (buffer) => {
             jumpscareSound.setBuffer(buffer)
             jumpscareSound.setVolume(0.8)
@@ -66,7 +67,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
                 .catch(err => console.warn('Could not check audio file:', err))
         }
     )
-    loader.load('/smily_horror_monster.glb', (gltf) => {
+    loader.load(assetUrl('smily_horror_monster.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

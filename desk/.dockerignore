@@ -1,8 +1,15 @@
 node_modules
 dist
+.git
 .gitignore
 *.md
 .env*
 !.env.example
 Dockerfile
 .dockerignore
+public/**/*.glb
+public/**/*.gltf
+public/**/*.bin
+public/**/*.mp3
+public/**/*.mp4
+public/**/*.mov

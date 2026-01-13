@@ -2,9 +2,10 @@ import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import type { Terminal } from '../meshes/Terminal'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: Terminal, state: AppState): void {
-    loader.load('/computer/scene_converted.glb', (gltf) => {
+    loader.load(assetUrl('computer/scene_converted.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())

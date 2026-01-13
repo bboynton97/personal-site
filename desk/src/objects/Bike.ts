@@ -1,10 +1,10 @@
 import * as THREE from 'three'
-import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
+import { assetUrl } from '../utils/assetUrl'
 
 export function loadBike(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
-    loader.load('/Yamaha R1 3D Model.glb', (gltf) => {
+    loader.load(assetUrl('Yamaha R1 3D Model.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
         const size = box.getSize(new THREE.Vector3())
