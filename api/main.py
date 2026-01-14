@@ -2,7 +2,7 @@ import asyncio
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
@@ -51,6 +51,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 @app.get("/")
@@ -135,8 +136,8 @@ def get_s3_client():
 
 
 @app.get("/api/assets/{path:path}")
-async def get_asset_url(path: str):
-    """Generate a presigned URL for an asset and redirect to it."""
+async def get_asset(path: str):
+    """Proxy an asset from S3 storage."""
     import logging
     logger = logging.getLogger(__name__)
     
@@ -150,15 +151,35 @@ async def get_asset_url(path: str):
         # Assets are stored under desk/ prefix in the bucket
         key = f"desk/{path}"
         
-        presigned_url = s3.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': bucket_name, 'Key': key},
-            ExpiresIn=3600  # 1 hour
-        )
+        response = s3.get_object(Bucket=bucket_name, Key=key)
         
-        return RedirectResponse(url=presigned_url, status_code=302)
+        # Determine content type from file extension
+        content_type = "application/octet-stream"
+        if path.endswith('.glb'):
+            content_type = "model/gltf-binary"
+        elif path.endswith('.gltf'):
+            content_type = "model/gltf+json"
+        elif path.endswith('.mp3'):
+            content_type = "audio/mpeg"
+        elif path.endswith('.bin'):
+            content_type = "application/octet-stream"
+        elif path.endswith('.jpg') or path.endswith('.jpeg'):
+            content_type = "image/jpeg"
+        elif path.endswith('.png'):
+            content_type = "image/png"
+        
+        return StreamingResponse(
+            response['Body'].iter_chunks(),
+            media_type=content_type,
+            headers={
+                "Content-Length": str(response['ContentLength']),
+                "Cache-Control": "public, max-age=31536000",  # 1 year cache
+            }
+        )
+    except s3.exceptions.NoSuchKey:
+        raise HTTPException(status_code=404, detail="Asset not found")
     except Exception as e:
-        logger.error(f"Failed to generate presigned URL for {path}: {e}")
+        logger.error(f"Failed to fetch asset {path}: {e}")
         raise HTTPException(status_code=404, detail="Asset not found")
 
 
