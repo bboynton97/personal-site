@@ -1,6 +1,6 @@
 /**
  * Returns the full URL for an asset.
- * In production, assets are served via API presigned URLs.
+ * In production, assets are proxied via the API.
  * In development, assets are served locally from /public.
  */
 export function assetUrl(path: string): string {
@@ -10,7 +10,7 @@ export function assetUrl(path: string): string {
   const cleanPath = path.startsWith('/') ? path.slice(1) : path
 
   if (apiBase) {
-    // Production: use API to get presigned URL (redirects to S3)
+    // Production: use API proxy
     return `${apiBase.replace(/\/$/, '')}/api/assets/${cleanPath}`
   }
 

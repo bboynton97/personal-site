@@ -168,16 +168,18 @@ async def get_asset(path: str):
         elif path.endswith('.png'):
             content_type = "image/png"
         
+        def iterfile():
+            for chunk in response['Body'].iter_chunks(chunk_size=64 * 1024):
+                yield chunk
+        
         return StreamingResponse(
-            response['Body'].iter_chunks(),
+            iterfile(),
             media_type=content_type,
             headers={
                 "Content-Length": str(response['ContentLength']),
                 "Cache-Control": "public, max-age=31536000",  # 1 year cache
             }
         )
-    except s3.exceptions.NoSuchKey:
-        raise HTTPException(status_code=404, detail="Asset not found")
     except Exception as e:
         logger.error(f"Failed to fetch asset {path}: {e}")
         raise HTTPException(status_code=404, detail="Asset not found")
