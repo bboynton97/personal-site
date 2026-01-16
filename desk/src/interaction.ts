@@ -292,7 +292,6 @@ export function setupInteractions(
                             }
                         }
                         
-                        // On mobile, show message and block entering
                         if (isMobileDevice()) {
                             const enterMesh = hitObject as THREE.Mesh
                             const material = enterMesh.material as THREE.MeshBasicMaterial
@@ -372,6 +371,7 @@ export function setupInteractions(
                         terminalSession.initSession()
                     }
                 }
+                return
             }
         }
 
@@ -414,6 +414,7 @@ export function setupInteractions(
                         }
                     }
                 }
+                return
             }
         }
 
@@ -557,7 +558,18 @@ export function setupInteractions(
                         }, 1000)
                     }, 1000)
                 }
+                return
             }
+        }
+
+        // If we get here, nothing clickable was hit - return camera to default position
+        if (state.isFocusingOnScreen || state.isFocusingOnNotepad || state.isFocusingOnIpod || state.isFocusingOnButton) {
+            state.isFocusingOnScreen = false
+            state.isFocusingOnNotepad = false
+            state.isFocusingOnIpod = false
+            state.isFocusingOnButton = false
+            terminal.setFocused(false)
+            notepad.setHovered(-1)
         }
     })
 }
