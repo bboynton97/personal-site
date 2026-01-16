@@ -3,7 +3,7 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-const API_BASE = 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 interface NowPlayingResponse {
     track: string

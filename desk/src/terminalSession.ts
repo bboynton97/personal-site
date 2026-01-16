@@ -3,7 +3,7 @@
  * Handles E2B terminal session lifecycle and command execution
  */
 
-const API_BASE = 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const SESSION_TOKEN_KEY = 'terminal_session_token'
 const SESSION_EXPIRY_KEY = 'terminal_session_expiry'
 
