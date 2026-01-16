@@ -4,4 +4,5 @@ dockerfilePath = "Dockerfile"
 [build.args]
 VITE_BLOG_API_URL = "${{VITE_BLOG_API_URL}}"
 VITE_BUCKET_URL = "${{VITE_BUCKET_URL}}"
+VITE_API_URL = "${{VITE_API_URL}}"
 
