@@ -186,8 +186,8 @@ export class Notepad {
                 ctx.font = '32px "Courier New", monospace'
                 ctx.fillStyle = '#333333'
                 const dateObj = new Date(post.date)
-                const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                               'July', 'August', 'September', 'October', 'November', 'December']
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                 const formattedDate = `${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`
                 ctx.fillText(formattedDate, dateStartX, post.y)
                 
