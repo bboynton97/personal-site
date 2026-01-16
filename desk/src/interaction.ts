@@ -4,6 +4,8 @@ import type { Terminal } from './meshes/Terminal'
 import type { Notepad } from './meshes/Notepad'
 import type { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { terminalSession } from './terminalSession'
+import { assetUrl } from './utils/assetUrl'
+import { trackEvent } from './utils/trackEvent'
 
 // Helper to detect mobile devices
 function isMobileDevice(): boolean {
@@ -92,7 +94,7 @@ export function setupInteractions(
     reverbGain.connect(sound.gain)
 
     const audioLoader = new THREE.AudioLoader()
-    audioLoader.load('/berghain.mp3', function (buffer) {
+    audioLoader.load(assetUrl('berghain.mp3'), function (buffer) {
         sound.setBuffer(buffer)
         sound.setLoop(true)
         sound.setVolume(0.5)
@@ -103,7 +105,7 @@ export function setupInteractions(
 
     // Emergency switch sound
     const emergencySwitchSound = new THREE.Audio(listener)
-    audioLoader.load('/loud-switch.mp3', function (buffer) {
+    audioLoader.load(assetUrl('loud-switch.mp3'), function (buffer) {
         emergencySwitchSound.setBuffer(buffer)
         emergencySwitchSound.setLoop(false)
         emergencySwitchSound.setVolume(1.0)
@@ -140,7 +142,7 @@ export function setupInteractions(
     }
     buzzConvolver.buffer = buzzImpulse
     
-    audioLoader.load('/lamp-buzz.mp3', function (buffer) {
+    audioLoader.load(assetUrl('lamp-buzz.mp3'), function (buffer) {
         lampBuzzSound.setBuffer(buffer)
         lampBuzzSound.setLoop(true)
         
@@ -266,6 +268,7 @@ export function setupInteractions(
                     
                     // Handle social icon clicks
                     if (hitName.startsWith('social_') && hitObject.userData.url) {
+                        trackEvent({ eventType: 'social_click', eventData: hitName })
                         window.open(hitObject.userData.url, '_blank')
                         return
                     }
@@ -315,6 +318,7 @@ export function setupInteractions(
                         
                         // Start glitch effect (camera movement happens after glitch + scene ready)
                         state.introGlitchStartTime = Date.now()
+                        trackEvent({ eventType: 'door_enter' })
                         return
                     }
                 }
@@ -347,6 +351,7 @@ export function setupInteractions(
                     if (state.sniffSound && !state.sniffSound.isPlaying) {
                         state.sniffSound.play()
                     }
+                    trackEvent({ eventType: 'power_pile_click' })
                 }
                 return // Don't process other clicks
             }
@@ -360,6 +365,7 @@ export function setupInteractions(
                     state.isFocusingOnScreen = true
                     state.isFocusingOnNotepad = false
                     terminal.setFocused(true)
+                    trackEvent({ eventType: 'computer_click' })
 
                     // Initialize terminal session on first click
                     if (!terminalSession.isSessionValid()) {
@@ -377,6 +383,7 @@ export function setupInteractions(
                     state.isFocusingOnNotepad = true
                     state.isFocusingOnScreen = false
                     terminal.setFocused(false)
+                    trackEvent({ eventType: 'notepad_click' })
                 } else if (state.isFocusingOnNotepad) {
                     // Already focused on notepad - check if clicking a blog post
                     let paperMesh: THREE.Mesh | null = null
@@ -400,6 +407,7 @@ export function setupInteractions(
                                 if (scaledX > 140 && scaledX < 900 && scaledY > post.y + 350 && scaledY < post.y + 450) {
                                     // Open blog post in new tab
                                     const url = notepad.getPostUrl(post.slug)
+                                    trackEvent({ eventType: 'blog_post_click', eventData: post.slug })
                                     window.open(url, '_blank')
                                 }
                             })
@@ -412,6 +420,7 @@ export function setupInteractions(
         if (state.octocatPivot) {
             const intersects = raycaster.intersectObjects(state.octocatPivot.children, true)
             if (intersects.length > 0) {
+                trackEvent({ eventType: 'octocat_click' })
                 window.open('https://github.com/bboynton97/personal-site', '_blank')
                 return
             }
@@ -420,6 +429,7 @@ export function setupInteractions(
         if (state.bagelPivot) {
             const intersects = raycaster.intersectObjects(state.bagelPivot.children, true)
             if (intersects.length > 0) {
+                trackEvent({ eventType: 'bagel_click' })
                 window.open('https://goldenboy.pizza/bagel-ratings', '_blank')
                 return
             }
@@ -434,6 +444,7 @@ export function setupInteractions(
                     state.isFocusingOnNotepad = false
                     state.isFocusingOnButton = false
                     terminal.setFocused(false)
+                    trackEvent({ eventType: 'ipod_click' })
                 }
                 return
             }
@@ -449,7 +460,9 @@ export function setupInteractions(
                     state.isFocusingOnScreen = false
                     state.isFocusingOnNotepad = false
                     terminal.setFocused(false)
+                    trackEvent({ eventType: 'emergency_button_focus' })
                 } else if (!state.isEmergencyStopped) {
+                    trackEvent({ eventType: 'emergency_button_activate' })
                     // Sequence: Turn off rave lights -> Pause -> Zoom out -> Pause -> Turn off all lights
                     state.isEmergencyStopped = true
                     

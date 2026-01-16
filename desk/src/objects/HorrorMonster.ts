@@ -24,7 +24,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
         (error) => {
             console.warn('Failed to load creepy-knock.mp3. File may be corrupted or not served correctly:', error)
             // Try to fetch the file directly to diagnose
-            fetch('/creepy-knock.mp3', { method: 'HEAD' })
+            fetch(assetUrl('creepy-knock.mp3'), { method: 'HEAD' })
                 .then(res => {
                     console.warn(`Audio file HTTP status: ${res.status}, Content-Type: ${res.headers.get('Content-Type')}, Size: ${res.headers.get('Content-Length')}`)
                 })
@@ -60,7 +60,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
         (error) => {
             console.warn('Failed to load jumpscare.mp3. File may be corrupted or not served correctly:', error)
             // Try to fetch the file directly to diagnose
-            fetch('/jumpscare.mp3', { method: 'HEAD' })
+            fetch(assetUrl('jumpscare.mp3'), { method: 'HEAD' })
                 .then(res => {
                     console.warn(`Audio file HTTP status: ${res.status}, Content-Type: ${res.headers.get('Content-Type')}, Size: ${res.headers.get('Content-Length')}`)
                 })

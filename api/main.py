@@ -1,7 +1,8 @@
 import asyncio
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from typing import Optional
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -9,6 +10,8 @@ import httpx
 import boto3
 from botocore.config import Config
 from session_manager import session_manager
+from database import SessionLocal
+from models import Event
 
 
 class ExecuteCommandRequest(BaseModel):
@@ -18,6 +21,11 @@ class ExecuteCommandRequest(BaseModel):
 
 class EndSessionRequest(BaseModel):
     session_token: str
+
+
+class SlurpEventRequest(BaseModel):
+    event_type: str
+    event_data: Optional[str] = None
 
 
 async def cleanup_task():
@@ -63,6 +71,42 @@ async def root():
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy"}
+
+
+@app.post("/slurp")
+async def slurp_event(request: Request, event: SlurpEventRequest):
+    """Record an event from the frontend."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Get IP address from request headers (handle proxies)
+    ip_address = request.headers.get("x-forwarded-for")
+    if ip_address:
+        # Take the first IP if there are multiple (client IP)
+        ip_address = ip_address.split(",")[0].strip()
+    else:
+        ip_address = request.client.host if request.client else None
+    
+    user_agent = request.headers.get("user-agent")
+    
+    try:
+        db = SessionLocal()
+        db_event = Event(
+            event_type=event.event_type,
+            event_data=event.event_data,
+            ip_address=ip_address,
+            user_agent=user_agent,
+        )
+        db.add(db_event)
+        db.commit()
+        db.close()
+        
+        logger.info(f"Event recorded: {event.event_type}")
+        return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"Failed to record event: {e}")
+        raise HTTPException(status_code=500, detail="Failed to record event")
+
 
 @app.get("/api/hello")
 async def hello():
