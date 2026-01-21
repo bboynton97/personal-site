@@ -12,19 +12,34 @@ def populate_example_files(sandbox: Sandbox) -> None:
         '''#!/bin/bash
 # Fetch the last scrobbled song from Last.fm via braelyn.ai API
 
-API_URL="https://braelyn.ai/api/lastfm/now-playing"
+API_URL="https://api.braelyn.ai/api/lastfm/now-playing"
 
 response=$(curl -s "$API_URL")
 
-if echo "$response" | grep -q '"detail"'; then
-    echo "Error fetching now playing data"
+# Check for empty response
+if [ -z "$response" ]; then
+    echo "Error: No response from API"
     exit 1
 fi
 
-artist=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['artist'])")
-track=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['track'])")
-album=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['album'])")
-now_playing=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print('🎵 NOW PLAYING' if d['now_playing'] else '🎧 LAST PLAYED')")
+# Check for error response
+if echo "$response" | grep -q '"detail"'; then
+    error=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('detail', 'Unknown error'))" 2>/dev/null)
+    echo "Error: $error"
+    exit 1
+fi
+
+# Parse the response
+artist=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['artist'])" 2>/dev/null)
+track=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['track'])" 2>/dev/null)
+album=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['album'])" 2>/dev/null)
+now_playing=$(echo "$response" | python3 -c "import sys,json; d=json.load(sys.stdin); print('🎵 NOW PLAYING' if d['now_playing'] else '🎧 LAST PLAYED')" 2>/dev/null)
+
+if [ -z "$artist" ] || [ -z "$track" ]; then
+    echo "Error: Failed to parse response"
+    echo "Raw response: $response"
+    exit 1
+fi
 
 echo ""
 echo "$now_playing"
