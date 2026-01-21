@@ -14,6 +14,24 @@ interface NowPlayingResponse {
     image: string | null
 }
 
+// State for iPod screen scrolling
+interface IpodScreenState {
+    canvas: HTMLCanvasElement
+    ctx: CanvasRenderingContext2D
+    texture: THREE.CanvasTexture
+    track: string
+    artist: string
+    trackScrollOffset: number
+    artistScrollOffset: number
+    trackNeedsScroll: boolean
+    artistNeedsScroll: boolean
+    trackWidth: number
+    artistWidth: number
+    maxWidth: number
+}
+
+let screenState: IpodScreenState | null = null
+
 // Fetch last played track from API
 async function fetchLastPlayed(): Promise<{ track: string; artist: string } | null> {
     try {
@@ -32,25 +50,63 @@ async function fetchLastPlayed(): Promise<{ track: string; artist: string } | nu
     return null
 }
 
-// Truncate text to fit width
-function truncateText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
-    if (ctx.measureText(text).width <= maxWidth) return text
-    let truncated = text
-    while (ctx.measureText(truncated + '...').width > maxWidth && truncated.length > 0) {
-        truncated = truncated.slice(0, -1)
-    }
-    return truncated + '...'
-}
-
-// Create the iPod screen texture with track info
-function createScreenTexture(track: string = 'loading...', artist: string = ''): THREE.CanvasTexture {
+// Initialize the iPod screen canvas and texture
+function initScreenState(track: string = 'loading...', artist: string = ''): IpodScreenState {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')!
     
     canvas.width = 256
     canvas.height = 192
     
-    // Classic iPod blue-ish gradient background
+    const maxWidth = canvas.width - 20
+    
+    // Measure text widths
+    ctx.font = 'bold 26px "Chicago", "Geneva", Arial, sans-serif'
+    const trackWidth = ctx.measureText(track).width
+    
+    ctx.font = '22px "Chicago", "Geneva", Arial, sans-serif'
+    const artistWidth = ctx.measureText(artist).width
+    
+    const texture = new THREE.CanvasTexture(canvas)
+    
+    return {
+        canvas,
+        ctx,
+        texture,
+        track,
+        artist,
+        trackScrollOffset: 0,
+        artistScrollOffset: 0,
+        trackNeedsScroll: trackWidth > maxWidth,
+        artistNeedsScroll: artistWidth > maxWidth,
+        trackWidth,
+        artistWidth,
+        maxWidth
+    }
+}
+
+// Update track info and recalculate scroll needs
+function updateTrackInfo(state: IpodScreenState, track: string, artist: string): void {
+    state.track = track
+    state.artist = artist
+    state.trackScrollOffset = 0
+    state.artistScrollOffset = 0
+    
+    // Measure text widths
+    state.ctx.font = 'bold 26px "Chicago", "Geneva", Arial, sans-serif'
+    state.trackWidth = state.ctx.measureText(track).width
+    state.trackNeedsScroll = state.trackWidth > state.maxWidth
+    
+    state.ctx.font = '22px "Chicago", "Geneva", Arial, sans-serif'
+    state.artistWidth = state.ctx.measureText(artist).width
+    state.artistNeedsScroll = state.artistWidth > state.maxWidth
+}
+
+// Redraw the screen with current scroll offsets
+function redrawScreen(state: IpodScreenState): void {
+    const { canvas, ctx, track, artist, trackScrollOffset, artistScrollOffset, trackNeedsScroll, artistNeedsScroll, trackWidth, artistWidth, maxWidth } = state
+    
+    // Clear and draw background
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
     gradient.addColorStop(0, '#a8c8e8')
     gradient.addColorStop(1, '#6898c8')
@@ -64,21 +120,81 @@ function createScreenTexture(track: string = 'loading...', artist: string = ''):
     ctx.textBaseline = 'top'
     ctx.fillText('now listening to:', canvas.width / 2, 30)
     
-    // Song title (truncate if too long)
+    // Draw song title (with scrolling if needed)
     ctx.font = 'bold 26px "Chicago", "Geneva", Arial, sans-serif'
     ctx.fillStyle = '#000000'
-    const truncatedTrack = truncateText(ctx, track, canvas.width - 20)
-    ctx.fillText(truncatedTrack, canvas.width / 2, 75)
     
-    // Artist (truncate if too long)
+    if (trackNeedsScroll) {
+        // Save context and clip to text area
+        ctx.save()
+        ctx.beginPath()
+        ctx.rect(10, 65, maxWidth, 40)
+        ctx.clip()
+        
+        // Draw scrolling text - left aligned with offset
+        ctx.textAlign = 'left'
+        const gap = 60 // Gap between end and start of text
+        const totalWidth = trackWidth + gap
+        const x = 10 - trackScrollOffset
+        ctx.fillText(track, x, 75)
+        // Draw second copy for seamless loop
+        ctx.fillText(track, x + totalWidth, 75)
+        
+        ctx.restore()
+    } else {
+        ctx.textAlign = 'center'
+        ctx.fillText(track, canvas.width / 2, 75)
+    }
+    
+    // Draw artist (with scrolling if needed)
     ctx.font = '22px "Chicago", "Geneva", Arial, sans-serif'
     ctx.fillStyle = '#333333'
-    const truncatedArtist = truncateText(ctx, artist, canvas.width - 20)
-    ctx.fillText(truncatedArtist, canvas.width / 2, 115)
     
-    const texture = new THREE.CanvasTexture(canvas)
-    texture.needsUpdate = true
-    return texture
+    if (artistNeedsScroll) {
+        ctx.save()
+        ctx.beginPath()
+        ctx.rect(10, 105, maxWidth, 35)
+        ctx.clip()
+        
+        ctx.textAlign = 'left'
+        const gap = 60
+        const totalWidth = artistWidth + gap
+        const x = 10 - artistScrollOffset
+        ctx.fillText(artist, x, 115)
+        ctx.fillText(artist, x + totalWidth, 115)
+        
+        ctx.restore()
+    } else {
+        ctx.textAlign = 'center'
+        ctx.fillText(artist, canvas.width / 2, 115)
+    }
+    
+    state.texture.needsUpdate = true
+}
+
+// Update function to be called from animation loop
+export function updateIpodScreen(time: number): void {
+    if (!screenState) return
+    
+    const scrollSpeed = 40 // pixels per second
+    const gap = 60
+    
+    // Update track scroll
+    if (screenState.trackNeedsScroll) {
+        const totalWidth = screenState.trackWidth + gap
+        screenState.trackScrollOffset = (time * scrollSpeed) % totalWidth
+    }
+    
+    // Update artist scroll
+    if (screenState.artistNeedsScroll) {
+        const totalWidth = screenState.artistWidth + gap
+        screenState.artistScrollOffset = (time * scrollSpeed) % totalWidth
+    }
+    
+    // Redraw if any scrolling is happening
+    if (screenState.trackNeedsScroll || screenState.artistNeedsScroll) {
+        redrawScreen(screenState)
+    }
 }
 
 export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
@@ -124,10 +240,12 @@ export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: A
             }
         })
 
-        // Add screen overlay with "now listening" text
-        let screenTexture = createScreenTexture()
+        // Initialize screen state with loading text
+        screenState = initScreenState()
+        redrawScreen(screenState)
+        
         const screenMaterial = new THREE.MeshBasicMaterial({
-            map: screenTexture,
+            map: screenState.texture,
             side: THREE.DoubleSide
         })
         
@@ -145,11 +263,9 @@ export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: A
         
         // Fetch Last.fm data and update texture
         fetchLastPlayed().then(data => {
-            if (data) {
-                screenTexture.dispose()
-                screenTexture = createScreenTexture(data.track, data.artist)
-                screenMaterial.map = screenTexture
-                screenMaterial.needsUpdate = true
+            if (data && screenState) {
+                updateTrackInfo(screenState, data.track, data.artist)
+                redrawScreen(screenState)
             }
         })
 

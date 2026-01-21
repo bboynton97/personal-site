@@ -1,6 +1,9 @@
 import type { AppState } from '../types'
+import { updateIpodScreen } from '../objects/IpodClassic'
 
 export function updateScene(state: AppState, time: number): void {
+    // Update iPod screen scrolling text
+    updateIpodScreen(time)
     // Check if in backrooms (used to disable animations)
     const isInBackrooms = state.backroomsPivot && state.backroomsPivot.visible
 
