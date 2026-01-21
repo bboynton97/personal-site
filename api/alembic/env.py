@@ -7,11 +7,11 @@ from sqlalchemy import pool
 
 from alembic import context
 
-# Add the parent directory of 'api' to sys.path so we can import 'api' package
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# Add the parent directory (api folder) to sys.path so we can import models/config directly
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from api.models import Base
-from api.config import settings
+from models import Base
+from config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
