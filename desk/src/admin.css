@@ -1,9 +1,19 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d0d1f 100%);
+  min-height: 100vh;
+}
+
 .admin-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d0d1f 100%);
   color: #e8e8f0;
   padding: 2rem;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
 }
 
 /* Header */
@@ -114,6 +124,13 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+  background: #3dbdb5;
+  transform: translateY(-2px);
 }
 
 /* Metrics Grid */
@@ -441,5 +458,11 @@
 
   .events-table {
     font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
   }
 }
