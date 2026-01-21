@@ -114,6 +114,75 @@ async def hello():
     return {"message": "Hello from the API!"}
 
 
+@app.get("/api/admin/stats")
+async def get_admin_stats():
+    """Get statistics for the admin dashboard."""
+    from sqlalchemy import func as sql_func
+    from datetime import datetime, timedelta
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        db = SessionLocal()
+        
+        # Total events
+        total_events = db.query(Event).count()
+        
+        # Events by type
+        events_by_type = db.query(
+            Event.event_type,
+            sql_func.count(Event.id).label('count')
+        ).group_by(Event.event_type).all()
+        
+        # Events in last 24 hours
+        yesterday = datetime.now() - timedelta(days=1)
+        events_last_24h = db.query(Event).filter(Event.created_at >= yesterday).count()
+        
+        # Events in last 7 days
+        last_week = datetime.now() - timedelta(days=7)
+        events_last_7d = db.query(Event).filter(Event.created_at >= last_week).count()
+        
+        # Unique IPs
+        unique_ips = db.query(sql_func.count(sql_func.distinct(Event.ip_address))).scalar()
+        
+        # Events by day (last 30 days)
+        last_30_days = datetime.now() - timedelta(days=30)
+        events_by_day = db.query(
+            sql_func.date(Event.created_at).label('date'),
+            sql_func.count(Event.id).label('count')
+        ).filter(Event.created_at >= last_30_days).group_by(
+            sql_func.date(Event.created_at)
+        ).order_by(sql_func.date(Event.created_at)).all()
+        
+        # Recent events (last 50)
+        recent_events = db.query(Event).order_by(Event.created_at.desc()).limit(50).all()
+        
+        db.close()
+        
+        return {
+            "total_events": total_events,
+            "events_by_type": [{"type": t, "count": c} for t, c in events_by_type],
+            "events_last_24h": events_last_24h,
+            "events_last_7d": events_last_7d,
+            "unique_ips": unique_ips,
+            "events_by_day": [{"date": str(d), "count": c} for d, c in events_by_day],
+            "recent_events": [
+                {
+                    "id": e.id,
+                    "event_type": e.event_type,
+                    "event_data": e.event_data,
+                    "ip_address": e.ip_address,
+                    "user_agent": e.user_agent[:100] + "..." if e.user_agent and len(e.user_agent) > 100 else e.user_agent,
+                    "created_at": e.created_at.isoformat() if e.created_at else None
+                }
+                for e in recent_events
+            ]
+        }
+    except Exception as e:
+        logger.error(f"Failed to get admin stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get stats")
+
+
 @app.get("/api/lastfm/now-playing")
 async def get_lastfm_now_playing():
     """Get the last scrobbled track from Last.fm."""
