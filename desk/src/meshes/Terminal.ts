@@ -328,18 +328,34 @@ export class Terminal {
         // Content
         ctx.fillStyle = '#00ff00'
         ctx.font = '24px monospace'
+        const lineHeight = 30
+        const maxChars = 50
+        const maxY = canvas.height - 80 // Leave room for input line
         let y = 100
-        this.lines.forEach(line => {
-            // Truncate long lines
-            const maxChars = 50
-            const displayLine = line.length > maxChars ? line.substring(0, maxChars) + '...' : line
-            ctx.fillText(displayLine, 40, y)
-            y += 35
-        })
+        
+        // Wrap and render lines
+        for (const line of this.lines) {
+            if (y > maxY) break // Stop if we've run out of space
+            
+            // Wrap long lines
+            if (line.length <= maxChars) {
+                ctx.fillText(line, 40, y)
+                y += lineHeight
+            } else {
+                // Split line into chunks
+                let remaining = line
+                while (remaining.length > 0 && y <= maxY) {
+                    const chunk = remaining.substring(0, maxChars)
+                    remaining = remaining.substring(maxChars)
+                    ctx.fillText(chunk, 40, y)
+                    y += lineHeight
+                }
+            }
+        }
 
         // Input Line
         const inputLine = `> ${this.currentInput}${this.cursorVisible ? '_' : ''}`
-        ctx.fillText(inputLine, 40, y)
+        ctx.fillText(inputLine, 40, Math.min(y, maxY + lineHeight))
 
         // Logo
         if (this.logo.complete && this.logo.naturalWidth !== 0) {

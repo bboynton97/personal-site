@@ -20,12 +20,21 @@ export function setupInputListeners(
     DEFAULT_TARGET: THREE.Vector3
 ): void {
     window.addEventListener('keydown', (event: KeyboardEvent) => {
-        if (event.key === 'Escape' || (event.ctrlKey && (event.key === 'c' || event.key === 'C'))) {
+        // Escape always unfocuses
+        if (event.key === 'Escape') {
             state.isFocusingOnScreen = false
             state.isFocusingOnNotepad = false
             state.isFocusingOnButton = false
             state.isFocusingOnIpod = false
             terminal.setFocused(false)
+        }
+        
+        // Ctrl+C only unfocuses when NOT focused on terminal screen
+        // (when focused on terminal, Terminal class handles Ctrl+C to send SIGINT)
+        if (event.ctrlKey && (event.key === 'c' || event.key === 'C') && !state.isFocusingOnScreen) {
+            state.isFocusingOnNotepad = false
+            state.isFocusingOnButton = false
+            state.isFocusingOnIpod = false
         }
 
         if (event.ctrlKey && (event.key === 'p' || event.key === 'P')) {
