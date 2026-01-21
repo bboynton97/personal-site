@@ -1,8 +1,11 @@
 import asyncio
+import json
+import logging
 import os
+import queue
 from contextlib import asynccontextmanager
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import RedirectResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -12,6 +15,8 @@ from botocore.config import Config
 from session_manager import session_manager
 from database import SessionLocal
 from models import Event
+
+logger = logging.getLogger(__name__)
 
 
 class ExecuteCommandRequest(BaseModel):
@@ -326,6 +331,103 @@ async def end_terminal_session(request: EndSessionRequest):
     """End a terminal session."""
     session_manager.close_session(request.session_token)
     return {"status": "session closed"}
+
+
+@app.websocket("/api/terminal/ws/{session_token}")
+async def terminal_websocket(websocket: WebSocket, session_token: str):
+    """WebSocket endpoint for interactive PTY terminal sessions.
+    
+    Protocol:
+    - Client sends: {"type": "input", "data": "..."} for keyboard input
+    - Client sends: {"type": "resize", "rows": N, "cols": M} for terminal resize
+    - Server sends: {"type": "output", "data": "..."} for PTY output
+    - Server sends: {"type": "error", "message": "..."} for errors
+    """
+    await websocket.accept()
+    logger.info(f"WebSocket connection accepted for session: {session_token}")
+    
+    # Verify session exists
+    session = session_manager.get_session(session_token)
+    if not session:
+        await websocket.send_json({"type": "error", "message": "Session not found or expired"})
+        await websocket.close(code=4001)
+        return
+    
+    # Use a thread-safe queue since PTY output comes from a background thread
+    output_queue: queue.Queue[str] = queue.Queue()
+    
+    def on_pty_output(data: str):
+        """Callback when PTY produces output (called from background thread)."""
+        output_queue.put(data)
+    
+    # Set up the output callback
+    session_manager.set_output_callback(session_token, on_pty_output)
+    
+    async def send_output():
+        """Task to send PTY output to WebSocket."""
+        try:
+            while True:
+                # Poll the thread-safe queue
+                try:
+                    # Use a small timeout to allow checking for cancellation
+                    data = await asyncio.get_event_loop().run_in_executor(
+                        None, lambda: output_queue.get(timeout=0.1)
+                    )
+                    await websocket.send_json({"type": "output", "data": data})
+                except queue.Empty:
+                    continue
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            logger.error(f"Error sending output: {e}")
+    
+    # Start output sender task
+    output_task = asyncio.create_task(send_output())
+    
+    try:
+        while True:
+            # Receive messages from client
+            raw_message = await websocket.receive_text()
+            
+            try:
+                message = json.loads(raw_message)
+            except json.JSONDecodeError:
+                await websocket.send_json({"type": "error", "message": "Invalid JSON"})
+                continue
+            
+            msg_type = message.get("type")
+            
+            if msg_type == "input":
+                # Send input to PTY
+                data = message.get("data", "")
+                if data:
+                    success = session_manager.send_input(session_token, data)
+                    if not success:
+                        await websocket.send_json({"type": "error", "message": "Failed to send input"})
+            
+            elif msg_type == "resize":
+                # Resize PTY
+                rows = message.get("rows", 24)
+                cols = message.get("cols", 80)
+                session_manager.resize_pty(session_token, rows, cols)
+            
+            else:
+                await websocket.send_json({"type": "error", "message": f"Unknown message type: {msg_type}"})
+    
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected for session: {session_token}")
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+    finally:
+        # Clean up
+        output_task.cancel()
+        try:
+            await output_task
+        except asyncio.CancelledError:
+            pass
+        # Clear the callback
+        session_manager.set_output_callback(session_token, lambda _: None)
+
 
 if __name__ == "__main__":
     import uvicorn

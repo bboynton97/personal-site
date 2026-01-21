@@ -47,6 +47,12 @@ function zalgoify(text: string, intensity: number): string {
     return result
 }
 
+// Simple ANSI escape code stripper
+function stripAnsi(str: string): string {
+    // Remove common ANSI escape sequences
+    return str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '')
+}
+
 export class Terminal {
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
@@ -60,6 +66,8 @@ export class Terminal {
     isInitializing: boolean
     isBackroomsMode: boolean
     backroomsKeystrokeCount: number
+    private outputBuffer: string = ''
+    private unsubscribeOutput: (() => void) | null = null
 
     constructor(width = 1024, height = 768) {
         this.canvas = document.createElement('canvas')
@@ -100,7 +108,52 @@ export class Terminal {
         }
 
         this.setupInput()
+        this.setupOutputHandler()
         this.draw()
+    }
+
+    private setupOutputHandler(): void {
+        // Subscribe to terminal output
+        this.unsubscribeOutput = terminalSession.onOutput((data: string) => {
+            this.handlePtyOutput(data)
+        })
+    }
+
+    private handlePtyOutput(data: string): void {
+        // Add to buffer and process
+        this.outputBuffer += data
+        
+        // Process complete lines from the buffer
+        const processedLines = this.outputBuffer.split(/\r?\n/)
+        
+        // Keep the last incomplete line in the buffer
+        this.outputBuffer = processedLines.pop() || ''
+        
+        // Add complete lines to display
+        for (const line of processedLines) {
+            const cleanLine = stripAnsi(line)
+            if (cleanLine.trim() !== '') {
+                this.lines.push(cleanLine)
+            }
+        }
+        
+        // Also process any remaining buffer content (for partial lines)
+        if (this.outputBuffer.length > 0) {
+            // Check for carriage return without newline (overwrites current line)
+            if (this.outputBuffer.includes('\r')) {
+                const parts = this.outputBuffer.split('\r')
+                this.outputBuffer = parts[parts.length - 1]
+            }
+        }
+        
+        // Keep history limited
+        if (this.lines.length > 14) {
+            this.lines = this.lines.slice(this.lines.length - 14)
+        }
+        
+        // Redraw
+        this.draw()
+        this.texture.needsUpdate = true
     }
 
     setupInput(): void {
@@ -124,11 +177,46 @@ export class Terminal {
                 return
             }
 
+            // Handle special keys for PTY mode
             if (e.key === 'Enter') {
+                // Show command locally and send to PTY
+                this.lines.push(`> ${this.currentInput}`)
                 this.handleCommand(this.currentInput)
                 this.currentInput = ''
+                e.preventDefault()
             } else if (e.key === 'Backspace') {
                 this.currentInput = this.currentInput.slice(0, -1)
+                e.preventDefault()
+            } else if (e.key === 'Tab') {
+                // Send tab for auto-completion
+                terminalSession.sendInput('\t')
+                e.preventDefault()
+            } else if (e.key === 'ArrowUp') {
+                // Send up arrow for history
+                terminalSession.sendInput('\x1b[A')
+                e.preventDefault()
+            } else if (e.key === 'ArrowDown') {
+                // Send down arrow for history
+                terminalSession.sendInput('\x1b[B')
+                e.preventDefault()
+            } else if (e.key === 'ArrowLeft') {
+                terminalSession.sendInput('\x1b[D')
+                e.preventDefault()
+            } else if (e.key === 'ArrowRight') {
+                terminalSession.sendInput('\x1b[C')
+                e.preventDefault()
+            } else if (e.ctrlKey && e.key === 'c') {
+                // Ctrl+C - send interrupt
+                terminalSession.sendInput('\x03')
+                e.preventDefault()
+            } else if (e.ctrlKey && e.key === 'd') {
+                // Ctrl+D - EOF
+                terminalSession.sendInput('\x04')
+                e.preventDefault()
+            } else if (e.ctrlKey && e.key === 'l') {
+                // Ctrl+L - clear screen
+                terminalSession.sendInput('\x0c')
+                e.preventDefault()
             } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
                 this.currentInput += e.key
             }
@@ -145,7 +233,6 @@ export class Terminal {
     }
 
     async handleCommand(input: string): Promise<void> {
-        this.lines.push(`> ${input}`)
         const cmd = input.trim()
 
         if (cmd === '') {
@@ -156,23 +243,16 @@ export class Terminal {
             return
         }
 
+        // Local clear command
         if (cmd === 'clear') {
             this.lines = ['> System cleared.']
+            this.outputBuffer = ''
             return
         }
 
-        // Execute command via E2B API
-        this.lines.push('> Executing...')
-        const output = await terminalSession.executeCommand(cmd)
-
-        // Remove "Executing..." line
-        this.lines.pop()
-
-        // Add output (split by lines for better display)
-        const outputLines = output.split('\n').filter(line => line.trim() !== '')
-        outputLines.forEach(line => {
-            this.lines.push(line)
-        })
+        // Send command to PTY via WebSocket
+        // The output will come via the onOutput callback
+        terminalSession.sendInput(cmd + '\n')
 
         // Keep history limited
         if (this.lines.length > 14) {
@@ -182,6 +262,19 @@ export class Terminal {
 
     setFocused(focused: boolean): void {
         this.isFocused = focused
+        
+        // Initialize terminal session when focused for the first time
+        if (focused && !terminalSession.isConnected()) {
+            terminalSession.initSession().then(success => {
+                if (success) {
+                    // Replace connecting message
+                    const connectingIdx = this.lines.findIndex(l => l.includes('Connecting'))
+                    if (connectingIdx >= 0) {
+                        this.lines[connectingIdx] = '> Terminal connected!'
+                    }
+                }
+            })
+        }
     }
 
     update(): void {
@@ -225,11 +318,22 @@ export class Terminal {
         ctx.lineTo(984, 60)
         ctx.stroke()
 
+        // Connection status indicator
+        const isConnected = terminalSession.isConnected()
+        ctx.fillStyle = isConnected ? '#00ff00' : '#ff6600'
+        ctx.beginPath()
+        ctx.arc(canvas.width - 200, 45, 8, 0, Math.PI * 2)
+        ctx.fill()
+
         // Content
+        ctx.fillStyle = '#00ff00'
         ctx.font = '24px monospace'
         let y = 100
         this.lines.forEach(line => {
-            ctx.fillText(line, 40, y)
+            // Truncate long lines
+            const maxChars = 50
+            const displayLine = line.length > maxChars ? line.substring(0, maxChars) + '...' : line
+            ctx.fillText(displayLine, 40, y)
             y += 35
         })
 
@@ -244,6 +348,14 @@ export class Terminal {
             const height = 200
             // Position to align with header
             ctx.drawImage(this.logo, canvas.width - width - 20, -60, width, height)
+        }
+    }
+
+    destroy(): void {
+        // Clean up subscription
+        if (this.unsubscribeOutput) {
+            this.unsubscribeOutput()
+            this.unsubscribeOutput = null
         }
     }
 }

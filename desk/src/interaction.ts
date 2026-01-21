@@ -3,7 +3,6 @@ import type { AppState } from './types'
 import type { Terminal } from './meshes/Terminal'
 import type { Notepad } from './meshes/Notepad'
 import type { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { terminalSession } from './terminalSession'
 import { assetUrl } from './utils/assetUrl'
 import { trackEvent } from './utils/trackEvent'
 
@@ -363,13 +362,8 @@ export function setupInteractions(
                 if (state.isCameraLocked) {
                     state.isFocusingOnScreen = true
                     state.isFocusingOnNotepad = false
-                    terminal.setFocused(true)
+                    terminal.setFocused(true)  // Terminal.setFocused handles session init
                     trackEvent({ eventType: 'computer_click' })
-
-                    // Initialize terminal session on first click
-                    if (!terminalSession.isSessionValid()) {
-                        terminalSession.initSession()
-                    }
                 }
                 return
             }
