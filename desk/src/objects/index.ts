@@ -12,6 +12,7 @@ import { loadFloor } from './Floor'
 import { loadSpeaker } from './Speaker'
 import { loadCar } from './Car'
 import { loadBike } from './Bike'
+import { loadCessna } from './Cessna'
 import { loadKPile } from './KPile'
 import { loadEmergencyButton } from './EmergencyButton'
 import { loadBackrooms } from './Backrooms'
@@ -38,6 +39,7 @@ export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state:
     loadSpeaker(loader, scene, state)
     loadCar(loader, scene, state)
     loadBike(loader, scene, state)
+    loadCessna(loader, scene, state)
     loadKPile(loader, scene, state)
     loadEmergencyButton(loader, scene, state)
     loadBackrooms(loader, scene, state)

@@ -40,6 +40,7 @@ export const state: AppState = {
     speakerPivots: [],
     carPivot: null,
     bikePivot: null,
+    cessnaPivot: null,
 
     // Backrooms Assets
     backroomsPivot: null,

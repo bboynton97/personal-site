@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { MeshoptDecoder } from 'three-stdlib'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
@@ -65,6 +66,11 @@ const notepad = new Notepad()
 
 // --- ASSET LOADING ---
 const loader = new GLTFLoader()
+
+// Setup Draco decoder for compressed models
+const dracoLoader = new DRACOLoader()
+dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/')
+loader.setDRACOLoader(dracoLoader)
 
 // Initialize meshopt decoder and then load assets
 const meshoptDecoder = MeshoptDecoder()

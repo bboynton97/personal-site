@@ -61,6 +61,7 @@ export interface AppState {
     speakerPivots: THREE.Group[]
     carPivot: THREE.Group | null
     bikePivot: THREE.Group | null
+    cessnaPivot: THREE.Group | null
 
     // Backrooms Assets
     backroomsPivot: THREE.Group | null
