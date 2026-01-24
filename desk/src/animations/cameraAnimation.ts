@@ -11,6 +11,10 @@ const BUTTON_ZOOM_POS = new THREE.Vector3(3.0, 1.5, 0.5)
 const BUTTON_ZOOM_TARGET = new THREE.Vector3(3.0, 0.5, -1.5)
 const IPOD_POS = new THREE.Vector3(1.5, 1.2, 1.5)
 const IPOD_TARGET = new THREE.Vector3(1.5, 0.0, 1.4)
+const BIKE_POS = new THREE.Vector3(-6.0, 2.0, 1.5)
+const BIKE_TARGET = new THREE.Vector3(-5.4, 1.9, 0.6)
+const CAR_POS = new THREE.Vector3(-2.2, 2.0, 0.8)
+const CAR_TARGET = new THREE.Vector3(-3.0, 1.9, -0.2)
 const DEFAULT_POS = new THREE.Vector3(1, 4, 8)
 const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0)
 
@@ -74,6 +78,12 @@ export function updateCamera(camera: THREE.PerspectiveCamera, controls: OrbitCon
     } else if (state.isFocusingOnIpod) {
         camera.position.lerp(IPOD_POS, 0.05)
         controls.target.lerp(IPOD_TARGET, 0.05)
+    } else if (state.isFocusingOnBike) {
+        camera.position.lerp(BIKE_POS, 0.05)
+        controls.target.lerp(BIKE_TARGET, 0.05)
+    } else if (state.isFocusingOnCar) {
+        camera.position.lerp(CAR_POS, 0.05)
+        controls.target.lerp(CAR_TARGET, 0.05)
     } else if (state.isCameraLocked) {
         if (camera.position.distanceTo(DEFAULT_POS) > 0.1 || controls.target.distanceTo(DEFAULT_TARGET) > 0.1) {
             camera.position.lerp(DEFAULT_POS, 0.05)

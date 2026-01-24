@@ -27,6 +27,8 @@ export interface AppState {
     isFocusingOnNotepad: boolean
     isFocusingOnButton: boolean
     isFocusingOnIpod: boolean
+    isFocusingOnBike: boolean
+    isFocusingOnCar: boolean
     isEmergencyStopped: boolean
     isBlackout: boolean
     isAudioPlaying: boolean

@@ -26,6 +26,8 @@ export function setupInputListeners(
             state.isFocusingOnNotepad = false
             state.isFocusingOnButton = false
             state.isFocusingOnIpod = false
+            state.isFocusingOnBike = false
+            state.isFocusingOnCar = false
             terminal.setFocused(false)
         }
         
@@ -35,6 +37,8 @@ export function setupInputListeners(
             state.isFocusingOnNotepad = false
             state.isFocusingOnButton = false
             state.isFocusingOnIpod = false
+            state.isFocusingOnBike = false
+            state.isFocusingOnCar = false
         }
 
         if (event.ctrlKey && (event.key === 'p' || event.key === 'P')) {

@@ -118,7 +118,7 @@ function redrawScreen(state: IpodScreenState): void {
     ctx.fillStyle = '#1a1a1a'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
-    ctx.fillText('now listening to:', canvas.width / 2, 30)
+    ctx.fillText('braelyn is listening to:', canvas.width / 2, 30)
     
     // Draw song title (with scrolling if needed)
     ctx.font = 'bold 26px "Chicago", "Geneva", Arial, sans-serif'

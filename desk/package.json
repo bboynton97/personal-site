@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "@types/three": "^0.181.0",
+    "@xterm/addon-canvas": "^0.7.0",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "three": "^0.181.2",

@@ -244,6 +244,8 @@ export function setupInteractions(
             else if (checkIntersect(state.octocatPivot)) objectHovered = true
             else if (checkIntersect(state.bagelPivot)) objectHovered = true
             else if (checkIntersect(state.ipodPivot)) objectHovered = true
+            else if (checkIntersect(state.bikePivot)) objectHovered = true
+            else if (checkIntersect(state.carPivot)) objectHovered = true
 
             if (objectHovered) cursorStyle = "url('/click.png'), pointer"
         }
@@ -438,8 +440,44 @@ export function setupInteractions(
                     state.isFocusingOnScreen = false
                     state.isFocusingOnNotepad = false
                     state.isFocusingOnButton = false
+                    state.isFocusingOnBike = false
+                    state.isFocusingOnCar = false
                     terminal.setFocused(false)
                     trackEvent({ eventType: 'ipod_click' })
+                }
+                return
+            }
+        }
+
+        if (state.bikePivot) {
+            const intersects = raycaster.intersectObjects(state.bikePivot.children, true)
+            if (intersects.length > 0) {
+                if (state.isCameraLocked && !state.isFocusingOnBike) {
+                    state.isFocusingOnBike = true
+                    state.isFocusingOnScreen = false
+                    state.isFocusingOnNotepad = false
+                    state.isFocusingOnButton = false
+                    state.isFocusingOnIpod = false
+                    state.isFocusingOnCar = false
+                    terminal.setFocused(false)
+                    trackEvent({ eventType: 'bike_click' })
+                }
+                return
+            }
+        }
+
+        if (state.carPivot) {
+            const intersects = raycaster.intersectObjects(state.carPivot.children, true)
+            if (intersects.length > 0) {
+                if (state.isCameraLocked && !state.isFocusingOnCar) {
+                    state.isFocusingOnCar = true
+                    state.isFocusingOnScreen = false
+                    state.isFocusingOnNotepad = false
+                    state.isFocusingOnButton = false
+                    state.isFocusingOnIpod = false
+                    state.isFocusingOnBike = false
+                    terminal.setFocused(false)
+                    trackEvent({ eventType: 'car_click' })
                 }
                 return
             }
@@ -557,11 +595,13 @@ export function setupInteractions(
         }
 
         // If we get here, nothing clickable was hit - return camera to default position
-        if (state.isFocusingOnScreen || state.isFocusingOnNotepad || state.isFocusingOnIpod || state.isFocusingOnButton) {
+        if (state.isFocusingOnScreen || state.isFocusingOnNotepad || state.isFocusingOnIpod || state.isFocusingOnButton || state.isFocusingOnBike || state.isFocusingOnCar) {
             state.isFocusingOnScreen = false
             state.isFocusingOnNotepad = false
             state.isFocusingOnIpod = false
             state.isFocusingOnButton = false
+            state.isFocusingOnBike = false
+            state.isFocusingOnCar = false
             terminal.setFocused(false)
             notepad.setHovered(-1)
         }

@@ -1,7 +1,13 @@
 import * as THREE from 'three'
+import { Terminal as XTerm } from '@xterm/xterm'
+import { FitAddon } from '@xterm/addon-fit'
+import { CanvasAddon } from '@xterm/addon-canvas'
 import { terminalSession } from '../terminalSession'
 
-// Zalgo text combining characters
+// Import xterm CSS - will be bundled by vite
+import '@xterm/xterm/css/xterm.css'
+
+// Zalgo text combining characters (for backrooms mode)
 const ZALGO_UP = [
     '\u0300', '\u0301', '\u0302', '\u0303', '\u0304', '\u0305', '\u0306', '\u0307',
     '\u0308', '\u0309', '\u030A', '\u030B', '\u030C', '\u030D', '\u030E', '\u030F',
@@ -25,7 +31,6 @@ const ZALGO_MID = [
 ]
 
 function zalgoify(text: string, intensity: number): string {
-    // intensity: 1-10, higher = more chaos
     const upCount = Math.min(Math.floor(intensity * 1.5), 15)
     const downCount = Math.min(Math.floor(intensity * 1.5), 15)
     const midCount = Math.min(Math.floor(intensity * 0.5), 5)
@@ -33,7 +38,6 @@ function zalgoify(text: string, intensity: number): string {
     let result = ''
     for (const char of text) {
         result += char
-        // Add random combining characters
         for (let i = 0; i < upCount; i++) {
             result += ZALGO_UP[Math.floor(Math.random() * ZALGO_UP.length)]
         }
@@ -47,29 +51,32 @@ function zalgoify(text: string, intensity: number): string {
     return result
 }
 
-// Simple ANSI escape code stripper
-function stripAnsi(str: string): string {
-    // Remove common ANSI escape sequences
-    return str.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '')
-}
-
 export class Terminal {
+    // Output canvas (what gets rendered to 3D texture)
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
     texture: THREE.CanvasTexture
-    lines: string[]
-    currentInput: string
-    cursorVisible: boolean
-    lastBlink: number
+    
+    // xterm.js instance
+    private xterm: XTerm
+    private fitAddon: FitAddon
+    private xtermContainer: HTMLDivElement
+    
+    // State
     isFocused: boolean
-    logo: HTMLImageElement
-    isInitializing: boolean
     isBackroomsMode: boolean
     backroomsKeystrokeCount: number
-    private outputBuffer: string = ''
+    
+    // Header
+    private logo: HTMLImageElement
+    private headerHeight = 70
+    
+    // Cleanup
     private unsubscribeOutput: (() => void) | null = null
+    private keydownHandler: ((e: KeyboardEvent) => void) | null = null
 
     constructor(width = 1024, height = 768) {
+        // Create output canvas for THREE.js texture
         this.canvas = document.createElement('canvas')
         this.canvas.width = width
         this.canvas.height = height
@@ -81,182 +88,145 @@ export class Terminal {
         this.texture.colorSpace = THREE.SRGBColorSpace
         this.texture.flipY = false
 
-        this.lines = [
-            '> System initialized...',
-            '> System loaded.',
-            '> Connecting to terminal...'
-        ]
-        this.currentInput = ''
-        this.cursorVisible = true
-        this.lastBlink = 0
         this.isFocused = false
-        this.isInitializing = false
         this.isBackroomsMode = false
         this.backroomsKeystrokeCount = 0
 
-        // Load Logo
+        // Create offscreen container for xterm
+        this.xtermContainer = document.createElement('div')
+        this.xtermContainer.className = 'xterm-offscreen-container'
+        this.xtermContainer.style.width = `${width}px`
+        this.xtermContainer.style.height = `${height - this.headerHeight}px`
+        document.body.appendChild(this.xtermContainer)
+
+        // Initialize xterm.js with retro green theme
+        this.xterm = new XTerm({
+            theme: {
+                background: '#000000',
+                foreground: '#00ff00',
+                cursor: '#00ff00',
+                cursorAccent: '#000000',
+                selectionBackground: '#00ff0044',
+                black: '#000000',
+                red: '#ff0000',
+                green: '#00ff00',
+                yellow: '#ffff00',
+                blue: '#0066ff',
+                magenta: '#ff00ff',
+                cyan: '#00ffff',
+                white: '#ffffff',
+                brightBlack: '#666666',
+                brightRed: '#ff6666',
+                brightGreen: '#66ff66',
+                brightYellow: '#ffff66',
+                brightBlue: '#6699ff',
+                brightMagenta: '#ff66ff',
+                brightCyan: '#66ffff',
+                brightWhite: '#ffffff',
+            },
+            fontFamily: 'monospace',
+            fontSize: 18,
+            lineHeight: 1.2,
+            cursorBlink: true,
+            cursorStyle: 'block',
+            allowTransparency: false,
+            scrollback: 1000,
+            cols: 80,
+            rows: 24,
+        })
+
+        this.fitAddon = new FitAddon()
+        this.xterm.loadAddon(this.fitAddon)
+        
+        // Open xterm in the container
+        this.xterm.open(this.xtermContainer)
+        
+        // Use Canvas renderer instead of WebGL for easier capture
+        const canvasAddon = new CanvasAddon()
+        this.xterm.loadAddon(canvasAddon)
+        
+        // Fit to container after a small delay to ensure DOM is ready
+        setTimeout(() => {
+            try {
+                this.fitAddon.fit()
+            } catch {
+                // Fit may fail, that's ok
+            }
+        }, 100)
+
+        // Load logo
         this.logo = new Image()
         this.logo.src = '/logo.svg'
-        this.logo.onload = () => {
-            this.draw()
-            this.texture.needsUpdate = true
-        }
-        this.logo.onerror = () => {
-            // Silently fail if logo doesn't exist - it's optional
-            this.draw()
-            this.texture.needsUpdate = true
-        }
+        this.logo.onload = () => this.draw()
+        this.logo.onerror = () => this.draw()
 
+        // Setup input handling
         this.setupInput()
         this.setupOutputHandler()
-        this.draw()
+        
+        // Trigger draw whenever xterm renders
+        this.xterm.onRender(() => {
+            this.draw()
+            this.texture.needsUpdate = true
+        })
+        
+        // Initial content
+        this.xterm.write('Welcome to my terminal. You have full access.\r\n\r\n')
+        
+        // Initial draw after a small delay
+        setTimeout(() => this.draw(), 150)
     }
 
     private setupOutputHandler(): void {
-        // Subscribe to terminal output
+        // Subscribe to PTY output and write to xterm
         this.unsubscribeOutput = terminalSession.onOutput((data: string) => {
-            this.handlePtyOutput(data)
+            if (!this.isBackroomsMode) {
+                this.xterm.write(data)
+            }
         })
     }
 
-    private handlePtyOutput(data: string): void {
-        // Add to buffer and process
-        this.outputBuffer += data
-        
-        // Process complete lines from the buffer
-        const processedLines = this.outputBuffer.split(/\r?\n/)
-        
-        // Keep the last incomplete line in the buffer
-        this.outputBuffer = processedLines.pop() || ''
-        
-        // Add complete lines to display
-        for (const line of processedLines) {
-            const cleanLine = stripAnsi(line)
-            if (cleanLine.trim() !== '') {
-                this.lines.push(cleanLine)
+    private setupInput(): void {
+        // Forward xterm input to PTY
+        this.xterm.onData((data: string) => {
+            if (this.isFocused && !this.isBackroomsMode) {
+                terminalSession.sendInput(data)
             }
-        }
-        
-        // Also process any remaining buffer content (for partial lines)
-        if (this.outputBuffer.length > 0) {
-            // Check for carriage return without newline (overwrites current line)
-            if (this.outputBuffer.includes('\r')) {
-                const parts = this.outputBuffer.split('\r')
-                this.outputBuffer = parts[parts.length - 1]
-            }
-        }
-        
-        // Keep history limited
-        if (this.lines.length > 14) {
-            this.lines = this.lines.slice(this.lines.length - 14)
-        }
-        
-        // Redraw
-        this.draw()
-        this.texture.needsUpdate = true
-    }
+        })
 
-    setupInput(): void {
-        window.addEventListener('keydown', (e: KeyboardEvent) => {
+        // Handle keyboard events when focused
+        this.keydownHandler = (e: KeyboardEvent) => {
             if (!this.isFocused) return
 
             // Backrooms mode: every keystroke prints zalgo ERROR
             if (this.isBackroomsMode) {
                 if (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace') {
+                    e.preventDefault()
                     this.backroomsKeystrokeCount++
-                    // Intensity scales from 1 to 10 based on keystrokes
                     const intensity = Math.min(1 + Math.floor(this.backroomsKeystrokeCount / 3), 10)
                     const errorText = zalgoify('ERROR', intensity)
-                    this.lines.push(errorText)
-                    
-                    // Keep history limited but allow more chaos to build up
-                    if (this.lines.length > 20) {
-                        this.lines = this.lines.slice(this.lines.length - 20)
-                    }
+                    this.xterm.writeln(errorText)
                 }
                 return
             }
 
-            // Handle special keys for PTY mode
-            if (e.key === 'Enter') {
-                // Show command locally and send to PTY
-                this.lines.push(`> ${this.currentInput}`)
-                this.handleCommand(this.currentInput)
-                this.currentInput = ''
-                e.preventDefault()
-            } else if (e.key === 'Backspace') {
-                this.currentInput = this.currentInput.slice(0, -1)
-                e.preventDefault()
-            } else if (e.key === 'Tab') {
-                // Send tab for auto-completion
-                terminalSession.sendInput('\t')
-                e.preventDefault()
-            } else if (e.key === 'ArrowUp') {
-                // Send up arrow for history
-                terminalSession.sendInput('\x1b[A')
-                e.preventDefault()
-            } else if (e.key === 'ArrowDown') {
-                // Send down arrow for history
-                terminalSession.sendInput('\x1b[B')
-                e.preventDefault()
-            } else if (e.key === 'ArrowLeft') {
-                terminalSession.sendInput('\x1b[D')
-                e.preventDefault()
-            } else if (e.key === 'ArrowRight') {
-                terminalSession.sendInput('\x1b[C')
-                e.preventDefault()
-            } else if (e.ctrlKey && e.key === 'c') {
-                // Ctrl+C - send interrupt
-                terminalSession.sendInput('\x03')
-                e.preventDefault()
-            } else if (e.ctrlKey && e.key === 'd') {
-                // Ctrl+D - EOF
-                terminalSession.sendInput('\x04')
-                e.preventDefault()
-            } else if (e.ctrlKey && e.key === 'l') {
-                // Ctrl+L - clear screen
-                terminalSession.sendInput('\x0c')
-                e.preventDefault()
-            } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                this.currentInput += e.key
+            // Let xterm handle everything else
+            // Focus the xterm textarea to receive input
+            const textarea = this.xtermContainer.querySelector('textarea')
+            if (textarea && document.activeElement !== textarea) {
+                textarea.focus()
             }
-        })
+        }
+
+        window.addEventListener('keydown', this.keydownHandler)
     }
 
     setBackroomsMode(enabled: boolean): void {
         this.isBackroomsMode = enabled
         if (enabled) {
             this.backroomsKeystrokeCount = 0
-            this.lines = [zalgoify('SYSTEM CORRUPTED', 3)]
-            this.currentInput = ''
-        }
-    }
-
-    async handleCommand(input: string): Promise<void> {
-        const cmd = input.trim()
-
-        if (cmd === '') {
-            // Keep history limited
-            if (this.lines.length > 14) {
-                this.lines = this.lines.slice(this.lines.length - 14)
-            }
-            return
-        }
-
-        // Local clear command
-        if (cmd === 'clear') {
-            this.lines = ['> System cleared.']
-            this.outputBuffer = ''
-            return
-        }
-
-        // Send command to PTY via WebSocket
-        // The output will come via the onOutput callback
-        terminalSession.sendInput(cmd + '\n')
-
-        // Keep history limited
-        if (this.lines.length > 14) {
-            this.lines = this.lines.slice(this.lines.length - 14)
+            this.xterm.clear()
+            this.xterm.writeln(zalgoify('SYSTEM CORRUPTED', 3))
         }
     }
 
@@ -267,27 +237,29 @@ export class Terminal {
         if (focused && !terminalSession.isConnected()) {
             terminalSession.initSession().then(success => {
                 if (success) {
-                    // Replace connecting message
-                    const connectingIdx = this.lines.findIndex(l => l.includes('Connecting'))
-                    if (connectingIdx >= 0) {
-                        this.lines[connectingIdx] = '> Terminal connected!'
+                    // Terminal connected - resize PTY to match xterm
+                    const dims = this.fitAddon.proposeDimensions()
+                    if (dims) {
+                        terminalSession.resize(dims.rows, dims.cols)
                     }
                 }
             })
         }
+
+        // Focus/blur xterm
+        if (focused) {
+            const textarea = this.xtermContainer.querySelector('textarea')
+            if (textarea) {
+                textarea.focus()
+            }
+            this.xterm.focus()
+        } else {
+            this.xterm.blur()
+        }
     }
 
     update(): void {
-        const time = Date.now()
-
-        // Blink cursor
-        if (time - this.lastBlink > 500) {
-            this.cursorVisible = !this.cursorVisible
-            this.lastBlink = time
-        }
-
         this.draw()
-
         if (this.texture) {
             this.texture.needsUpdate = true
         }
@@ -296,74 +268,88 @@ export class Terminal {
     draw(): void {
         const { ctx, canvas } = this
 
-        // Background
+        // Clear canvas with black background
         ctx.fillStyle = '#000000'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        // Header
+        // Draw header first
+        this.drawHeader()
+
+        // Get xterm's canvas layers and composite them
+        // Try multiple selectors as xterm.js structure varies by version
+        const xtermElement = this.xtermContainer.querySelector('.xterm') as HTMLElement
+        
+        if (xtermElement) {
+            // Find all canvases within xterm (could be in .xterm-screen or directly)
+            const canvases = xtermElement.querySelectorAll('canvas')
+            
+            const destY = this.headerHeight
+            const destHeight = canvas.height - this.headerHeight
+            
+            // Draw each canvas layer in order
+            canvases.forEach((xtermCanvas: HTMLCanvasElement) => {
+                if (xtermCanvas.width > 0 && xtermCanvas.height > 0) {
+                    try {
+                        ctx.drawImage(
+                            xtermCanvas,
+                            0, 0, xtermCanvas.width, xtermCanvas.height,
+                            0, destY, canvas.width, destHeight
+                        )
+                    } catch (e) {
+                        // Canvas might be tainted or not ready
+                        console.warn('Failed to draw xterm canvas:', e)
+                    }
+                }
+            })
+            
+            // If no canvases found, xterm might still be initializing
+            if (canvases.length === 0) {
+                // Draw placeholder text
+                ctx.fillStyle = '#00ff00'
+                ctx.font = '24px monospace'
+                ctx.fillText('Initializing terminal...', 40, destY + 40)
+            }
+        }
+    }
+
+    private drawHeader(): void {
+        const { ctx, canvas } = this
+
+        // Header background
+        ctx.fillStyle = '#000000'
+        ctx.fillRect(0, 0, canvas.width, this.headerHeight)
+
+        // Header text
         ctx.fillStyle = '#00ff00'
         ctx.font = 'bold 32px monospace'
-        ctx.fillText('TERMINAL v1.0', 40, 50)
+        ctx.textAlign = 'left'
+        ctx.fillText('TERMINAL v1.0', 40, 45)
 
         // Braelyn.ai branding (top right)
         ctx.textAlign = 'right'
-        ctx.fillText('Braelyn.ai', canvas.width - 40, 50)
+        ctx.fillText('Braelyn.ai', canvas.width - 40, 45)
         ctx.textAlign = 'left'
 
-        // Header Line
+        // Header line
         ctx.strokeStyle = '#00ff00'
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(40, 60)
-        ctx.lineTo(984, 60)
+        ctx.lineTo(canvas.width - 40, 60)
         ctx.stroke()
 
         // Connection status indicator
         const isConnected = terminalSession.isConnected()
         ctx.fillStyle = isConnected ? '#00ff00' : '#ff6600'
         ctx.beginPath()
-        ctx.arc(canvas.width - 200, 45, 8, 0, Math.PI * 2)
+        ctx.arc(canvas.width - 200, 40, 8, 0, Math.PI * 2)
         ctx.fill()
-
-        // Content
-        ctx.fillStyle = '#00ff00'
-        ctx.font = '24px monospace'
-        const lineHeight = 30
-        const maxChars = 50
-        const maxY = canvas.height - 80 // Leave room for input line
-        let y = 100
-        
-        // Wrap and render lines
-        for (const line of this.lines) {
-            if (y > maxY) break // Stop if we've run out of space
-            
-            // Wrap long lines
-            if (line.length <= maxChars) {
-                ctx.fillText(line, 40, y)
-                y += lineHeight
-            } else {
-                // Split line into chunks
-                let remaining = line
-                while (remaining.length > 0 && y <= maxY) {
-                    const chunk = remaining.substring(0, maxChars)
-                    remaining = remaining.substring(maxChars)
-                    ctx.fillText(chunk, 40, y)
-                    y += lineHeight
-                }
-            }
-        }
-
-        // Input Line
-        const inputLine = `> ${this.currentInput}${this.cursorVisible ? '_' : ''}`
-        ctx.fillText(inputLine, 40, Math.min(y, maxY + lineHeight))
 
         // Logo
         if (this.logo.complete && this.logo.naturalWidth !== 0) {
-            // Draw logo at top right
-            const width = 200 // Slightly smaller to fit header area
-            const height = 200
-            // Position to align with header
-            ctx.drawImage(this.logo, canvas.width - width - 20, -60, width, height)
+            const logoWidth = 180
+            const logoHeight = 180
+            ctx.drawImage(this.logo, canvas.width - logoWidth - 20, -55, logoWidth, logoHeight)
         }
     }
 
@@ -372,6 +358,20 @@ export class Terminal {
         if (this.unsubscribeOutput) {
             this.unsubscribeOutput()
             this.unsubscribeOutput = null
+        }
+
+        // Remove event listener
+        if (this.keydownHandler) {
+            window.removeEventListener('keydown', this.keydownHandler)
+            this.keydownHandler = null
+        }
+
+        // Dispose xterm
+        this.xterm.dispose()
+        
+        // Remove container
+        if (this.xtermContainer.parentNode) {
+            this.xtermContainer.parentNode.removeChild(this.xtermContainer)
         }
     }
 }

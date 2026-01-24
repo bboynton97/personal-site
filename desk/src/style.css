@@ -8,3 +8,27 @@ body {
 canvas {
   display: block;
 }
+
+/* xterm.js container - visible but clipped/hidden visually */
+.xterm-offscreen-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  opacity: 0.01 !important; /* Nearly invisible but still renders */
+  pointer-events: none !important;
+  z-index: -1000 !important;
+  overflow: hidden !important;
+}
+
+.xterm-offscreen-container .xterm {
+  padding: 10px;
+}
+
+.xterm-offscreen-container .xterm-viewport {
+  overflow: hidden !important;
+}
+
+/* Ensure xterm renders with our retro aesthetic */
+.xterm-offscreen-container .xterm-screen {
+  image-rendering: pixelated;
+}

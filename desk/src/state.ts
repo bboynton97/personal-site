@@ -6,6 +6,8 @@ export const state: AppState = {
     isFocusingOnNotepad: false,
     isFocusingOnButton: false,
     isFocusingOnIpod: false,
+    isFocusingOnBike: false,
+    isFocusingOnCar: false,
     isEmergencyStopped: false,
     isBlackout: false,
     isAudioPlaying: false,
