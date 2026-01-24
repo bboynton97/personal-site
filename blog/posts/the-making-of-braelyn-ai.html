@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="keywords" content="">
+    <meta name="description" content="A deep dive into the technical architecture behind braelyn.ai - Three.js, custom GLSL shaders, WebSocket terminals, spatial audio, and hidden horror game Easter eggs.">
+    <meta name="keywords" content="Three.js, WebGL, 3D web development, GLSL shaders, xterm.js, E2B sandbox, spatial audio, web audio API, personal website, creative coding">
     <meta name="author" content="Braelyn Boynton">
     <title>The Making of Braelyn.ai - My Blog</title>
     <link rel="stylesheet" href="../styles.css">
@@ -20,23 +20,128 @@
 
     <main>
         <article>
-            The first time I visited Berlin, my life was in chrisis. Everything that I knew, the life I had built, was in question. I had recently come out, lost my closest friends because of it, and was on my first stop while traveling in search of finding myself truly. 
-            <br/>
-            I really knew nothing about Berlin previous, it was just the cheapest flight to Europe. I stepped off the plane and immediately noticed a unique culture unlike any other I had experienced in the Midwest. 
-            The confidence in uniqueness that the people of Berlin demonstrated was fascinating, it was intoxicating. This was a place that I could be <i>anyone</i> I wanted to be and no one would care even a little. 
-            The post-industrial gothic aesthetic... I thought, "This is it. This is my identity." The further east I went, the more I resonated with the people, the culture, the music, the grit.
-            <br/>
-            As many people will attest, the metaphoric center of Berlin culture is a etherial building in Kreuzberg known as Berghain. More than anywhere else, discovering Berghain changed my life. In Berghain is where I discovered myself.
+            <p>
+                The first time I visited Berlin, my life was in chrisis. Everything that I knew, the life I had built, was in question. I had recently come out, lost my closest friends because of it, and was on my first stop while traveling in search of finding myself truly.
+            </p>
+            <p>
+                I really knew nothing about Berlin previous, it was just the cheapest flight to Europe. I stepped off the plane and immediately noticed a unique culture unlike any other I had experienced in the Midwest. The confidence in uniqueness that the people of Berlin demonstrated was fascinating, it was intoxicating. This was a place that I could be <i>anyone</i> I wanted to be and no one would care even a little. The post-industrial gothic aesthetic... I thought, "This is it. This is my identity." The further east I went, the more I resonated with the people, the culture, the music, the grit.
+            </p>
+            <p>
+                As many people will attest, the metaphoric center of Berlin culture is a etherial building in Kreuzberg known as Berghain. More than anywhere else, discovering Berghain changed my life. In Berghain is where I discovered myself.
+            </p>
 
             <div style="display: flex; gap: 1em; justify-content: start;">
                 <img src="../assets/berghain1.JPG" alt="Berghain" style="max-width: 48%; height: auto;">
                 <img src="../assets/berghain2.JPG" alt="Berghain" style="max-width: 48%; height: auto;">
             </div>
 
-            Berghain has become a regular pilgrimage in my life. Every trip I've made offers a new perspective and a new understanding of the world.
-            <br/>
-            When I decided to build this site, I wanted it to be meticulously designed to reflect who I am through the language of a 3D space. The visitor of the site within seconds should be able to develop a reasonable understanding of my identity.
-            It was without question that it would be a space in resemblance of Berghain. 
+            <p>
+                Berghain has become a regular pilgrimage in my life. Every trip I've made offers a new perspective and a new understanding of the world.
+            </p>
+            <p>
+                When I decided to build this site, I wanted it to be meticulously designed to reflect who I am through the language of a 3D space. The visitor of the site within seconds should be able to develop a reasonable understanding of my identity. It was without question that it would be a space in resemblance of Berghain.
+            </p> 
+
+            <h2>The Technical Deep Dive</h2>
+            <p>
+                Building an immersive 3D personal site that feels like stepping into a real space required work I had not previously explored.
+            </p>
+
+            <h3>Three.js</h3>
+            <p>
+                The entire 3D experience is built on <a href="https://threejs.org" target="_blank">Three.js</a>. The scene uses a perspective camera with orbit controls (locked by default for a cinematic feel), fog for atmosphere, and shadow mapping for realistic lighting. Assets are loaded using GLTFLoader with <strong>Meshopt compression</strong>, which dramatically reduces file sizes while maintaining visual quality.
+            </p>
+
+            <h3>Post-Processing Pipeline</h3>
+            <p>
+                The distinctive visual style comes from a custom post-processing pipeline chained together:
+            </p>
+            <ul>
+                <li><strong>RenderPixelatedPass</strong> – Subtle pixelation for a retro-digital feel</li>
+                <li><strong>UnrealBloomPass</strong> – Bloom lighting for the rave lights</li>
+                <li><strong>Custom CRT Shader</strong> – Adds an element of analogue to the scene</li>
+                <li><strong>WhiteOutShader</strong> – For special effects and transitions (see if you can find where this is used)</li>
+            </ul>
+            <p>
+                The CRT shader is custom GLSL that applies barrel distortion (curved screen edges), chromatic aberration (RGB color fringing), animated scanlines, film grain noise, and a vignette effect.
+            </p>
+
+            <h3>Spatial Audio System</h3>
+            <p>
+                I didn't want the techno music to just play from the speakers.  I wanted it to come from <i>somewhere</i>. Using Three.js's PositionalAudio, the music is positioned in 3D space underneath the desk scene, where the club is. A BiquadFilter creates a low-pass "muffled through walls" effect that opens up as the door opens. There's also a ConvolverNode generating real-time reverb with a procedurally generated impulse response. The reverb tail is literally computed by filling audio buffers with decaying noise.
+            </p>
+            <p>
+                The camera rumble effect syncs to 140 BPM using a sawtooth wave with exponential decay. It shakes the whole scene to the beat, creating a feeling of a room dominated bass.
+            </p>
+
+            <h3>A Real Linux Terminal</h3>
+            <p>
+                I started by making a simulated terminal with very basic commands. Then I realized, I could just use a real terminal with modern tools!
+            </p>
+            <ul>
+                <li><strong>xterm.js</strong> – Terminal emulator that runs in the browser</li>
+                <li><strong>E2B Sandbox</strong> – Cloud infrastructure that spins up isolated Linux containers on-demand</li>
+                <li><strong>WebSocket PTY</strong> – Real-time bidirectional communication with true pseudo-terminal support</li>
+                <li><strong>Canvas Texture</strong> – The xterm output is rendered to a canvas, which becomes a Three.js texture mapped onto the 3D screen (this was so hard to figure out)</li>
+            </ul>
+            <p>
+                When you click on the computer, the system creates a sandboxed Linux session, connects via WebSocket, and streams PTY output through xterm.js. This then gets rendered onto the 3D monitor in real-time. You get full shell access with command history, vim, even python! See what you can find in there!
+            </p>
+
+            <h3>The Notepad</h3>
+            <p>
+                The notepad on the desk fetches blog posts from my blog's API and renders them onto a canvas texture with hand-drawn styling. UV coordinates from raycasting let me detect exactly where you're clicking on the paper, enabling interactive links. The "ruled paper" effect uses canvas drawing APIs to create horizontal lines, a red margin, and a cursive font for the title.
+            </p>
+
+            <h3>State Machine Architecture</h3>
+            <p>
+                Managing all these effect sequences requires careful state management. I've never worked in gamedev, so this was a new experience for me in this way. A central AppState object tracks:
+            </p>
+            <ul>
+                <li>Camera focus states (screen, notepad, iPod, emergency button)</li>
+                <li>Animation timestamps for smooth transitions</li>
+                <li>Audio states (playing, muffled, spatial positions)</li>
+                <li>Object references for dynamic manipulation</li>
+                <li>Horror game state (monster visibility, jumpscare timing)</li>
+            </ul>
+            <p>
+                The animation loop runs at 60fps, checking timestamps and interpolating values with easing functions for smooth camera movements and state transitions.
+            </p>
+
+            <h3>Infrastructure</h3>
+            <p>
+                The backend is a FastAPI server handling:
+            </p>
+            <ul>
+                <li>E2B session management (starting/stopping sandboxed terminals)</li>
+                <li>WebSocket routing for real-time terminal I/O</li>
+                <li>Last.fm API integration for the "now playing" iPod feature</li>
+                <li>Asset proxying from S3-compatible storage with aggressive caching</li>
+                <li>Analytics event tracking (imma freak like that)</li>
+            </ul>
+            <p>
+                Everything is deployed on Railway with PostgreSQL for session state and Alembic for database migrations.
+            </p>
+
+            <h3>Performance Considerations</h3>
+            <p>
+                A 3D web experience needs to run on everything from gaming PCs to phones. Key optimizations include:                    fff
+            </p>
+            <ul>
+                <li><strong>Meshopt compression</strong> – Models are 60-80% smaller than uncompressed glTF</li>
+                <li><strong>Texture atlasing</strong> – Fewer draw calls by combining textures</li>
+                <li><strong>Aggressive caching</strong> – 1 year cache headers on static assets</li>
+                <li><strong>Lazy loading</strong> – Terminal session only initializes when you click the screen</li>
+            </ul>
+
+            <h3>Codegen</h3>
+            <p>
+                Previous to LLM codegen tools, this project would have taken me months to complete. Managing state and animations in a way that feels cohesive in action would have been tremendously difficult. Instead of painstakingly adjusting position and animation constants, I could ask Claude to "move the object to the right and animate more quickly." This kept me in the creativer flow and able to focus on the design and implementation of the project.
+            </p>
+
+            <p>
+                I had a ton of fun making this! I'm really proud of it. Let me know what you think!
+            </p>
         </article>
     </main>
 
