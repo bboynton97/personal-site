@@ -39,8 +39,7 @@ export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscillo
                     // 0 = (0.1 - 0.5) * 4 + 0.5 + offset
                     // 0 = -1.6 + 0.5 + offset
                     // offset = 1.1
-                    oscilloscope.texture.offset.set(0.1, 0)
-
+                    oscilloscope.texture.offset.set(-0.53, 0)
                     child.material = new THREE.MeshStandardMaterial({
                         map: oscilloscope.texture,
                         emissiveMap: oscilloscope.texture,

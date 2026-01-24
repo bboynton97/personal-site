@@ -78,7 +78,7 @@ export class Oscilloscope {
             const normalizedX = x / w
             const frequency = 4 * Math.PI // 2 cycles
             const phase = -this.time
-            const amplitude = h / 3
+            const amplitude = h / 8
             
             const y = h / 2 + Math.sin(normalizedX * frequency + phase) * amplitude
 
