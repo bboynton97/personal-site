@@ -287,13 +287,14 @@ export class Terminal {
             const destHeight = canvas.height - this.headerHeight
             
             // Draw each canvas layer in order
+            const marginX = 40
             canvases.forEach((xtermCanvas: HTMLCanvasElement) => {
                 if (xtermCanvas.width > 0 && xtermCanvas.height > 0) {
                     try {
                         ctx.drawImage(
                             xtermCanvas,
                             0, 0, xtermCanvas.width, xtermCanvas.height,
-                            0, destY, canvas.width, destHeight
+                            marginX, destY, canvas.width - marginX * 2, destHeight
                         )
                     } catch (e) {
                         // Canvas might be tainted or not ready
