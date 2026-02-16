@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadGitHubOctocat(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadGitHubOctocat(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('github-octocat/source/scene.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -36,6 +37,7 @@ export function loadGitHubOctocat(loader: GLTFLoader, scene: THREE.Scene, state:
         })
 
         state.octocatPivot = pivot
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load github-octocat/source/scene.glb:', error)
         // Try to fetch the file directly to diagnose
@@ -48,5 +50,7 @@ export function loadGitHubOctocat(loader: GLTFLoader, scene: THREE.Scene, state:
                 }
             })
             .catch(err => console.error('Could not check GLB file:', err))
+        reject(error)
+    })
     })
 }

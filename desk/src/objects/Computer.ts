@@ -4,7 +4,8 @@ import type { AppState } from '../types'
 import type { Terminal } from '../meshes/Terminal'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: Terminal, state: AppState): void {
+export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: Terminal, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('computer/scene_converted.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -121,7 +122,10 @@ export function loadComputer(loader: GLTFLoader, scene: THREE.Scene, terminal: T
                 }
             }
         })
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load computer/scene_converted.glb. File may not be served correctly by the server:', error)
+        reject(error)
+    })
     })
 }

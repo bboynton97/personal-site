@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadBackrooms(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadBackrooms(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('backrooms_map_packed_blender_3.2.0.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -100,7 +101,10 @@ export function loadBackrooms(loader: GLTFLoader, scene: THREE.Scene, state: App
         rectLight2.visible = false
         scene.add(rectLight2)
         state.backroomsLights.push(rectLight2)
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load backrooms_map_packed_blender_3.2.0.glb:', error)
+        reject(error)
+    })
     })
 }

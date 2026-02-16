@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadRoboticArm(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadRoboticArm(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('arm/Robotic Arm.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -55,7 +56,10 @@ export function loadRoboticArm(loader: GLTFLoader, scene: THREE.Scene, state: Ap
         armLight.position.set(5.0 - 1, 3, -1.5 + 2)
         scene.add(armLight)
         state.roomLights.push(armLight)
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load arm/Robotic Arm.glb:', error)
+        reject(error)
+    })
     })
 }

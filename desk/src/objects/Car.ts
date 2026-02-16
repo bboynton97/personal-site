@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadCar(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadCar(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl("Mazda RX-7 Akagi's White Comet Remake/scene.glb"), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -31,7 +32,10 @@ export function loadCar(loader: GLTFLoader, scene: THREE.Scene, state: AppState)
                 child.receiveShadow = true
             }
         })
+        resolve()
     }, undefined, (error) => {
         console.error("Failed to load Mazda RX-7 Akagi's White Comet Remake/scene.glb:", error)
+        reject(error)
+    })
     })
 }

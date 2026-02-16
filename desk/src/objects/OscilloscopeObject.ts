@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { Oscilloscope } from '../meshes/Oscilloscope'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscilloscope: Oscilloscope): void {
+export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscilloscope: Oscilloscope): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('scope/scene.gltf'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -52,7 +53,10 @@ export function loadOscilloscope(loader: GLTFLoader, scene: THREE.Scene, oscillo
                 }
             }
         })
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load scope/scene.gltf. File may be corrupted or not served correctly:', error)
+        reject(error)
+    })
     })
 }

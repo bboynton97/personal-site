@@ -4,7 +4,8 @@ import type { AppState } from '../types'
 import type { Notepad } from '../meshes/Notepad'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppState, notepad: Notepad): void {
+export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppState, notepad: Notepad): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('Notepad/scene.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -59,7 +60,10 @@ export function loadNotepad(loader: GLTFLoader, scene: THREE.Scene, state: AppSt
                 }
             }
         })
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load Notepad/scene.glb. File may not be served correctly by the server:', error)
+        reject(error)
+    })
     })
 }

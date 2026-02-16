@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadFloor(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadFloor(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('floor.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -42,7 +43,10 @@ export function loadFloor(loader: GLTFLoader, scene: THREE.Scene, state: AppStat
         pivot3.position.x += 40
         state.floorPivots.push(pivot3)
         scene.add(pivot3)
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load floor.glb:', error)
+        reject(error)
+    })
     })
 }

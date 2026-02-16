@@ -197,7 +197,8 @@ export function updateIpodScreen(time: number): void {
     }
 }
 
-export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('ipod_classic.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -270,8 +271,11 @@ export function loadIpodClassic(loader: GLTFLoader, scene: THREE.Scene, state: A
         })
 
         state.ipodPivot = pivot
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load ipod_classic.glb. File may not be served correctly by the server:', error)
+        reject(error)
+    })
     })
 }
 

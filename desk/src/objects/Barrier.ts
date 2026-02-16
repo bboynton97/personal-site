@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadBarrier(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadBarrier(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('Steel Road Barrier 3D Model.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -43,7 +44,10 @@ export function loadBarrier(loader: GLTFLoader, scene: THREE.Scene, state: AppSt
         pivot3.position.x += 20
         state.barrierPivots.push(pivot3)
         scene.add(pivot3)
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load Steel Road Barrier 3D Model.glb:', error)
+        reject(error)
+    })
     })
 }

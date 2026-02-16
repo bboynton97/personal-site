@@ -87,19 +87,20 @@ meshoptDecoder.ready.then(() => {
     loadDoor(loader, scene, state).then(() => {
         // Skip loading scene objects on mobile for performance
         if (!isMobileDevice()) {
-            // Load simple objects (only need loader, scene, state)
-            loadSimpleObjects(loader, scene, state)
-
-            // Load objects that need additional parameters
-            loadComputer(loader, scene, terminal, state)
-            loadOscilloscope(loader, scene, oscilloscope)
-            loadNotepad(loader, scene, state, notepad)
-        }
-
-        // Mark scene as ready after a minimum delay to ensure assets load
-        setTimeout(() => {
+            // Load all objects in parallel, then pre-compile shaders
+            Promise.all([
+                loadSimpleObjects(loader, scene, state),
+                loadComputer(loader, scene, terminal, state),
+                loadOscilloscope(loader, scene, oscilloscope),
+                loadNotepad(loader, scene, state, notepad),
+            ]).then(() => {
+                // Pre-compile all shaders to avoid jank when door opens
+                renderer.compile(scene, camera)
+                state.introSceneReady = true
+            })
+        } else {
             state.introSceneReady = true
-        }, 1500)
+        }
     })
 })
 

@@ -29,23 +29,25 @@ export { loadDoor } from './Door'
 
 // Load all simple objects that only need loader, scene, and state (or just loader and scene)
 // Note: Door is loaded separately in main.ts to ensure it loads first
-export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
-    loadDesk(loader, scene)
-    loadDeskChair(loader, scene)
-    loadRoboticArm(loader, scene, state)
-    loadBarrier(loader, scene, state)
-    loadWall(loader, scene, state)
-    loadFloor(loader, scene, state)
-    loadSpeaker(loader, scene, state)
-    loadCar(loader, scene, state)
-    loadBike(loader, scene, state)
-    loadCessna(loader, scene, state)
-    loadKPile(loader, scene, state)
-    loadEmergencyButton(loader, scene, state)
-    loadBackrooms(loader, scene, state)
-    loadGitHubOctocat(loader, scene, state)
-    loadHorrorMonster(loader, scene, state)
-    loadEverythingBagel(loader, scene, state)
-    loadNapkin(loader, scene, state)
-    loadIpodClassic(loader, scene, state)
+export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void[]> {
+    return Promise.all([
+        loadDesk(loader, scene),
+        loadDeskChair(loader, scene),
+        loadRoboticArm(loader, scene, state),
+        loadBarrier(loader, scene, state),
+        loadWall(loader, scene, state),
+        loadFloor(loader, scene, state),
+        loadSpeaker(loader, scene, state),
+        loadCar(loader, scene, state),
+        loadBike(loader, scene, state),
+        loadCessna(loader, scene, state),
+        loadKPile(loader, scene, state),
+        loadEmergencyButton(loader, scene, state),
+        loadBackrooms(loader, scene, state),
+        loadGitHubOctocat(loader, scene, state),
+        loadHorrorMonster(loader, scene, state),
+        loadEverythingBagel(loader, scene, state),
+        loadNapkin(loader, scene, state),
+        loadIpodClassic(loader, scene, state),
+    ])
 }

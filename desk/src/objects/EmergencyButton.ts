@@ -6,7 +6,8 @@ import type { AppState } from '../types'
 import typeface from 'three/examples/fonts/helvetiker_regular.typeface.json'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadEmergencyButton(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadEmergencyButton(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('Emergency Stop Button 3D Model.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -87,7 +88,10 @@ export function loadEmergencyButton(loader: GLTFLoader, scene: THREE.Scene, stat
         scene.add(textMesh)
         state.emergencyText = textMesh
         textMesh.visible = false
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load Emergency Stop Button 3D Model.glb:', error)
+        reject(error)
+    })
     })
 }

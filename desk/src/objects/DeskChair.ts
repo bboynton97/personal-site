@@ -2,7 +2,8 @@ import * as THREE from 'three'
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadDeskChair(loader: GLTFLoader, scene: THREE.Scene): void {
+export function loadDeskChair(loader: GLTFLoader, scene: THREE.Scene): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('Wooden Desk Chair 3D Model.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -30,7 +31,10 @@ export function loadDeskChair(loader: GLTFLoader, scene: THREE.Scene): void {
                 child.receiveShadow = true
             }
         })
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load Wooden Desk Chair 3D Model.glb:', error)
+        reject(error)
+    })
     })
 }

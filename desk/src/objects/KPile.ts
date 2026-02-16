@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadKPile(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadKPile(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('Cocaine Pile 3D Model.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -45,7 +46,10 @@ export function loadKPile(loader: GLTFLoader, scene: THREE.Scene, state: AppStat
         }, undefined, (error) => {
             console.warn('Failed to load snifff.mp3:', error)
         })
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load Cocaine Pile 3D Model.glb:', error)
+        reject(error)
+    })
     })
 }

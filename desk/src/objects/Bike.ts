@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadBike(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadBike(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('Yamaha R1 3D Model.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -33,7 +34,10 @@ export function loadBike(loader: GLTFLoader, scene: THREE.Scene, state: AppState
                 child.receiveShadow = true
             }
         })
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load Yamaha R1 3D Model.glb:', error)
+        reject(error)
+    })
     })
 }

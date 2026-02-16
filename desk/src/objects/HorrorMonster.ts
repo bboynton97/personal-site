@@ -3,7 +3,7 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
     // Load creepy knock sound
     const listener = new THREE.AudioListener()
     const audioLoader = new THREE.AudioLoader()
@@ -67,6 +67,7 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
                 .catch(err => console.warn('Could not check audio file:', err))
         }
     )
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('smily_horror_monster.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -111,7 +112,10 @@ export function loadHorrorMonster(loader: GLTFLoader, scene: THREE.Scene, state:
                 }
             }
         })
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load smily_horror_monster.glb:', error)
+        reject(error)
+    })
     })
 }

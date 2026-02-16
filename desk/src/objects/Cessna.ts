@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadCessna(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadCessna(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('cessna172.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -32,7 +33,10 @@ export function loadCessna(loader: GLTFLoader, scene: THREE.Scene, state: AppSta
                 child.receiveShadow = true
             }
         })
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load cessna172.glb:', error)
+        reject(error)
+    })
     })
 }

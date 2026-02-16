@@ -3,7 +3,8 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
-export function loadNapkin(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+export function loadNapkin(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
+    return new Promise((resolve, reject) => {
     loader.load(assetUrl('napkin.glb'), (gltf) => {
         const model = gltf.scene
         const box = new THREE.Box3().setFromObject(model)
@@ -37,8 +38,11 @@ export function loadNapkin(loader: GLTFLoader, scene: THREE.Scene, state: AppSta
         })
 
         state.napkinPivot = pivot
+        resolve()
     }, undefined, (error) => {
         console.error('Failed to load napkin.glb. File may not be served correctly by the server:', error)
+        reject(error)
+    })
     })
 }
 
