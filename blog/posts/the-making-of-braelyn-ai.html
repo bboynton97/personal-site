@@ -21,13 +21,19 @@
     <main>
         <article>
             <p>
-                The first time I visited Berlin, my life was in chrisis. Everything that I knew, the life I had built, was in question. I had recently come out, lost my closest friends because of it, and was on my first stop while traveling in search of finding myself truly.
+                The first time I visited Berlin, my life was in crisis. Everything that I knew, the life I had built, was all in question. I had recently come out, lost my closest friends because of it, and was on my first stop while traveling in search of finding myself truly.
             </p>
             <p>
-                I really knew nothing about Berlin previous, it was just the cheapest flight to Europe. I stepped off the plane and immediately noticed a unique culture unlike any other I had experienced in the Midwest. The confidence in uniqueness that the people of Berlin demonstrated was fascinating, it was intoxicating. This was a place that I could be <i>anyone</i> I wanted to be and no one would care even a little. The post-industrial gothic aesthetic... I thought, "This is it. This is my identity." The further east I went, the more I resonated with the people, the culture, the music, the grit.
+                I really knew nothing about Berlin previous, it was just the cheapest flight to Europe. I stepped off the plane and immediately noticed a unique culture very different than the American Midwest. It was distinctly German, but glimpses of a deeper alternative subculture fascinated me. It was unexpected, but I had to explore it. 
+          </p>
+          <p>
+            The confidence in uniqueness that the people of Berlin demonstrated was fascinating, it was intoxicating. This was a place that I could be <i>anyone</i> I wanted to be and no one would care even a little. The post-industrial gothic aesthetic... I thought, "This is it. This is my identity." The further east I went, the more I resonated with the people, the culture, the music, the grit.
             </p>
             <p>
-                As many people will attest, the metaphoric center of Berlin culture is a etherial building in Kreuzberg known as Berghain. More than anywhere else, discovering Berghain changed my life. In Berghain is where I discovered myself.
+              For the first time in my life, I could reinvent myself. I could develop a worldview from the ground up. Redefine who it is that I am. It started with debauchery and hedonism, but as it turned out, that was an incredible foundation to build myself into the person that I wanted to be. 
+            </p>
+            <p>
+                As many people will attest, the metaphoric center of Berlin culture is this etherial, monolithic building in Kreuzberg known as Berghain. More than anywhere else, discovering Berghain changed my life. In Berghain is where I discovered myself.
             </p>
 
             <div style="display: flex; gap: 1em; justify-content: start;">
@@ -36,11 +42,15 @@
             </div>
 
             <p>
-                Berghain has become a regular pilgrimage in my life. Every trip I've made offers a new perspective and a new understanding of the world.
+                Berghain has become a regular pilgrimage in my life. Each time I've made it past the scrutenizing doorman and into the building, I've found myself met with a new perspective and a new understanding of the world. The building, the people, the music and the magic that is the Berghain experience has truly formed who I am as an adult.
             </p>
             <p>
-                When I decided to build this site, I wanted it to be meticulously designed to reflect who I am through the language of a 3D space. The visitor of the site within seconds should be able to develop a reasonable understanding of my identity. It was without question that it would be a space in resemblance of Berghain.
+                When I decided to build this site, I wanted it to be meticulously designed to accurately reflect who I am through the language of a 3D space. The visitor of the site within seconds should be able to develop a reasonable understanding of my identity. It was without question that it would be a space in resemblance of Berghain.
             </p> 
+
+            <p>
+            I hope you enjoy it! There are a TON of little easter eggs. See what you can find! Thank you for reading!
+        </p>
 
             <h2>The Technical Deep Dive</h2>
             <p>
@@ -57,10 +67,9 @@
                 The distinctive visual style comes from a custom post-processing pipeline chained together:
             </p>
             <ul>
-                <li><strong>RenderPixelatedPass</strong> – Subtle pixelation for a retro-digital feel</li>
-                <li><strong>UnrealBloomPass</strong> – Bloom lighting for the rave lights</li>
-                <li><strong>Custom CRT Shader</strong> – Adds an element of analogue to the scene</li>
-                <li><strong>WhiteOutShader</strong> – For special effects and transitions (see if you can find where this is used)</li>
+                <li>Subtle pixelation for a retro-digital feel</li>
+                <li>Bloom lighting for the rave lights</li>
+                <li>CRT Shader, adding an element of analogue to the scene</li>
             </ul>
             <p>
                 The CRT shader is custom GLSL that applies barrel distortion (curved screen edges), chromatic aberration (RGB color fringing), animated scanlines, film grain noise, and a vignette effect.
@@ -68,7 +77,7 @@
 
             <h3>Spatial Audio System</h3>
             <p>
-                I didn't want the techno music to just play from the speakers.  I wanted it to come from <i>somewhere</i>. Using Three.js's PositionalAudio, the music is positioned in 3D space underneath the desk scene, where the club is. A BiquadFilter creates a low-pass "muffled through walls" effect that opens up as the door opens. There's also a ConvolverNode generating real-time reverb with a procedurally generated impulse response. The reverb tail is literally computed by filling audio buffers with decaying noise.
+                I didn't want the techno to just play from the speakers. I wanted it to come from <i>somewhere</i>. With Three.js's PositionalAudio, the music is positioned in 3D space underneath the desk scene, where the club is. A BiquadFilter creates a low-pass "muffled through walls" effect that opens up as the door opens. There's also a ConvolverNode generating real-time reverb with a procedurally generated impulse response. The reverb tail is literally computed by filling audio buffers with decaying noise.
             </p>
             <p>
                 The camera rumble effect syncs to 140 BPM using a sawtooth wave with exponential decay. It shakes the whole scene to the beat, creating a feeling of a room dominated bass.
