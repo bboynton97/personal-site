@@ -76,7 +76,7 @@ echo ""
 echo "  ┌─────────────────────────────────────────────────────────┐"
 echo "  │  Welcome to my terminal. You have full access.         │"
 echo "  │                                                         │"
-echo "  │  Try: ./projects.sh  ./nowplaying.sh  ./hack.sh        │"
+echo "  │  Try: ./nowplaying.sh  ./hack.sh  ./zork.sh             │"
 echo "  └─────────────────────────────────────────────────────────┘"
 echo ""
 '''
@@ -171,37 +171,6 @@ if __name__ == "__main__":
     sandbox.commands.run("chmod +x /home/user/hack.sh")
     
     # ═══════════════════════════════════════════════════════════════════════════
-    # projects.sh - Projects Display
-    # ═══════════════════════════════════════════════════════════════════════════
-    sandbox.files.write(
-        "/home/user/projects.sh",
-        r'''#!/bin/bash
-echo ""
-echo "  ╔═══════════════════════════════════════════════════════════╗"
-echo "  ║                    BRAELYN'S PROJECTS                     ║"
-echo "  ╠═══════════════════════════════════════════════════════════╣"
-echo "  ║                                                           ║"
-echo "  ║  🎸 Accordion                                             ║"
-echo "  ║     AI-powered music practice companion                   ║"
-echo "  ║     https://accordion.ai                                  ║"
-echo "  ║                                                           ║"
-echo "  ║  🖥️  This Terminal                                        ║"
-echo "  ║     E2B-powered interactive sandbox                       ║"
-echo "  ║     You're using it right now!                            ║"
-echo "  ║                                                           ║"
-echo "  ║  🌐 braelyn.ai                                            ║"
-echo "  ║     Personal site with 3D desk experience                 ║"
-echo "  ║     https://braelyn.ai                                    ║"
-echo "  ║                                                           ║"
-echo "  ╠═══════════════════════════════════════════════════════════╣"
-echo "  ║  GitHub: https://github.com/braelyn                       ║"
-echo "  ╚═══════════════════════════════════════════════════════════╝"
-echo ""
-'''
-    )
-    sandbox.commands.run("chmod +x /home/user/projects.sh")
-    
-    # ═══════════════════════════════════════════════════════════════════════════
     # zork.sh - Text Adventure Game
     # ═══════════════════════════════════════════════════════════════════════════
     sandbox.files.write(
@@ -233,27 +202,27 @@ class Game:
         self.rooms = {
             "office": {
                 "description": "You are in a dimly lit office. A DESK sits in the corner with a COMPUTER on it. There's a LAMP nearby. A door leads NORTH to a hallway.",
-                "items": ["rubber duck", "coffee mug"],
+                "items": ["motorcycle helmet", "white monster"],
                 "exits": {"north": "hallway"}
             },
             "hallway": {
-                "description": "A long corridor stretches before you. Fluorescent lights flicker overhead. The office is SOUTH. A SERVER ROOM lies to the EAST. WEST leads to darkness.",
+                "description": "A long corridor stretches before you. Fluorescent lights flicker overhead. A deep, relentless four-on-the-floor kick drum reverberates through the walls. The office is SOUTH. A SERVER ROOM lies to the EAST. WEST leads to darkness.",
                 "items": [],
                 "exits": {"south": "office", "east": "server_room", "west": "darkness"}
             },
             "server_room": {
-                "description": "Rows of humming servers fill the room. LEDs blink in hypnotic patterns. A terminal glows in the corner. The hallway is WEST.",
+                "description": "Rows of humming servers fill the room, but they're not just computing - they're synthesizing. Each rack pulses with a different frequency. A massive subwoofer sits in the corner next to a glowing terminal. The techno here is deafening. The hallway is WEST.",
                 "items": ["usb drive"],
                 "exits": {"west": "hallway"}
             },
             "darkness": {
-                "description": "It is pitch dark. You are likely to be eaten by a grue.",
+                "description": "It is pitch dark. The kick drum has faded, replaced by the hum of unseen machinery. You are likely to be eaten by a grue.",
                 "items": [],
                 "exits": {"east": "hallway"},
                 "dark": True
             },
             "secret_room": {
-                "description": "You found it! A small room filled with mass storage drives. On a pedestal sits a drive labeled 'FORBIDDEN KNOWLEDGE'. Congratulations, you beat the game!",
+                "description": "You found it! A hidden DJ booth. Turntables spin on their own. On a pedestal sits a vinyl labeled 'Braelyn Berghain Set' - the unreleased set recording. Congratulations, you beat the game!",
                 "items": ["forbidden knowledge"],
                 "exits": {"south": "darkness"}
             }
@@ -319,8 +288,8 @@ class Game:
                 self.rooms["darkness"]["description"] = "The lamp illuminates a dusty storage closet. Ancient computer parts line the shelves. Wait... there's a hidden door to the NORTH!"
                 self.rooms["darkness"]["exits"]["north"] = "secret_room"
                 self.look()
-        elif item == "rubber duck":
-            print("You squeeze the rubber duck. It squeaks. You feel enlightened about your code.")
+        elif item == "motorcycle helmet":
+            print("You put on the motorcycle helmet. Your vision narrows. You feel like a main character.")
         elif item == "usb drive":
             if self.location == "office":
                 print("You plug the USB drive into the computer...")
@@ -328,8 +297,8 @@ class Game:
                 print("ACCESS GRANTED. The secrets of the universe are... just memes. It's all memes.")
             else:
                 print("There's nothing to plug this into here.")
-        elif item == "coffee mug":
-            print("You take a sip. It's cold. Always has been.")
+        elif item == "white monster":
+            print("You crack open the white Monster. The sweet nectar of productivity flows through you.")
         else:
             print("You can't use that.")
     
@@ -544,7 +513,6 @@ This is a live terminal powered by E2B. You have full access to do anything.
 - `./welcome.sh`     - Show the welcome banner
 - `./hack.sh`        - Elite hacker simulation
 - `./zork.sh`        - Play a text adventure game
-- `./projects.sh`    - See what I'm working on
 - `./nowplaying.sh`  - What I'm listening to on Last.fm
 
 ## 📁 Files
