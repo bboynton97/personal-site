@@ -156,9 +156,10 @@ export function setupInteractions(
 
     let audioStarted = false
 
-    window.addEventListener('mousemove', (event: MouseEvent) => {
-        pointer.x = (event.clientX / window.innerWidth) * 2 - 1
-        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
+    // Helper function to update pointer and handle hover effects
+    function updatePointerAndHover(clientX: number, clientY: number) {
+        pointer.x = (clientX / window.innerWidth) * 2 - 1
+        pointer.y = -(clientY / window.innerHeight) * 2 + 1
         raycaster.setFromCamera(pointer, camera)
 
         let cursorStyle = "url('/pointer.png'), auto"
@@ -166,14 +167,14 @@ export function setupInteractions(
         // During intro, check for hovering over door UI elements (but not while glitching)
         if (state.isIntro && state.introAnimationProgress === 0 && state.doorUI && !state.introGlitchStartTime) {
             const intersects = raycaster.intersectObjects(state.doorUI.children, true)
-            
+
             // Reset all clickable elements to normal scale
             state.doorUI.children.forEach(child => {
                 if (child.name.startsWith('social_') || child.name === 'door_enter') {
                     child.scale.lerp(new THREE.Vector3(1, 1, 1), 0.2)
                 }
             })
-            
+
             if (intersects.length > 0) {
                 const hitObject = intersects[0].object
                 const hitName = hitObject.name
@@ -251,11 +252,24 @@ export function setupInteractions(
         }
 
         document.body.style.cursor = cursorStyle
+    }
+
+    window.addEventListener('mousemove', (event: MouseEvent) => {
+        updatePointerAndHover(event.clientX, event.clientY)
     })
 
-    window.addEventListener('click', (event: MouseEvent) => {
-        pointer.x = (event.clientX / window.innerWidth) * 2 - 1
-        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
+    // Add touch event support for mobile devices
+    window.addEventListener('touchmove', (event: TouchEvent) => {
+        if (event.touches.length > 0) {
+            const touch = event.touches[0]
+            updatePointerAndHover(touch.clientX, touch.clientY)
+        }
+    })
+
+    // Helper function to handle click/tap interactions
+    function handleClickInteraction(clientX: number, clientY: number) {
+        pointer.x = (clientX / window.innerWidth) * 2 - 1
+        pointer.y = -(clientY / window.innerHeight) * 2 + 1
 
         // Handle intro click - check for door UI interactions
         if (state.isIntro && state.introAnimationProgress === 0) {
@@ -344,8 +358,8 @@ export function setupInteractions(
         if (state.powerPilePivot) {
             const intersects = raycaster.intersectObjects(state.powerPilePivot.children, true)
             if (intersects.length > 0) {
-                if (state.isCameraLocked && !state.pixelationAnimationStartTime) {
-                    // Start pixelation animation
+                if (state.isCameraLocked && !state.pixelationAnimationStartTime && !isMobileDevice()) {
+                    // Start pixelation animation (skip on mobile for performance)
                     state.pixelationAnimationStartTime = Date.now()
                     // Play sniff sound
                     if (state.sniffSound && !state.sniffSound.isPlaying) {
@@ -604,6 +618,18 @@ export function setupInteractions(
             state.isFocusingOnCar = false
             terminal.setFocused(false)
             notepad.setHovered(-1)
+        }
+    }
+
+    window.addEventListener('click', (event: MouseEvent) => {
+        handleClickInteraction(event.clientX, event.clientY)
+    })
+
+    // Add touch event support for mobile devices
+    window.addEventListener('touchstart', (event: TouchEvent) => {
+        if (event.touches.length > 0) {
+            const touch = event.touches[0]
+            handleClickInteraction(touch.clientX, touch.clientY)
         }
     })
 }

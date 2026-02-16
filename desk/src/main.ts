@@ -27,6 +27,12 @@ import { setupInteractions } from './interaction'
 import { setupInputListeners } from './input'
 import { createDeathOverlay } from './utils/deathScreen'
 
+// Helper to detect mobile devices
+function isMobileDevice(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 768 && 'ontouchstart' in window)
+}
+
 // --- CONSTANTS ---
 const DEFAULT_POS = new THREE.Vector3(1, 4, 8)
 const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0)
@@ -79,14 +85,17 @@ meshoptDecoder.ready.then(() => {
     
     // Load door and walls first, then load everything else
     loadDoor(loader, scene, state).then(() => {
-        // Load simple objects (only need loader, scene, state)
-        loadSimpleObjects(loader, scene, state)
+        // Skip loading scene objects on mobile for performance
+        if (!isMobileDevice()) {
+            // Load simple objects (only need loader, scene, state)
+            loadSimpleObjects(loader, scene, state)
 
-        // Load objects that need additional parameters
-        loadComputer(loader, scene, terminal, state)
-        loadOscilloscope(loader, scene, oscilloscope)
-        loadNotepad(loader, scene, state, notepad)
-        
+            // Load objects that need additional parameters
+            loadComputer(loader, scene, terminal, state)
+            loadOscilloscope(loader, scene, oscilloscope)
+            loadNotepad(loader, scene, state, notepad)
+        }
+
         // Mark scene as ready after a minimum delay to ensure assets load
         setTimeout(() => {
             state.introSceneReady = true
@@ -98,11 +107,20 @@ meshoptDecoder.ready.then(() => {
 const composer = new EffectComposer(renderer)
 
 const renderPass = new RenderPass(scene, camera)
-renderPass.enabled = false
-composer.addPass(renderPass)
-
 const renderPixelatedPass = new RenderPixelatedPass(1.5, scene, camera)
-composer.addPass(renderPixelatedPass)
+
+// On mobile, use regular render pass instead of pixelated pass for better performance
+if (isMobileDevice()) {
+    renderPass.enabled = true
+    composer.addPass(renderPass)
+    // Still add pixelated pass but disabled (needed for animate loop compatibility)
+    renderPixelatedPass.enabled = false
+    composer.addPass(renderPixelatedPass)
+} else {
+    renderPass.enabled = false
+    composer.addPass(renderPass)
+    composer.addPass(renderPixelatedPass)
+}
 
 const whiteOutPass = new ShaderPass(WhiteOutShader)
 whiteOutPass.uniforms['resolution'].value = new THREE.Vector2(window.innerWidth, window.innerHeight)
