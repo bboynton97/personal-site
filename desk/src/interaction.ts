@@ -636,11 +636,8 @@ export function setupInteractions(
         handleClickInteraction(event.clientX, event.clientY)
     })
 
-    // Add touch event support for mobile devices
-    window.addEventListener('touchstart', (event: TouchEvent) => {
-        if (event.touches.length > 0) {
-            const touch = event.touches[0]
-            handleClickInteraction(touch.clientX, touch.clientY)
-        }
-    })
+    // Note: We intentionally use 'click' instead of 'touchstart' for navigation actions.
+    // Safari blocks programmatic navigation (window.open, anchor clicks) from touchstart
+    // because it doesn't consider the gesture "direct" after raycasting logic.
+    // The 'click' event fires on mobile after touch and is universally trusted.
 }
