@@ -202,7 +202,7 @@ class Game:
         self.rooms = {
             "office": {
                 "description": "You are in a dimly lit office. A DESK sits in the corner with a COMPUTER on it. There's a LAMP nearby. A door leads NORTH to a hallway.",
-                "items": ["motorcycle helmet", "white monster"],
+                "items": ["lamp", "motorcycle helmet", "white monster"],
                 "exits": {"north": "hallway"}
             },
             "hallway": {
@@ -277,8 +277,18 @@ class Game:
     
     def use(self, item):
         if item not in self.inventory:
-            print("You don't have that.")
-            return
+            room = self.rooms[self.location]
+            if not room.get("dark") or self.lamp_on:
+                if item in room["items"]:
+                    self.take(item)
+                    if self.game_over:
+                        return
+                else:
+                    print("You don't have that.")
+                    return
+            else:
+                print("You don't have that.")
+                return
         
         if item == "lamp" or item == "flashlight":
             self.lamp_on = not self.lamp_on
@@ -360,9 +370,7 @@ Available commands:
         print("="*60)
         print("A mini text adventure. Type 'help' for commands.\n")
         
-        # Give player a lamp
-        self.inventory.append("lamp")
-        print("You have: a lamp (it's off)\n")
+        print("(Hint: look around and take what you need)\n")
         
         self.look()
         
