@@ -629,7 +629,12 @@ export function setupInteractions(
     window.addEventListener('touchstart', (event: TouchEvent) => {
         if (event.touches.length > 0) {
             const touch = event.touches[0]
+            // Prevent browser default touch handling (scroll, zoom, etc.) during intro
+            // This ensures taps on door menu items register properly
+            if (state.isIntro && state.introAnimationProgress === 0) {
+                event.preventDefault()
+            }
             handleClickInteraction(touch.clientX, touch.clientY)
         }
-    })
+    }, { passive: false })  // passive: false is required to call preventDefault
 }

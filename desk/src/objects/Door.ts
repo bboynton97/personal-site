@@ -34,6 +34,12 @@ const SOCIAL_URLS = {
     blog: 'https://blog.braelyn.ai'
 }
 
+// Helper to detect mobile devices
+function isMobileDevice(): boolean {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 768 && 'ontouchstart' in window)
+}
+
 export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
     return new Promise((resolve) => {
         loader.load(assetUrl('door.glb'), (gltf) => {
@@ -197,15 +203,18 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         doorUI.add(titleMesh)
 
         // Social links as text in 2x2 grid
-        const linkSpacingX = 1.5
-        const linkSpacingY = 0.6
+        // Scale up touch targets on mobile for better tap accuracy
+        const isMobile = isMobileDevice()
+        const mobileScale = isMobile ? 1.6 : 1.0
+        const linkSpacingX = 1.5 * mobileScale
+        const linkSpacingY = 0.6 * mobileScale
         const linksBaseY = 1
 
         // Top row
         // X (Twitter) - top left
         const xTexture = createTextTexture('twitter', 48)
         const xMaterial = new THREE.MeshBasicMaterial({ map: xTexture, transparent: true, side: THREE.DoubleSide })
-        const xMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.5), xMaterial)
+        const xMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.2 * mobileScale, 0.5 * mobileScale), xMaterial)
         xMesh.position.set(-linkSpacingX / 2, linksBaseY, 0)
         xMesh.name = 'social_x'
         xMesh.userData.url = SOCIAL_URLS.x
@@ -214,7 +223,7 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         // Instagram - top right
         const igTexture = createTextTexture('instagram', 48)
         const igMaterial = new THREE.MeshBasicMaterial({ map: igTexture, transparent: true, side: THREE.DoubleSide })
-        const igMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.5), igMaterial)
+        const igMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.8 * mobileScale, 0.5 * mobileScale), igMaterial)
         igMesh.position.set(linkSpacingX / 2, linksBaseY, 0)
         igMesh.name = 'social_instagram'
         igMesh.userData.url = SOCIAL_URLS.instagram
@@ -224,7 +233,7 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         // LinkedIn - bottom left
         const liTexture = createTextTexture('linkedin', 48)
         const liMaterial = new THREE.MeshBasicMaterial({ map: liTexture, transparent: true, side: THREE.DoubleSide })
-        const liMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.5), liMaterial)
+        const liMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6 * mobileScale, 0.5 * mobileScale), liMaterial)
         liMesh.position.set(-linkSpacingX / 2, linksBaseY - linkSpacingY, 0)
         liMesh.name = 'social_linkedin'
         liMesh.userData.url = SOCIAL_URLS.linkedin
@@ -233,7 +242,7 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         // OnlyFans - bottom right
         const ofTexture = createTextTexture('onlyfans', 48)
         const ofMaterial = new THREE.MeshBasicMaterial({ map: ofTexture, transparent: true, side: THREE.DoubleSide })
-        const ofMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.5), ofMaterial)
+        const ofMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6 * mobileScale, 0.5 * mobileScale), ofMaterial)
         ofMesh.position.set(linkSpacingX / 2, linksBaseY - linkSpacingY, 0)
         ofMesh.name = 'social_onlyfans'
         ofMesh.userData.url = SOCIAL_URLS.onlyfans
@@ -242,7 +251,7 @@ export function loadDoor(loader: GLTFLoader, scene: THREE.Scene, state: AppState
         // Blog - third row, centered
         const blogTexture = createTextTexture('blog', 48)
         const blogMaterial = new THREE.MeshBasicMaterial({ map: blogTexture, transparent: true, side: THREE.DoubleSide })
-        const blogMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.5), blogMaterial)
+        const blogMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.2 * mobileScale, 0.5 * mobileScale), blogMaterial)
         blogMesh.position.set(0, linksBaseY - linkSpacingY * 2, 0)
         blogMesh.name = 'social_blog'
         blogMesh.userData.url = SOCIAL_URLS.blog
