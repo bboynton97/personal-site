@@ -288,7 +288,14 @@ export function setupInteractions(
                     // Handle social icon clicks
                     if (hitName.startsWith('social_') && hitObject.userData.url) {
                         trackEvent({ eventType: 'social_click', eventData: hitName })
-                        window.open(hitObject.userData.url, '_blank')
+                        // Use anchor element instead of window.open for better mobile compatibility
+                        const link = document.createElement('a')
+                        link.href = hitObject.userData.url
+                        link.target = '_blank'
+                        link.rel = 'noopener noreferrer'
+                        document.body.appendChild(link)
+                        link.click()
+                        document.body.removeChild(link)
                         return
                     }
                     
