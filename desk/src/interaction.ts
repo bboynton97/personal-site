@@ -636,8 +636,13 @@ export function setupInteractions(
         handleClickInteraction(event.clientX, event.clientY)
     })
 
-    // Note: We intentionally use 'click' instead of 'touchstart' for navigation actions.
-    // Safari blocks programmatic navigation (window.open, anchor clicks) from touchstart
-    // because it doesn't consider the gesture "direct" after raycasting logic.
-    // The 'click' event fires on mobile after touch and is universally trusted.
+    // Use touchend for mobile - more analogous to click (finger lifted = action)
+    // and Safari may be more lenient with it than touchstart
+    window.addEventListener('touchend', (event: TouchEvent) => {
+        if (event.changedTouches.length > 0) {
+            const touch = event.changedTouches[0]
+            event.preventDefault() // Prevent click from also firing
+            handleClickInteraction(touch.clientX, touch.clientY)
+        }
+    })
 }
