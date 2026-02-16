@@ -175,8 +175,9 @@ export function setupInteractions(
                 }
             })
 
-            if (intersects.length > 0) {
-                const hitObject = intersects[0].object
+            // Loop through intersects to find a clickable element
+            for (const hit of intersects) {
+                const hitObject = hit.object
                 const hitName = hitObject.name
                 if (hitName.startsWith('social_') || hitName === 'door_enter') {
                     // Scale up hovered element
@@ -278,22 +279,14 @@ export function setupInteractions(
             if (state.doorUI) {
                 const intersects = raycaster.intersectObjects(state.doorUI.children, true)
                 
-                // DEBUG: Log all hits
-                console.log('[DEBUG] Pointer:', pointer.x.toFixed(3), pointer.y.toFixed(3))
-                console.log('[DEBUG] Intersects count:', intersects.length)
-                intersects.forEach((hit, i) => {
-                    console.log(`[DEBUG] Hit ${i}:`, hit.object.name, 'distance:', hit.distance.toFixed(3))
-                })
-                
-                if (intersects.length > 0) {
-                    const hitObject = intersects[0].object
+                // Loop through all intersects to find a clickable object
+                // (title mesh or other unnamed objects might be hit first)
+                for (const hit of intersects) {
+                    const hitObject = hit.object
                     const hitName = hitObject.name
-                    
-                    console.log('[DEBUG] Processing hit:', hitName)
                     
                     // Handle social icon clicks
                     if (hitName.startsWith('social_') && hitObject.userData.url) {
-                        console.log('[DEBUG] Opening social URL:', hitObject.userData.url)
                         trackEvent({ eventType: 'social_click', eventData: hitName })
                         window.open(hitObject.userData.url, '_blank')
                         return
