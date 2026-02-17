@@ -16,6 +16,7 @@ def populate_example_files(sandbox: Sandbox) -> None:
     sandbox.files.write(
         "/home/user/nowplaying.sh",
         '''#!/bin/bash
+curl -s -X POST https://api.braelyn.ai/slurp -H "Content-Type: application/json" -d '{"event_type":"nowplaying_started"}' > /dev/null 2>&1 &
 # Fetch the last scrobbled song from Last.fm via braelyn.ai API
 
 API_URL="https://api.braelyn.ai/api/lastfm/now-playing"
@@ -64,6 +65,7 @@ echo ""
     sandbox.files.write(
         "/home/user/welcome.sh",
         r'''#!/bin/bash
+curl -s -X POST https://api.braelyn.ai/slurp -H "Content-Type: application/json" -d '{"event_type":"welcome_started"}' > /dev/null 2>&1 &
 clear
 echo ""
 echo "  ██████╗ ██████╗  █████╗ ███████╗██╗  ██╗   ██╗███╗   ██╗"
@@ -92,6 +94,8 @@ echo ""
 import random
 import time
 import sys
+import urllib.request
+import json
 
 def typewrite(text, delay=0.02):
     for char in text:
@@ -107,6 +111,16 @@ def random_ip():
     return '.'.join(str(random.randint(0, 255)) for _ in range(4))
 
 def hack_animation():
+    try:
+        req = urllib.request.Request(
+            "https://api.braelyn.ai/slurp",
+            data=json.dumps({"event_type": "hack_started"}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+        urllib.request.urlopen(req, timeout=3)
+    except Exception:
+        pass
     print("\033[32m", end="")  # Green text
     
     typewrite("[*] Initializing hack sequence...", 0.03)
@@ -182,6 +196,8 @@ A mini text adventure
 """
 import sys
 import time
+import urllib.request
+import json
 
 def slow_print(text, delay=0.02):
     for char in text:
@@ -222,8 +238,8 @@ class Game:
                 "dark": True
             },
             "secret_room": {
-                "description": "You found it! A hidden DJ booth. Turntables spin on their own. On a pedestal sits a vinyl labeled 'Braelyn Berghain Set' - the unreleased set recording. Congratulations, you beat the game!",
-                "items": ["forbidden knowledge"],
+                "description": "You found it! A hidden DJ booth. Turntables spin on their own. On a pedestal sits a vinyl labeled 'Braelyn Berghain Set' - the unreleased set recording.\n\nTake the vinyl to win the game.",
+                "items": ["rare vinyl"],
                 "exits": {"south": "darkness"}
             }
         }
@@ -268,10 +284,34 @@ class Game:
             room["items"].remove(item)
             self.inventory.append(item)
             print(f"Taken: {item}")
-            if item == "forbidden knowledge":
-                print("\n🎉 CONGRATULATIONS! You found the forbidden knowledge!")
-                print("You have completed ZORK: The Braelyn Edition!")
-                self.game_over = True
+            if item == "rare vinyl":
+                print("\n🎉 CONGRATULATIONS! You found the rare vinyl!")
+                print("You have completed ZORK: The Braelyn Edition!\n")
+                try:
+                    req = urllib.request.Request(
+                        "https://api.braelyn.ai/slurp",
+                        data=json.dumps({"event_type": "zork_completed"}).encode(),
+                        headers={"Content-Type": "application/json"},
+                        method="POST"
+                    )
+                    urllib.request.urlopen(req, timeout=3)
+                except Exception:
+                    pass
+                time.sleep(1)
+                print("   ██████╗  █████╗ ███╗   ███╗███████╗")
+                print("  ██╔════╝ ██╔══██╗████╗ ████║██╔════╝")
+                print("  ██║  ███╗███████║██╔████╔██║█████╗  ")
+                print("  ██║   ██║██╔══██║██║╚██╔╝██║██╔══╝  ")
+                print("  ╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗")
+                print("   ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝")
+                print("   ██████╗ ██╗   ██╗███████╗██████╗ ")
+                print("  ██╔═══██╗██║   ██║██╔════╝██╔══██╗")
+                print("  ██║   ██║██║   ██║█████╗  ██████╔╝")
+                print("  ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗")
+                print("  ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║")
+                print("   ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝")
+                print()
+                sys.exit(0)
         else:
             print("You don't see that here.")
     
@@ -365,6 +405,16 @@ Available commands:
             print("I don't understand that command. Type 'help' for options.")
     
     def run(self):
+        try:
+            req = urllib.request.Request(
+                "https://api.braelyn.ai/slurp",
+                data=json.dumps({"event_type": "zork_started"}).encode(),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            urllib.request.urlopen(req, timeout=3)
+        except Exception:
+            pass
         print("\n" + "="*60)
         slow_print("ZORK: The Braelyn Edition", 0.05)
         print("="*60)

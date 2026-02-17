@@ -405,8 +405,8 @@ export function setupInteractions(
                     state.isFocusingOnScreen = false
                     terminal.setFocused(false)
                     trackEvent({ eventType: 'notepad_click' })
-                } else if (state.isFocusingOnNotepad) {
-                    // Already focused on notepad - check if clicking a blog post
+                } else if (state.isFocusingOnNotepad && !(state.backroomsPivot && state.backroomsPivot.visible)) {
+                    // Already focused on notepad - check if clicking a blog post (disabled in backrooms)
                     let paperMesh: THREE.Mesh | null = null
                     state.notepadPivot.traverse(child => {
                         if (child instanceof THREE.Mesh && (child.name === 'Torus002_Material002_0' || child.name.includes('Torus.002'))) {
@@ -571,6 +571,8 @@ export function setupInteractions(
                                 state.speakerPivots.forEach(p => p.visible = false)
                                 if (state.carPivot) state.carPivot.visible = false
                                 if (state.bikePivot) state.bikePivot.visible = false
+                                if (state.powerPilePivot) state.powerPilePivot.visible = false
+                                if (state.cessnaPivot) state.cessnaPivot.visible = false
 
                                 // Show Backrooms
                                 if (state.backroomsPivot) state.backroomsPivot.visible = true
