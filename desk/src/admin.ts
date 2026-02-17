@@ -19,6 +19,11 @@ interface RecentEvent {
   created_at: string | null;
 }
 
+interface SocialClickByType {
+  type: string;
+  count: number;
+}
+
 interface AdminStats {
   total_events: number;
   events_by_type: EventsByType[];
@@ -26,6 +31,7 @@ interface AdminStats {
   events_last_7d: number;
   unique_ips: number;
   events_by_day: EventsByDay[];
+  social_clicks_by_type: SocialClickByType[];
   recent_events: RecentEvent[];
 }
 
@@ -240,6 +246,64 @@ function renderTimelineChart(): string {
   `;
 }
 
+function getSocialClickColor(type: string): string {
+  const colors: Record<string, string> = {
+    'social_twitter': '#1da1f2',
+    'social_github': '#333333',
+    'social_linkedin': '#0077b5',
+    'social_email': '#ea4335',
+    'social_website': '#4ecdc4',
+    'social_bluesky': '#0085ff',
+  };
+  return colors[type.toLowerCase()] || '#6c5ce7';
+}
+
+function getSocialClickEmoji(type: string): string {
+  const emojis: Record<string, string> = {
+    'social_twitter': '🐦',
+    'social_github': '🐙',
+    'social_linkedin': '💼',
+    'social_email': '📧',
+    'social_website': '🌐',
+    'social_bluesky': '🦋',
+  };
+  return emojis[type.toLowerCase()] || '🔗';
+}
+
+function getSocialClickPercentage(count: number): number {
+  if (!stats?.social_clicks_by_type.length) return 0;
+  const max = Math.max(...stats.social_clicks_by_type.map(s => s.count));
+  return max > 0 ? (count / max) * 100 : 0;
+}
+
+function renderSocialClicksChart(): string {
+  if (!stats?.social_clicks_by_type.length) return '';
+  return `
+    <section class="social-clicks-section">
+      <div class="chart-card social-clicks-chart">
+        <h2 class="chart-title">Social Clicks by Type</h2>
+        <div class="type-bars">
+          ${stats.social_clicks_by_type.map(item => `
+            <div class="type-bar-item">
+              <div class="type-info">
+                <span class="type-emoji">${getSocialClickEmoji(item.type)}</span>
+                <span class="type-name">${item.type.replace('social_', '')}</span>
+                <span class="type-count">${formatNumber(item.count)}</span>
+              </div>
+              <div class="type-bar-container">
+                <div
+                  class="type-bar"
+                  style="width: ${getSocialClickPercentage(item.count)}%; background-color: ${getSocialClickColor(item.type)};"
+                ></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 function renderRecentEvents(): string {
   if (!stats) return '';
   return `
@@ -297,6 +361,7 @@ function renderDashboard(): string {
       ${renderTypesChart()}
       ${renderTimelineChart()}
     </section>
+    ${renderSocialClicksChart()}
     ${renderRecentEvents()}
   `;
 }
