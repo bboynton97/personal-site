@@ -5,6 +5,7 @@ import type { Notepad } from './meshes/Notepad'
 import type { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { assetUrl } from './utils/assetUrl'
 import { trackEvent } from './utils/trackEvent'
+import { markFound } from './easterEggs'
 
 // Helper to detect mobile devices
 function isMobileDevice(): boolean {
@@ -377,6 +378,7 @@ export function setupInteractions(
                         state.sniffSound.play()
                     }
                     trackEvent({ eventType: 'power_pile_click' })
+                    markFound('powder')
                 }
                 return // Don't process other clicks
             }
@@ -391,6 +393,7 @@ export function setupInteractions(
                     state.isFocusingOnNotepad = false
                     terminal.setFocused(true)  // Terminal.setFocused handles session init
                     trackEvent({ eventType: 'computer_click' })
+                    markFound('terminal')
                 }
                 return
             }
@@ -405,6 +408,7 @@ export function setupInteractions(
                     state.isFocusingOnScreen = false
                     terminal.setFocused(false)
                     trackEvent({ eventType: 'notepad_click' })
+                    markFound('notepad')
                 } else if (state.isFocusingOnNotepad && !(state.backroomsPivot && state.backroomsPivot.visible)) {
                     // Already focused on notepad - check if clicking a blog post (disabled in backrooms)
                     let paperMesh: THREE.Mesh | null = null
@@ -443,6 +447,7 @@ export function setupInteractions(
             const intersects = raycaster.intersectObjects(state.octocatPivot.children, true)
             if (intersects.length > 0) {
                 trackEvent({ eventType: 'octocat_click' })
+                markFound('octocat')
                 window.open('https://github.com/bboynton97/personal-site', '_blank')
                 return
             }
@@ -452,6 +457,7 @@ export function setupInteractions(
             const intersects = raycaster.intersectObjects(state.bagelPivot.children, true)
             if (intersects.length > 0) {
                 trackEvent({ eventType: 'bagel_click' })
+                markFound('bagel')
                 window.open('https://goldenboy.pizza/bagel-ratings', '_blank')
                 return
             }
@@ -469,6 +475,7 @@ export function setupInteractions(
                     state.isFocusingOnCar = false
                     terminal.setFocused(false)
                     trackEvent({ eventType: 'ipod_click' })
+                    markFound('ipod')
                 }
                 return
             }
@@ -486,6 +493,7 @@ export function setupInteractions(
                     state.isFocusingOnCar = false
                     terminal.setFocused(false)
                     trackEvent({ eventType: 'bike_click' })
+                    markFound('r1')
                 }
                 return
             }
@@ -503,6 +511,7 @@ export function setupInteractions(
                     state.isFocusingOnBike = false
                     terminal.setFocused(false)
                     trackEvent({ eventType: 'car_click' })
+                    markFound('rx7')
                 }
                 return
             }
@@ -521,6 +530,7 @@ export function setupInteractions(
                     trackEvent({ eventType: 'emergency_button_focus' })
                 } else if (!state.isEmergencyStopped) {
                     trackEvent({ eventType: 'emergency_button_activate' })
+                    markFound('backrooms')
                     // Sequence: Turn off rave lights -> Pause -> Zoom out -> Pause -> Turn off all lights
                     state.isEmergencyStopped = true
                     

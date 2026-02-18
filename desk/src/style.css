@@ -32,3 +32,73 @@ canvas {
 .xterm-offscreen-container .xterm-screen {
   image-rendering: pixelated;
 }
+
+/* Easter egg notifications */
+.easter-egg-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  font-family: monospace;
+  font-size: 14px;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 0 12px rgba(0, 255, 0, 0.2);
+}
+
+.easter-egg-notification.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Easter egg achievement overlay */
+.easter-egg-achievement {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10001;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  cursor: pointer;
+}
+
+.easter-egg-achievement.visible {
+  opacity: 1;
+}
+
+.easter-egg-achievement-inner {
+  text-align: center;
+  border: 2px solid #00ff00;
+  padding: 40px 60px;
+  background: rgba(0, 20, 0, 0.95);
+  box-shadow: 0 0 40px rgba(0, 255, 0, 0.3), inset 0 0 40px rgba(0, 255, 0, 0.05);
+  animation: achievement-glow 2s ease-in-out infinite alternate;
+}
+
+.achievement-title {
+  font-family: monospace;
+  font-size: 32px;
+  color: #00ff00;
+  margin-bottom: 12px;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.achievement-subtitle {
+  font-family: monospace;
+  font-size: 18px;
+  color: #00cc00;
+}
+
+@keyframes achievement-glow {
+  from { box-shadow: 0 0 40px rgba(0, 255, 0, 0.3), inset 0 0 40px rgba(0, 255, 0, 0.05); }
+  to { box-shadow: 0 0 60px rgba(0, 255, 0, 0.5), inset 0 0 60px rgba(0, 255, 0, 0.1); }
+}

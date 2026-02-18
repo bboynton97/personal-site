@@ -3,6 +3,7 @@ import { Terminal as XTerm } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { CanvasAddon } from '@xterm/addon-canvas'
 import { terminalSession } from '../terminalSession'
+import { markFound } from '../easterEggs'
 
 // Import xterm CSS - will be bundled by vite
 import '@xterm/xterm/css/xterm.css'
@@ -177,11 +178,30 @@ export class Terminal {
         setTimeout(() => this.draw(), 150)
     }
 
+    private outputBuffer = ''
+
     private setupOutputHandler(): void {
         // Subscribe to PTY output and write to xterm
         this.unsubscribeOutput = terminalSession.onOutput((data: string) => {
             if (!this.isBackroomsMode) {
                 this.xterm.write(data)
+            }
+
+            // Buffer recent output for easter egg detection
+            this.outputBuffer += data
+            // Keep buffer from growing unbounded
+            if (this.outputBuffer.length > 2000) {
+                this.outputBuffer = this.outputBuffer.slice(-1000)
+            }
+
+            if (this.outputBuffer.includes('ZORK: The Braelyn Edition')) {
+                markFound('zork')
+            }
+            if (this.outputBuffer.includes('You have completed ZORK')) {
+                markFound('zork_completed')
+            }
+            if (this.outputBuffer.includes('just kidding')) {
+                markFound('rmrf')
             }
         })
     }
