@@ -23,6 +23,7 @@ export function setupInputListeners(
         // Escape always unfocuses
         if (event.key === 'Escape') {
             state.isFocusingOnScreen = false
+            state.isTypingOnScreen = false
             state.isFocusingOnNotepad = false
             state.isFocusingOnButton = false
             state.isFocusingOnIpod = false

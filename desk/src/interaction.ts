@@ -634,6 +634,7 @@ export function setupInteractions(
         // If we get here, nothing clickable was hit - return camera to default position
         if (state.isFocusingOnScreen || state.isFocusingOnNotepad || state.isFocusingOnIpod || state.isFocusingOnButton || state.isFocusingOnBike || state.isFocusingOnCar) {
             state.isFocusingOnScreen = false
+            state.isTypingOnScreen = false
             state.isFocusingOnNotepad = false
             state.isFocusingOnIpod = false
             state.isFocusingOnButton = false

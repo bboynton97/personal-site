@@ -72,6 +72,9 @@ export class Terminal {
     private logo: HTMLImageElement
     private headerHeight = 70
     
+    // Callback
+    onTypingStart: (() => void) | null = null
+
     // Cleanup
     private unsubscribeOutput: (() => void) | null = null
     private keydownHandler: ((e: KeyboardEvent) => void) | null = null
@@ -211,6 +214,9 @@ export class Terminal {
         this.xterm.onData((data: string) => {
             if (this.isFocused && !this.isBackroomsMode) {
                 terminalSession.sendInput(data)
+                if (this.onTypingStart) {
+                    this.onTypingStart()
+                }
             }
         })
 

@@ -5,6 +5,8 @@ import type { AppState } from '../types'
 // Camera position constants
 const ZOOM_POS = new THREE.Vector3(-2.8, 2.8, 1.2)
 const ZOOM_TARGET = new THREE.Vector3(-3.4, 2.5, -0.1)
+const TYPING_POS = new THREE.Vector3(-3.55, 2.95, 0.25)
+const TYPING_TARGET = new THREE.Vector3(-3.8, 2.9, -0.1)
 const NOTEPAD_POS = new THREE.Vector3(2.8, 2.5, 2.0)
 const NOTEPAD_TARGET = new THREE.Vector3(3, 1.2, 1.6)
 const BUTTON_ZOOM_POS = new THREE.Vector3(3.0, 1.5, 0.5)
@@ -66,7 +68,10 @@ export function updateCamera(camera: THREE.PerspectiveCamera, controls: OrbitCon
         return
     }
     
-    if (state.isFocusingOnScreen) {
+    if (state.isFocusingOnScreen && state.isTypingOnScreen) {
+        camera.position.lerp(TYPING_POS, 0.05)
+        controls.target.lerp(TYPING_TARGET, 0.05)
+    } else if (state.isFocusingOnScreen) {
         camera.position.lerp(ZOOM_POS, 0.05)
         controls.target.lerp(ZOOM_TARGET, 0.05)
     } else if (state.isFocusingOnNotepad) {

@@ -15,12 +15,20 @@
 
 <body>
     <header>
-        <h1>Braelyn's Blog</h1>
-        <nav>
-            <a href="/">Home</a> |
-            <a href="#about">About</a> |
-            <a href="#contact">Contact</a>
-        </nav>
+        <div class="bio">
+            <img src="assets/me.jpg" alt="Braelyn Boynton" class="bio-photo">
+            <div class="bio-text">
+                <h1>Braelyn Boynton</h1>
+                <p>Building cool shit, dancing in warehouses, motorcycles, planes and adrenaline sports. This blog is focused on the first one.</p>
+                <nav class="social-links">
+                    <a href="https://x.com/braelyn_ai">X</a>
+                    <a href="https://github.com/bboynton97">GitHub</a>
+                    <a href="https://www.linkedin.com/in/braelyn-boynton">LinkedIn</a>
+                    <a href="https://www.instagram.com/braelyn.b__">Instagram</a>
+                    <a href="https://braelyn.ai">Personal Site</a>
+                </nav>
+            </div>
+        </div>
     </header>
 
     <main>
@@ -32,18 +40,30 @@
 
     <footer>
         <hr>
-        <h3>About</h3>
-        <p>A personal blog exploring technology, creativity, and the art of building meaningful things.</p>
-
-        <h3>Connect</h3>
-        <ul>
-            <li><a href="https://twitter.com/braelyn_ai">Twitter</a></li>
-            <li><a href="https://github.com/bboynton97">GitHub</a></li>
-        </ul>
-
+        <p>&copy; Braelyn Boynton</p>
     </footer>
 
     <script>
+        const API_BASE = 'https://api.braelyn.ai';
+
+        function slurp(eventType, eventData) {
+            fetch(`${API_BASE}/slurp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event_type: eventType, event_data: eventData }),
+            }).catch(() => {});
+        }
+
+        // Track blog home page view
+        slurp('blog_page_view');
+
+        // Track social link clicks
+        document.querySelectorAll('.social-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                slurp('blog_social_click', link.textContent.trim().toLowerCase());
+            });
+        });
+
         // Load posts from posts.json
         fetch('posts.json')
             .then(response => response.json())
@@ -57,6 +77,7 @@
                     const link = document.createElement('a');
                     link.href = `posts/${post.slug}.html`;
                     link.textContent = post.title;
+                    link.addEventListener('click', () => slurp('blog_post_click', post.slug));
                     title.appendChild(link);
 
                     const meta = document.createElement('p');

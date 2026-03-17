@@ -3,6 +3,7 @@ import type { AppState } from './types'
 export const state: AppState = {
     isCameraLocked: true,
     isFocusingOnScreen: false,
+    isTypingOnScreen: false,
     isFocusingOnNotepad: false,
     isFocusingOnButton: false,
     isFocusingOnIpod: false,

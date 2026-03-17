@@ -51,6 +51,42 @@ article h3 a {
     width: 250%;
 }
 
+.bio {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem 0 3rem;
+}
+
+.bio-photo {
+    width: 120px;
+    min-width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0;
+    max-width: 120px;
+}
+
+.bio-text h1 {
+    margin: 0 0 0.25rem;
+}
+
+.bio-text p {
+    margin: 0 0 0.5rem;
+    color: #666;
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-links a {
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
 hr {
     border: none;
     border-top: 1px solid #ddd;
@@ -71,6 +107,15 @@ hr {
     main,
     footer {
         max-width: 100%;
+    }
+
+    .bio {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .social-links {
+        justify-content: center;
     }
 }
 

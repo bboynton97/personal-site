@@ -24,6 +24,8 @@ export interface LightShow3Config {
 export interface AppState {
     isCameraLocked: boolean
     isFocusingOnScreen: boolean
+    isTypingOnScreen: boolean
+    isTypingOnScreen: boolean
     isFocusingOnNotepad: boolean
     isFocusingOnButton: boolean
     isFocusingOnIpod: boolean

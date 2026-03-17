@@ -67,6 +67,11 @@ setupLights(scene, state)
 
 // --- TERMINAL ---
 const terminal = new Terminal()
+terminal.onTypingStart = () => {
+    if (state.isFocusingOnScreen && !state.isTypingOnScreen) {
+        state.isTypingOnScreen = true
+    }
+}
 const oscilloscope = new Oscilloscope()
 const notepad = new Notepad()
 
