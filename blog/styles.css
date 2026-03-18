@@ -86,23 +86,33 @@ a:hover {
 }
 
 /* Post titles - ensure wrapping on mobile */
+#posts-container {
+    max-width: 100%;
+    overflow: hidden;
+}
+
 article {
     max-width: 100%;
     overflow: hidden;
 }
 
 article h3 {
+    width: 100%;
     max-width: 100%;
+    overflow: hidden;
     overflow-wrap: break-word;
     word-wrap: break-word;
+    word-break: break-word;
     hyphens: auto;
 }
 
 article h3 a {
     display: block;
+    width: 100%;
     max-width: 100%;
     overflow-wrap: break-word;
     word-wrap: break-word;
+    word-break: break-word;
 }
 
 /* Wider clickable area on desktop only */
