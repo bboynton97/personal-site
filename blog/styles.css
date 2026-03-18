@@ -270,7 +270,7 @@ hr {
     position: fixed;
     top: 1rem;
     right: 1rem;
-    background: none;
+    background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 50%;
     width: 36px;
