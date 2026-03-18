@@ -2,15 +2,38 @@
     box-sizing: border-box;
 }
 
+:root {
+    --bg: #fafafa;
+    --text: #292929;
+    --text-secondary: #666;
+    --text-muted: #999;
+    --link: #0066cc;
+    --border: #ddd;
+    --blockquote-border: #ccc;
+    --blockquote-text: #666;
+}
+
+[data-theme="dark"] {
+    --bg: #1a1a1a;
+    --text: #e0e0e0;
+    --text-secondary: #aaa;
+    --text-muted: #888;
+    --link: #5cacee;
+    --border: #333;
+    --blockquote-border: #555;
+    --blockquote-text: #aaa;
+}
+
 body {
     margin: 0;
     padding: 20px;
     font-family: 'Source Serif 4', 'Libre Baskerville', 'Georgia', serif;
     font-size: 1.1rem;
     line-height: 1.8;
-    color: #292929;
-    background-color: #fafafa;
+    color: var(--text);
+    background-color: var(--bg);
     letter-spacing: -0.003em;
+    transition: color 0.2s, background-color 0.2s;
 }
 
 p {
@@ -46,13 +69,13 @@ img {
 blockquote {
     margin: 1.5rem 0;
     padding-left: 1rem;
-    border-left: 3px solid #ccc;
-    color: #666;
+    border-left: 3px solid var(--blockquote-border);
+    color: var(--blockquote-text);
     font-style: italic;
 }
 
 a {
-    color: #0066cc;
+    color: var(--link);
 }
 
 a:hover {
@@ -88,7 +111,7 @@ article h3 a {
 
 .bio-text p {
     margin: 0 0 0.5rem;
-    color: #666;
+    color: var(--text-secondary);
 }
 
 .social-links {
@@ -103,7 +126,7 @@ article h3 a {
 
 hr {
     border: none;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--border);
     margin: 2rem 0;
 }
 
@@ -123,7 +146,7 @@ hr {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #999;
+    color: var(--text-muted);
 }
 
 .post-sidebar ul {
@@ -137,20 +160,45 @@ hr {
 }
 
 .post-sidebar a {
-    color: #292929;
+    color: var(--text);
     text-decoration: none;
     display: block;
 }
 
 .post-sidebar a:hover {
-    color: #0066cc;
+    color: var(--link);
 }
 
 .post-sidebar .sidebar-date {
     display: block;
     font-size: 0.7rem;
-    color: #999;
+    color: var(--text-muted);
     margin-top: 0.15rem;
+}
+
+/* Theme toggle */
+.theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--text);
+    transition: border-color 0.2s;
+    z-index: 100;
+    line-height: 1;
+}
+
+.theme-toggle:hover {
+    border-color: var(--text-secondary);
 }
 
 /* Responsive: expand to full width on smaller screens */
@@ -190,4 +238,3 @@ hr {
         justify-content: center;
     }
 }
-
