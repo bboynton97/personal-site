@@ -8,6 +8,25 @@
     <lastBuildDate>Thu, 12 Mar 2026 05:39:56 +0000</lastBuildDate>
     <atom:link href="https://blog.braelyn.ai/feed.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>How SF Made Me Find My Style</title>
+      <link>https://blog.braelyn.ai/posts/sf_style.html</link>
+      <description>How San Francisco's lack of fashion culture became a forcing function for authentic self-expression and identity.</description>
+      <guid isPermaLink="true">https://blog.braelyn.ai/posts/sf_style.html</guid>
+      <pubDate>Fri, 13 Mar 2026 00:00:00 +0000</pubDate>
+      <category>Style</category>
+      <category>San Francisco</category>
+      <category>Identity</category>
+    </item>
+    <item>
+      <title>Lessons I've Learned As a Young, Startup Founder</title>
+      <link>https://blog.braelyn.ai/posts/lessons-young-startup-founder.html</link>
+      <description>Reflections on founding two startups before age 22 — on age, passion, pivoting, hard work, and learning from failure.</description>
+      <guid isPermaLink="true">https://blog.braelyn.ai/posts/lessons-young-startup-founder.html</guid>
+      <pubDate>Tue, 04 Jun 2019 00:00:00 +0000</pubDate>
+      <category>Startups</category>
+      <category>Entrepreneurship</category>
+    </item>
+    <item>
       <title>Why isn't AI the buzzword that it used to be?</title>
       <link>https://blog.braelyn.ai/posts/why-ai-isnt-buzzword.html</link>
       <description>Exploring why AI has shifted from being the ultimate buzzword to a more pragmatic tool in the tech industry.</description>

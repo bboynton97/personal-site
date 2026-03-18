@@ -20,7 +20,7 @@ p {
 header,
 main,
 footer {
-    max-width: 28%;
+    max-width: 40%;
     margin: 0 auto;
     text-align: left;
 }
@@ -154,11 +154,19 @@ hr {
 }
 
 /* Responsive: expand to full width on smaller screens */
+@media (max-width: 1600px) {
+    header,
+    main,
+    footer {
+        max-width: 45%;
+    }
+}
+
 @media (max-width: 1200px) {
     header,
     main,
     footer {
-        max-width: 70%;
+        max-width: 50%;
     }
 
     .post-sidebar {
