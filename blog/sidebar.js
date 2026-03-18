@@ -48,7 +48,9 @@
             });
             bio.appendChild(links);
 
-            document.body.appendChild(bio);
+            // Append after footer so they flow below content on small screens
+            const footer = document.querySelector('footer');
+            footer.insertAdjacentElement('afterend', bio);
 
             // Related posts sidebar (bottom-left)
             const currentTags = new Set(current.tags.map(t => t.toLowerCase()));
@@ -92,7 +94,7 @@
                 });
 
                 sidebar.appendChild(list);
-                document.body.appendChild(sidebar);
+                bio.insertAdjacentElement('afterend', sidebar);
             }
         })
         .catch(() => {});

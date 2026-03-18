@@ -273,7 +273,21 @@ hr {
 
     .sidebar-bio,
     .post-sidebar {
-        display: none;
+        position: static;
+        width: 100%;
+        max-width: 50%;
+        margin: 0 auto;
+    }
+
+    .sidebar-bio {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .post-sidebar {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
     }
 }
 
@@ -291,5 +305,10 @@ hr {
 
     .social-links {
         justify-content: center;
+    }
+
+    .sidebar-bio,
+    .post-sidebar {
+        max-width: 100%;
     }
 }
