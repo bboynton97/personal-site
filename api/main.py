@@ -58,6 +58,7 @@ app.add_middleware(
     allow_origins=[
         "https://braelyn.ai",
         "https://www.braelyn.ai",
+        "https://blog.braelyn.ai",
         "http://localhost:4200",  # Angular dev server
         "http://localhost:5173",  # Vite dev server
     ],
