@@ -82,10 +82,16 @@ a:hover {
     text-decoration: none;
 }
 
-/* Make post title links wider to the right */
+/* Post title links */
 article h3 a {
     display: block;
-    width: 250%;
+}
+
+/* Wider clickable area on desktop only */
+@media (min-width: 769px) {
+    article h3 a {
+        width: 250%;
+    }
 }
 
 .bio {
