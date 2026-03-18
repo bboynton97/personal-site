@@ -82,15 +82,31 @@ a:hover {
     text-decoration: none;
 }
 
-/* Post title links */
+/* Post titles - ensure wrapping on mobile */
+article {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+article h3 {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
 article h3 a {
     display: block;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 /* Wider clickable area on desktop only */
 @media (min-width: 769px) {
     article h3 a {
         width: 250%;
+        max-width: none;
     }
 }
 
@@ -302,6 +318,7 @@ hr {
     main,
     footer {
         max-width: 100%;
+        overflow-x: hidden;
     }
 
     .bio {
@@ -316,5 +333,11 @@ hr {
     .sidebar-bio,
     .post-sidebar {
         max-width: 100%;
+    }
+
+    /* Ensure titles wrap on mobile */
+    article h3 a {
+        width: 100%;
+        white-space: normal;
     }
 }
