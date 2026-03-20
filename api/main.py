@@ -166,6 +166,15 @@ async def get_admin_stats():
             sql_func.count(Event.id).label('count')
         ).filter(Event.event_type == 'social_click').group_by(Event.event_data).all()
 
+        # Blog post views (blog_post_click events grouped by event_data)
+        blog_post_views = db.query(
+            Event.event_data,
+            sql_func.count(Event.id).label('count')
+        ).filter(
+            Event.event_type == 'blog_post_click',
+            Event.event_data.isnot(None)
+        ).group_by(Event.event_data).order_by(sql_func.count(Event.id).desc()).all()
+
         # Recent events (last 50)
         recent_events = db.query(Event).order_by(Event.created_at.desc()).limit(50).all()
 
@@ -179,6 +188,7 @@ async def get_admin_stats():
             "unique_ips": unique_ips,
             "events_by_day": [{"date": str(d), "count": c} for d, c in events_by_day],
             "social_clicks_by_type": [{"type": t or "unknown", "count": c} for t, c in social_clicks],
+            "blog_post_views": [{"slug": slug, "count": c} for slug, c in blog_post_views],
             "recent_events": [
                 {
                     "id": e.id,

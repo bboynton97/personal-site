@@ -24,6 +24,11 @@ interface SocialClickByType {
   count: number;
 }
 
+interface BlogPostView {
+  slug: string;
+  count: number;
+}
+
 interface AdminStats {
   total_events: number;
   events_by_type: EventsByType[];
@@ -32,6 +37,7 @@ interface AdminStats {
   unique_ips: number;
   events_by_day: EventsByDay[];
   social_clicks_by_type: SocialClickByType[];
+  blog_post_views: BlogPostView[];
   recent_events: RecentEvent[];
 }
 
@@ -304,6 +310,45 @@ function renderSocialClicksChart(): string {
   `;
 }
 
+function slugToTitle(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function renderBlogPostViews(): string {
+  if (!stats) return '';
+  const views = stats.blog_post_views ?? [];
+  const maxCount = views.length > 0 ? Math.max(...views.map(v => v.count)) : 1;
+
+  return `
+    <section class="blog-views-section">
+      <h2 class="section-title">Blog Post Views</h2>
+      ${views.length === 0
+        ? '<p class="no-data-msg">No blog post clicks recorded yet.</p>'
+        : `<div class="blog-views-list">
+          ${views.map(post => `
+            <div class="blog-view-item">
+              <div class="blog-view-info">
+                <span class="blog-view-title">${slugToTitle(post.slug)}</span>
+                <span class="blog-view-slug">${post.slug}</span>
+              </div>
+              <div class="blog-view-bar-container">
+                <div
+                  class="blog-view-bar"
+                  style="width: ${maxCount > 0 ? (post.count / maxCount) * 100 : 0}%;"
+                ></div>
+              </div>
+              <span class="blog-view-count">${formatNumber(post.count)}</span>
+            </div>
+          `).join('')}
+        </div>`
+      }
+    </section>
+  `;
+}
+
 function renderRecentEvents(): string {
   if (!stats) return '';
   return `
@@ -362,6 +407,7 @@ function renderDashboard(): string {
       ${renderTimelineChart()}
     </section>
     ${renderSocialClicksChart()}
+    ${renderBlogPostViews()}
     ${renderRecentEvents()}
   `;
 }
