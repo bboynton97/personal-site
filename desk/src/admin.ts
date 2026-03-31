@@ -29,6 +29,11 @@ interface BlogPostView {
   count: number;
 }
 
+interface BlogPostVisit {
+  slug: string;
+  count: number;
+}
+
 interface AdminStats {
   total_events: number;
   events_by_type: EventsByType[];
@@ -38,6 +43,7 @@ interface AdminStats {
   events_by_day: EventsByDay[];
   social_clicks_by_type: SocialClickByType[];
   blog_post_views: BlogPostView[];
+  blog_post_visits: BlogPostVisit[];
   recent_events: RecentEvent[];
 }
 
@@ -349,6 +355,38 @@ function renderBlogPostViews(): string {
   `;
 }
 
+function renderBlogPostVisits(): string {
+  if (!stats) return '';
+  const visits = stats.blog_post_visits ?? [];
+  const maxCount = visits.length > 0 ? Math.max(...visits.map(v => v.count)) : 1;
+
+  return `
+    <section class="blog-views-section">
+      <h2 class="section-title">Blog Post Visits</h2>
+      ${visits.length === 0
+        ? '<p class="no-data-msg">No blog post visits recorded yet.</p>'
+        : `<div class="blog-views-list">
+          ${visits.map(post => `
+            <div class="blog-view-item">
+              <div class="blog-view-info">
+                <span class="blog-view-title">${slugToTitle(post.slug)}</span>
+                <span class="blog-view-slug">${post.slug}</span>
+              </div>
+              <div class="blog-view-bar-container">
+                <div
+                  class="blog-view-bar blog-visit-bar"
+                  style="width: ${maxCount > 0 ? (post.count / maxCount) * 100 : 0}%;"
+                ></div>
+              </div>
+              <span class="blog-view-count">${formatNumber(post.count)}</span>
+            </div>
+          `).join('')}
+        </div>`
+      }
+    </section>
+  `;
+}
+
 function renderRecentEvents(): string {
   if (!stats) return '';
   return `
@@ -408,6 +446,7 @@ function renderDashboard(): string {
     </section>
     ${renderSocialClicksChart()}
     ${renderBlogPostViews()}
+    ${renderBlogPostVisits()}
     ${renderRecentEvents()}
   `;
 }
