@@ -537,6 +537,10 @@ body {
   background: linear-gradient(90deg, #ff6b6b, #ffd93d);
 }
 
+.referrer-bar {
+  background: linear-gradient(90deg, #5f27cd, #54a0ff);
+}
+
 .no-data-msg {
   color: #8888aa;
   font-size: 0.9rem;

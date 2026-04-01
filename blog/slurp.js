@@ -13,3 +13,8 @@ const slug = window.location.pathname.replace(/.*\/posts\//, '').replace('.html'
 if (slug && slug !== '/' && slug !== '') {
     slurp('blog_post_read', slug);
 }
+
+// Track referrer
+if (document.referrer && !document.referrer.includes(location.hostname)) {
+    slurp('referral', document.referrer);
+}

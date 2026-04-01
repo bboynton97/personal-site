@@ -34,6 +34,11 @@ interface BlogPostVisit {
   count: number;
 }
 
+interface Referrer {
+  url: string;
+  count: number;
+}
+
 interface AdminStats {
   total_events: number;
   events_by_type: EventsByType[];
@@ -44,6 +49,7 @@ interface AdminStats {
   social_clicks_by_type: SocialClickByType[];
   blog_post_views: BlogPostView[];
   blog_post_visits: BlogPostVisit[];
+  top_referrers: Referrer[];
   recent_events: RecentEvent[];
 }
 
@@ -387,6 +393,47 @@ function renderBlogPostVisits(): string {
   `;
 }
 
+function formatReferrerUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname + (parsed.pathname !== '/' ? parsed.pathname : '');
+  } catch {
+    return url;
+  }
+}
+
+function renderTopReferrers(): string {
+  if (!stats) return '';
+  const referrers = stats.top_referrers ?? [];
+  const maxCount = referrers.length > 0 ? Math.max(...referrers.map(r => r.count)) : 1;
+
+  return `
+    <section class="blog-views-section">
+      <h2 class="section-title">Top Referrers</h2>
+      ${referrers.length === 0
+        ? '<p class="no-data-msg">No referrals recorded yet.</p>'
+        : `<div class="blog-views-list">
+          ${referrers.map(ref => `
+            <div class="blog-view-item">
+              <div class="blog-view-info">
+                <span class="blog-view-title">${formatReferrerUrl(ref.url)}</span>
+                <span class="blog-view-slug">${ref.url}</span>
+              </div>
+              <div class="blog-view-bar-container">
+                <div
+                  class="blog-view-bar referrer-bar"
+                  style="width: ${maxCount > 0 ? (ref.count / maxCount) * 100 : 0}%;"
+                ></div>
+              </div>
+              <span class="blog-view-count">${formatNumber(ref.count)}</span>
+            </div>
+          `).join('')}
+        </div>`
+      }
+    </section>
+  `;
+}
+
 function renderRecentEvents(): string {
   if (!stats) return '';
   return `
@@ -447,6 +494,7 @@ function renderDashboard(): string {
     ${renderSocialClicksChart()}
     ${renderBlogPostViews()}
     ${renderBlogPostVisits()}
+    ${renderTopReferrers()}
     ${renderRecentEvents()}
   `;
 }

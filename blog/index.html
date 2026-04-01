@@ -62,6 +62,11 @@
         // Track blog home page view
         slurp('blog_page_view');
 
+        // Track referrer
+        if (document.referrer && !document.referrer.includes(location.hostname)) {
+            slurp('referral', document.referrer);
+        }
+
         // Track social link clicks
         document.querySelectorAll('.social-links a').forEach(link => {
             link.addEventListener('click', () => {

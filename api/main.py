@@ -184,6 +184,15 @@ async def get_admin_stats():
             Event.event_data.isnot(None)
         ).group_by(Event.event_data).order_by(sql_func.count(Event.id).desc()).all()
 
+        # Top referrers (referral events grouped by event_data)
+        top_referrers = db.query(
+            Event.event_data,
+            sql_func.count(Event.id).label('count')
+        ).filter(
+            Event.event_type == 'referral',
+            Event.event_data.isnot(None)
+        ).group_by(Event.event_data).order_by(sql_func.count(Event.id).desc()).limit(20).all()
+
         # Recent events (last 50)
         recent_events = db.query(Event).order_by(Event.created_at.desc()).limit(50).all()
 
@@ -199,6 +208,7 @@ async def get_admin_stats():
             "social_clicks_by_type": [{"type": t or "unknown", "count": c} for t, c in social_clicks],
             "blog_post_views": [{"slug": slug, "count": c} for slug, c in blog_post_views],
             "blog_post_visits": [{"slug": slug, "count": c} for slug, c in blog_post_visits],
+            "top_referrers": [{"url": url, "count": c} for url, c in top_referrers],
             "recent_events": [
                 {
                     "id": e.id,

@@ -10,11 +10,21 @@ interface TrackEventOptions {
   eventData?: string
 }
 
+let referrerSent = false
+
 /**
  * Track an event by sending it to the API.
  * This is fire-and-forget - errors are logged but not thrown.
  */
 export function trackEvent({ eventType, eventData }: TrackEventOptions): void {
+  // Track referrer on first event call
+  if (!referrerSent) {
+    referrerSent = true
+    if (document.referrer && !document.referrer.includes(location.hostname)) {
+      trackEvent({ eventType: 'referral', eventData: document.referrer })
+    }
+  }
+
   fetch(`${API_BASE}/slurp`, {
     method: 'POST',
     headers: {
