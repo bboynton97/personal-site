@@ -35,7 +35,7 @@
 
     <main>
         <article>
-            <h2>I. Extending the Compiler Analogy</h2>
+            <h2>Extending the Compiler Analogy</h2>
 
             <p>
                 In February of this year, Vivek Haldar wrote a piece called <a href="https://vivekhaldar.com/articles/when-compilers-were-the--ai--that-scared-programmers/" target="_blank">"When Compilers Were the 'AI' That Scared Programmers"</a> that draws a compelling parallel between the resistance to compilers in the 1950s and the resistance to codegen today. Many of us found his article to be simultaneously provoking and encouraging. The objections to compilers are almost word-for-word identical to those of AI codegen. Assembly programmers didn't trust compilers. They feared losing control. They worried that making programming easier would dilute the craft. We are hearing the exact same arguments now, seventy years later, about AI-generated code.
@@ -77,58 +77,177 @@
                 You should recalibrate your expectations about codegen. Let's look at compilers:
             </p>
 
-            <p>
-                <strong>1957</strong> - Fortran ships. Skepticism is intense, but adoption is immediate. By 1958, <a href="https://vivekhaldar.com/articles/when-compilers-were-the--ai--that-scared-programmers/" target="_blank">a survey finds that over half of all code running on IBM machines is compiler-generated</a>. The technical objections that compiled code was too slow, too wasteful, were resolved in 1-2 years. Adoption was not the problem.
-            </p>
+            <style>
+                .timeline {
+                    position: relative;
+                    padding: 0 0 1.5rem 3.5rem;
+                    margin: 1rem 0 2.5rem;
+                }
+                /* Solid line up to "you are here", then dashed for the future */
+                .timeline::before {
+                    content: '';
+                    position: absolute;
+                    left: 0.85rem;
+                    top: 1.55rem;
+                    bottom: 0;
+                    width: 2px;
+                    background: var(--border);
+                }
+                .timeline-entry {
+                    position: relative;
+                    margin-bottom: 2.5rem;
+                    padding: 1.2rem 1.4rem;
+                    border-radius: 8px;
+                    transition: background-color 0.2s ease;
+                }
+                .timeline-entry:hover {
+                    background-color: color-mix(in srgb, var(--text) 4%, var(--bg));
+                }
+                .timeline-entry:last-child {
+                    margin-bottom: 0;
+                }
+                .timeline-entry::before {
+                    content: '';
+                    position: absolute;
+                    left: calc(-3.5rem + 0.85rem - 7px);
+                    top: 1.55rem;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: var(--bg);
+                    border: 2px solid var(--text-muted);
+                    z-index: 1;
+                    transition: transform 0.2s ease, border-color 0.2s ease;
+                }
+                .timeline-entry:hover::before {
+                    transform: scale(1.3);
+                    border-color: var(--text-secondary);
+                }
+                .timeline-year {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                    font-size: 1.6rem;
+                    font-weight: 700;
+                    color: var(--text);
+                    margin-bottom: 0.15rem;
+                    line-height: 1.2;
+                }
+                .timeline-label {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    letter-spacing: 0.06em;
+                    text-transform: uppercase;
+                    color: var(--text-muted);
+                    margin-bottom: 0.6rem;
+                }
+                .timeline-entry p {
+                    margin-bottom: 0.8rem;
+                }
+                .timeline-entry p:last-child {
+                    margin-bottom: 0;
+                }
+                .timeline-entry blockquote {
+                    margin: 0.8rem 0;
+                }
 
-            <p>
-                <strong>&lt;-- YOU ARE HERE</strong>
-            </p>
 
-            <p>
-                <strong>1968</strong> - Eleven years after Fortran, Edsger Dijkstra publishes a letter to the editor of Communications of the ACM titled <a href="https://dl.acm.org/doi/10.1145/362929.362947" target="_blank">"Go To Statement Considered Harmful."</a> The field's most prominent computer scientist arguing that a fundamental, universally used programming construct, GOTO, is actively causing harm and should be eliminated. Eleven years in, and the industry is still arguing about <em>basics</em>. Not edge cases or optimizations, but the basic question of how to structure the flow of a program.
-            </p>
+                /* YOU ARE HERE marker */
+                .timeline-entry.here {
+                    padding: 0.8rem 1.4rem;
+                    margin-bottom: 2.5rem;
+                    background: none;
+                }
+                .timeline-entry.here:hover {
+                    background: none;
+                }
+                .timeline-entry.here::before {
+                    width: 16px;
+                    height: 16px;
+                    left: calc(-3.5rem + 0.85rem - 9px);
+                    top: 0.85rem;
+                    background: var(--link);
+                    border: 3px solid var(--bg);
+                    box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 35%, transparent);
+                    animation: pulse 2.5s ease-in-out infinite;
+                }
+                .timeline-entry.here:hover::before {
+                    transform: none;
+                }
+                .timeline-entry.here .timeline-year {
+                    color: var(--link);
+                    font-size: 1rem;
+                    font-weight: 700;
+                    letter-spacing: 0.02em;
+                }
+                @keyframes pulse {
+                    0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 35%, transparent); }
+                    50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--link) 8%, transparent); }
+                }
 
-            <p>
-                That same year, a <a href="https://www.tomandmaria.com/Tom/Writing/DijkstrasCrisis_LeidenDRAFT.pdf" target="_blank">NATO conference</a> brings together practitioners from across the software industry. They are shocked to discover that the same problems plague every kind of software project: chronic delays, blown budgets, unreliable output. They call this the "software crisis."
-            </p>
+                @media (max-width: 768px) {
+                    .timeline {
+                        padding-left: 2.5rem;
+                    }
+                    .timeline-entry {
+                        padding: 1rem;
+                    }
+                    .timeline-entry::before {
+                        left: -2.5rem;
+                    }
+                    .timeline-entry.here::before {
+                        left: calc(-2.5rem - 2px);
+                    }
+                    .timeline::before {
+                        left: 0.35rem;
+                    }
+                    .timeline-year {
+                        font-size: 1.3rem;
+                    }
+                }
+            </style>
 
-            <p>
-                <strong>1972</strong> - Dijkstra wins the Turing Award for his contributions to structured programming. Fifteen years after Fortran, best practices for how to write programs in high-level languages are just beginning to solidify. <strong>Beginning</strong>.
-            </p>
+            <div class="timeline">
+                <div class="timeline-entry">
+                    <div class="timeline-year">1957</div>
+                    <div class="timeline-label">Year Zero</div>
+                    <p>Fortran ships. Skepticism is intense, but adoption is immediate. By 1958, <a href="https://vivekhaldar.com/articles/when-compilers-were-the--ai--that-scared-programmers/" target="_blank">a survey finds that over half of all code running on IBM machines is compiler-generated</a>. The technical objections that compiled code was too slow, too wasteful, were resolved in 1-2 years. Adoption was not the problem.</p>
+                </div>
 
-            <p>
-                <strong>1984</strong> - Ken Thompson, UNIX creator, delivers his Turing Award lecture, <a href="https://www.cesarsotovalero.net/blog/revisiting-ken-thompson-reflection-on-trusting-trust.html" target="_blank">"Reflections on Trusting Trust."</a> In it, he demonstrates that a compiler can be modified to insert a backdoor into any program it compiles. This modification would be invisible to anyone reading the source code. His conclusion is stark:
-            </p>
+                <div class="timeline-entry here">
+                    <div class="timeline-year">1959 &larr; You are here</div>
+                </div>
 
-            <blockquote>
-                "You can't trust code that you did not totally create yourself."
-            </blockquote>
+                <div class="timeline-entry future">
+                    <div class="timeline-year">1968</div>
+                    <div class="timeline-label">+11 years &mdash; The Dijkstra Moment</div>
+                    <p>Eleven years after Fortran, Edsger Dijkstra publishes a letter to the editor of Communications of the ACM titled <a href="https://dl.acm.org/doi/10.1145/362929.362947" target="_blank">"Go To Statement Considered Harmful."</a> The field's most prominent computer scientist arguing that a fundamental, universally used programming construct, GOTO, is actively causing harm and should be eliminated. Eleven years in, and the industry is still arguing about <em>basics</em>. Not edge cases or optimizations, but the basic question of how to structure the flow of a program.</p>
+                    <p>That same year, a <a href="https://www.tomandmaria.com/Tom/Writing/DijkstrasCrisis_LeidenDRAFT.pdf" target="_blank">NATO conference</a> brings together practitioners from across the software industry. They are shocked to discover that the same problems plague every kind of software project: chronic delays, blown budgets, unreliable output. They call this the "software crisis."</p>
+                </div>
 
-            <p>
-                Sound familiar?
-            </p>
+                <div class="timeline-entry future">
+                    <div class="timeline-year">1972</div>
+                    <div class="timeline-label">+15 years &mdash; Best Practices Begin</div>
+                    <p>Dijkstra wins the Turing Award for his contributions to structured programming. Fifteen years after Fortran, best practices for how to write programs in high-level languages are just beginning to solidify. <strong>Beginning</strong>.</p>
+                </div>
 
-            <p>
-                Twenty-seven years after Fortran, the deepest question about compilers, "Can you trust the tool itself?" is still being debated with rigor.
-            </p>
+                <div class="timeline-entry future">
+                    <div class="timeline-year">1984</div>
+                    <div class="timeline-label">+27 years &mdash; "Can You Trust the Tool?"</div>
+                    <p>Ken Thompson, UNIX creator, delivers his Turing Award lecture, <a href="https://www.cesarsotovalero.net/blog/revisiting-ken-thompson-reflection-on-trusting-trust.html" target="_blank">"Reflections on Trusting Trust."</a> In it, he demonstrates that a compiler can be modified to insert a backdoor into any program it compiles. This modification would be invisible to anyone reading the source code. His conclusion is stark:</p>
+                    <blockquote>"You can't trust code that you did not totally create yourself."</blockquote>
+                    <p>Sound familiar?</p>
+                    <p>Twenty-seven years after Fortran, the deepest question about compilers, "Can you trust the tool itself?" is still being debated with rigor.</p>
+                </div>
 
-            <p>
-                <strong>1994</strong> - The Gang of Four publishes <a href="https://en.wikipedia.org/wiki/Design_Patterns" target="_blank"><em>Design Patterns: Elements of Reusable Object-Oriented Software</em></a>. <strong>Thirty-seven years</strong> after the release of Fortran. The book doesn't invent new patterns... It recognizes that experienced developers around the world have been independently converging on similar solutions to similar problems, and it gives those solutions names. Before the book, every team reinvented the wheel. After it, the industry had a common language.
-            </p>
-
-            <p>
-                "This follows the Observer pattern."<br>
-                "That's a Factory."
-            </p>
-
-            <p>
-                Suddenly, teams could discuss architecture in depth.
-            </p>
-
-            <p>
-                The book sold over 500,000 copies in English and was translated into 13 languages. In 2005, ACM SIGPLAN awarded the authors the Programming Languages Achievement Award for the impact of their work on "programming practice and programming language design."
-            </p>
+                <div class="timeline-entry future">
+                    <div class="timeline-year">1994</div>
+                    <div class="timeline-label">+37 years &mdash; The Gang of Four</div>
+                    <p>The Gang of Four publishes <a href="https://en.wikipedia.org/wiki/Design_Patterns" target="_blank"><em>Design Patterns: Elements of Reusable Object-Oriented Software</em></a>. <strong>Thirty-seven years</strong> after the release of Fortran. The book doesn't invent new patterns... It recognizes that experienced developers around the world have been independently converging on similar solutions to similar problems, and it gives those solutions names. Before the book, every team reinvented the wheel. After it, the industry had a common language.</p>
+                    <p>"This follows the Observer pattern."<br>"That's a Factory."</p>
+                    <p>Suddenly, teams could discuss architecture in depth.</p>
+                    <p>The book sold over 500,000 copies in English and was translated into 13 languages. In 2005, ACM SIGPLAN awarded the authors the Programming Languages Achievement Award for the impact of their work on "programming practice and programming language design."</p>
+                </div>
+            </div>
 
             <p>
                 From "the tool exists" to "here are the mature patterns for using it well," we saw 37 years of accumulated thinking, debating, failures, and refinement.
@@ -153,7 +272,7 @@
             </p>
 
             <p>
-                Compilers are deterministic. Same input, same output, every time. Given valid input conforming to the language grammar, the output is provably correct. This mathematical certainty is what made the entire academic apparatus possible. Type theory, formal grammars, Knuth's work on parsing, the Dragon Book, formal verification, all of it rests on the foundation that compilers behave predictably and can be reasoned about with mathematical rigor. The Gang of Four patterns themselves only work because the languages they describe have well-specified, deterministic behavior. You can write a pattern for the Observer in Java because Java will behave the same way every time you implement it.
+                Compilers are deterministic. Given valid input conforming to the language grammar, the output is provably correct. This mathematical certainty is what made the entire academic apparatus possible. Type theory, formal grammars, Knuth's work on parsing, the Dragon Book, formal verification, all of it rests on the foundation that compilers behave predictably and can be reasoned about with mathematical rigor. The Gang of Four patterns themselves only work because the languages they describe have well-specified, deterministic behavior. You can write a pattern for the Observer in Java because Java will behave the same way every time you implement it.
             </p>
 
             <p>
