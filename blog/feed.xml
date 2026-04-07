@@ -5,8 +5,19 @@
     <link>https://blog.braelyn.ai</link>
     <description>A personal blog exploring technology, creativity, and the art of building meaningful things.</description>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Mar 2026 00:09:22 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 07 Apr 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://blog.braelyn.ai/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Stop Dooming: Codegen will have its Gang of Four moment</title>
+      <link>https://blog.braelyn.ai/posts/codegen-compiler-arc.html</link>
+      <description>We're 5.4% through the codegen adoption curve.</description>
+      <guid isPermaLink="true">https://blog.braelyn.ai/posts/codegen-compiler-arc.html</guid>
+      <pubDate>Tue, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <category>AI</category>
+      <category>Technology</category>
+      <category>Programming</category>
+      <category>Stop Dooming</category>
+    </item>
     <item>
       <title>Social Media Trained Our Brains for the Current State of Codegen</title>
       <link>https://blog.braelyn.ai/posts/social-media-trained-brains-codegen.html</link>
