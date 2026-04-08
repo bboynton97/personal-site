@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="We're 5.4% through the codegen adoption curve.">
+    <meta name="keywords" content="codegen, AI, compilers, Fortran, Dijkstra, Gang of Four, design patterns, structured programming, software crisis, Claude Code">
+    <meta name="author" content="Braelyn Boynton">
+    <meta property="og:title" content="Stop Dooming: Codegen will have its Gang of Four moment">
+    <meta property="og:description" content="We're 5.4% through the codegen adoption curve.">
+    <meta property="og:image" content="../assets/social-media-codegen/preview.jpg">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Stop Dooming: Codegen will have its Gang of Four moment">
+    <meta name="twitter:description" content="We're 5.4% through the codegen adoption curve.">
+    <meta name="twitter:image" content="../assets/social-media-codegen/preview.jpg">
+    <title>Stop Dooming: Codegen will have its Gang of Four moment - My Blog</title>
+    <link rel="icon" type="image/jpeg" href="../assets/me.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../theme.js"></script>
+    <script defer src="../slurp.js"></script>
+    <script defer src="../sidebar.js"></script>
+</head>
+
+<body>
+    <header>
+        <p><a href="../">← Back to all posts</a></p>
+        <h1>Stop Dooming: Codegen will have its Gang of Four moment</h1>
+        <p><time datetime="2026-04-07">April 7, 2026</time></p>
+    </header>
+
+    <main>
+        <article>
+            <h2>Extending the Compiler Analogy</h2>
+
+            <p>
+                In February of this year, Vivek Haldar wrote a piece called <a href="https://vivekhaldar.com/articles/when-compilers-were-the--ai--that-scared-programmers/" target="_blank">"When Compilers Were the 'AI' That Scared Programmers"</a> that draws a compelling parallel between the resistance to compilers in the 1950s and the resistance to codegen today. Many of us found his article to be simultaneously provoking and encouraging. The objections to compilers are almost word-for-word identical to those of AI codegen. Assembly programmers didn't trust compilers. They feared losing control. They worried that making programming easier would dilute the craft. We are hearing the exact same arguments now, seventy years later, about AI-generated code.
+            </p>
+
+            <p>
+                Haldar's piece stops at the comparison. This essay is about what comes next: if we accept that codegen is following the compiler arc, where are we on that arc? And what does history tell us about how long the rest of it takes?
+            </p>
+
+            <h2>The Priesthood Problem</h2>
+
+            <p>
+                In 1952, Grace Hopper built one of the first compilers. Her colleagues' reaction was not enthusiasm.
+            </p>
+
+            <blockquote>
+                "Nobody believed that I had a running compiler and nobody would touch it. They told me computers could only do arithmetic."
+            </blockquote>
+
+            <p>
+                This wasn't ignorance. These were brilliant people making a rational calculation: they had spent years mastering the intricacies of assembly language and machine code. They had intimate control over memory and CPU instructions. Surrendering that control to an automated tool felt reckless. As Haldar describes it, there was <a href="https://vivekhaldar.com/articles/when-compilers-were-the--ai--that-scared-programmers/" target="_blank">a "priesthood culture"</a> (John Backus's term) where experts guarded the domain closely. The objections were about efficiency, about debuggability, and perhaps scarier than all of that, about identity: "If anyone could write programs in a high-level language, what did it mean to be a programmer?"
+            </p>
+
+            <p>
+                These objections sound familiar today. Replace "compiler" with "Claude Code" and "assembly" with "Python" and you could publish them on Hacker News today without anyone noticing the anachronism.
+            </p>
+
+            <p>
+                The priesthood sees this and panics. But the priesthood panicked about Fortran too. In the end, compilers didn't destroy programming, they created an explosion of capability.
+            </p>
+
+            <p>
+                The question was never whether to adopt the new tools. The question was how long it would take to learn to use them well.
+            </p>
+
+            <h2>The Timeline You Need to Be Familiar With</h2>
+
+            <p>
+                You should recalibrate your expectations about codegen. Let's look at compilers:
+            </p>
+
+            <style>
+                .timeline {
+                    position: relative;
+                    padding: 0 0 1.5rem 3.5rem;
+                    margin: 1rem 0 2.5rem;
+                }
+                /* Solid line up to "you are here", then dashed for the future */
+                .timeline::before {
+                    content: '';
+                    position: absolute;
+                    left: 0.85rem;
+                    top: 1.55rem;
+                    bottom: 0;
+                    width: 2px;
+                    background: var(--border);
+                }
+                .timeline-entry {
+                    position: relative;
+                    margin-bottom: 2.5rem;
+                    padding: 1.2rem 1.4rem;
+                    border-radius: 8px;
+                    transition: background-color 0.2s ease;
+                }
+                .timeline-entry:hover {
+                    background-color: color-mix(in srgb, var(--text) 4%, var(--bg));
+                }
+                .timeline-entry:last-child {
+                    margin-bottom: 0;
+                }
+                .timeline-entry::before {
+                    content: '';
+                    position: absolute;
+                    left: calc(-3.5rem + 0.85rem - 7px);
+                    top: 1.55rem;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: var(--bg);
+                    border: 2px solid var(--text-muted);
+                    z-index: 1;
+                    transition: transform 0.2s ease, border-color 0.2s ease;
+                }
+                .timeline-entry:hover::before {
+                    transform: scale(1.3);
+                    border-color: var(--text-secondary);
+                }
+                .timeline-year {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                    font-size: 1.6rem;
+                    font-weight: 700;
+                    color: var(--text);
+                    margin-bottom: 0.15rem;
+                    line-height: 1.2;
+                }
+                .timeline-label {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    letter-spacing: 0.06em;
+                    text-transform: uppercase;
+                    color: var(--text-muted);
+                    margin-bottom: 0.6rem;
+                }
+                .timeline-entry p {
+                    margin-bottom: 0.8rem;
+                }
+                .timeline-entry p:last-child {
+                    margin-bottom: 0;
+                }
+                .timeline-entry blockquote {
+                    margin: 0.8rem 0;
+                }
+
+
+                /* YOU ARE HERE marker */
+                .timeline-entry.here {
+                    padding: 0.8rem 1.4rem;
+                    margin-bottom: 2.5rem;
+                    background: none;
+                }
+                .timeline-entry.here:hover {
+                    background: none;
+                }
+                .timeline-entry.here::before {
+                    width: 16px;
+                    height: 16px;
+                    left: calc(-3.5rem + 0.85rem - 9px);
+                    top: 0.85rem;
+                    background: var(--link);
+                    border: 3px solid var(--bg);
+                    box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 35%, transparent);
+                    animation: pulse 2.5s ease-in-out infinite;
+                }
+                .timeline-entry.here:hover::before {
+                    transform: none;
+                }
+                .timeline-entry.here .timeline-year {
+                    color: var(--link);
+                    font-size: 1rem;
+                    font-weight: 700;
+                    letter-spacing: 0.02em;
+                }
+                @keyframes pulse {
+                    0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--link) 35%, transparent); }
+                    50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--link) 8%, transparent); }
+                }
+
+                @media (max-width: 768px) {
+                    .timeline {
+                        padding-left: 2.5rem;
+                    }
+                    .timeline-entry {
+                        padding: 1rem;
+                    }
+                    .timeline-entry::before {
+                        left: -2.5rem;
+                    }
+                    .timeline-entry.here::before {
+                        left: calc(-2.5rem - 2px);
+                    }
+                    .timeline::before {
+                        left: 0.35rem;
+                    }
+                    .timeline-year {
+                        font-size: 1.3rem;
+                    }
+                }
+            </style>
+
+            <div class="timeline">
+                <div class="timeline-entry">
+                    <div class="timeline-year">1957</div>
+                    <div class="timeline-label">Year Zero</div>
+                    <p>Fortran ships. Skepticism is intense, but adoption is immediate. By 1958, <a href="https://vivekhaldar.com/articles/when-compilers-were-the--ai--that-scared-programmers/" target="_blank">a survey finds that over half of all code running on IBM machines is compiler-generated</a>. The technical objections that compiled code was too slow, too wasteful, were resolved in 1-2 years. Adoption was not the problem.</p>
+                </div>
+
+                <div class="timeline-entry here">
+                    <div class="timeline-year">1959 &larr; You are here</div>
+                </div>
+
+                <div class="timeline-entry future">
+                    <div class="timeline-year">1968</div>
+                    <div class="timeline-label">+11 years &mdash; The Dijkstra Moment</div>
+                    <p>Eleven years after Fortran, Edsger Dijkstra publishes a letter to the editor of Communications of the ACM titled <a href="https://dl.acm.org/doi/10.1145/362929.362947" target="_blank">"Go To Statement Considered Harmful."</a> The field's most prominent computer scientist arguing that a fundamental, universally used programming construct, GOTO, is actively causing harm and should be eliminated. Eleven years in, and the industry is still arguing about <em>basics</em>. Not edge cases or optimizations, but the basic question of how to structure the flow of a program.</p>
+                    <p>That same year, a <a href="https://www.tomandmaria.com/Tom/Writing/DijkstrasCrisis_LeidenDRAFT.pdf" target="_blank">NATO conference</a> brings together practitioners from across the software industry. They are shocked to discover that the same problems plague every kind of software project: chronic delays, blown budgets, unreliable output. They call this the "software crisis."</p>
+                </div>
+
+                <div class="timeline-entry future">
+                    <div class="timeline-year">1972</div>
+                    <div class="timeline-label">+15 years &mdash; Best Practices Begin</div>
+                    <p>Dijkstra wins the Turing Award for his contributions to structured programming. Fifteen years after Fortran, best practices for how to write programs in high-level languages are just beginning to solidify. <strong>Beginning</strong>.</p>
+                </div>
+
+                <div class="timeline-entry future">
+                    <div class="timeline-year">1984</div>
+                    <div class="timeline-label">+27 years &mdash; "Can You Trust the Tool?"</div>
+                    <p>Ken Thompson, UNIX creator, delivers his Turing Award lecture, <a href="https://www.cesarsotovalero.net/blog/revisiting-ken-thompson-reflection-on-trusting-trust.html" target="_blank">"Reflections on Trusting Trust."</a> In it, he demonstrates that a compiler can be modified to insert a backdoor into any program it compiles. This modification would be invisible to anyone reading the source code. His conclusion is stark:</p>
+                    <blockquote>"You can't trust code that you did not totally create yourself."</blockquote>
+                    <p>Sound familiar?</p>
+                    <p>Twenty-seven years after Fortran, the deepest question about compilers, "Can you trust the tool itself?" is still being debated with rigor.</p>
+                </div>
+
+                <div class="timeline-entry future">
+                    <div class="timeline-year">1994</div>
+                    <div class="timeline-label">+37 years &mdash; The Gang of Four</div>
+                    <p>The Gang of Four publishes <a href="https://en.wikipedia.org/wiki/Design_Patterns" target="_blank"><em>Design Patterns: Elements of Reusable Object-Oriented Software</em></a>. <strong>Thirty-seven years</strong> after the release of Fortran. The book doesn't invent new patterns... It recognizes that experienced developers around the world have been independently converging on similar solutions to similar problems, and it gives those solutions names. Before the book, every team reinvented the wheel. After it, the industry had a common language.</p>
+                    <p>"This follows the Observer pattern."<br>"That's a Factory."</p>
+                    <p>Suddenly, teams could discuss architecture in depth.</p>
+                    <p>The book sold over 500,000 copies in English and was translated into 13 languages. In 2005, ACM SIGPLAN awarded the authors the Programming Languages Achievement Award for the impact of their work on "programming practice and programming language design."</p>
+                </div>
+            </div>
+
+            <p>
+                From "the tool exists" to "here are the mature patterns for using it well," we saw 37 years of accumulated thinking, debating, failures, and refinement.
+            </p>
+
+            <p>
+                Now consider... we are roughly two years into serious codegen adoption. If the compiler timeline is any guide, we haven't even had our Dijkstra moment yet. The clear, opinionated articulation of what the fundamental problem actually is. Let alone our Gang of Four.
+            </p>
+
+            <p>
+                Adoption was never the bottleneck, even if the luddites are the loudest. Understanding was the bottleneck. And understanding takes decades, not months.
+            </p>
+
+            <h2>The Codegen Version Will Look Different</h2>
+
+            <p>
+                <em>"But compilers are deterministic!!!"</em>
+            </p>
+
+            <p>
+                The compiler arc tells us that maturity takes time. But it doesn't tell us what codegen maturity will look like, because the tools are fundamentally different.
+            </p>
+
+            <p>
+                Compilers are deterministic. Given valid input conforming to the language grammar, the output is provably correct. This mathematical certainty is what made the entire academic apparatus possible. Type theory, formal grammars, Knuth's work on parsing, the Dragon Book, formal verification, all of it rests on the foundation that compilers behave predictably and can be reasoned about with mathematical rigor. The Gang of Four patterns themselves only work because the languages they describe have well-specified, deterministic behavior. You can write a pattern for the Observer in Java because Java will behave the same way every time you implement it.
+            </p>
+
+            <p>
+                Codegen is stochastic. Same prompt, different output. Even at temperature zero, you're getting the most probable token sequence, not the provably correct one. You can't formally verify it. You can't write a proof that a given prompt will always produce correct code. The mathematical foundation that underpinned every layer of compiler trust simply does not exist for large language models.
+            </p>
+
+            <p>
+                Does this distinction still matter as models get better? As codegen improves, the practical gap between "stochastic" and "deterministic" narrows. The error rate approaches zero. For many use cases, it may functionally close. And there are entire fields that have built rigorous, trustworthy systems on probabilistic foundations without ever achieving determinism.
+            </p>
+
+            <p>
+                But "almost deterministic" and "deterministic" remain categorically different things. You can't write a formal proof on top of "usually right." And the failure modes are different in a way that matters deeply.
+            </p>
+
+            <p>
+                A compiler either compiles or it doesn't. It fails loudly. You get an error message. You fix it. An LLM produces code that <em>looks</em> correct, compiles cleanly, even passes your testing, but might have a subtle logical error or a security vulnerability buried three layers deep. The failure mode isn't "broken." The failure mode is "plausible but wrong." This is the risk curve that should give you pause: as models get better, the plausible-but-wrong outputs become rarer, but they also become <em>harder to catch</em>, because your vigilance drops. The better the tool gets, the more dangerous the remaining errors become.
+            </p>
+
+            <p>
+                So what does maturity look like for a tool that is fundamentally probabilistic?
+            </p>
+
+            <p>
+                It probably doesn't look like compiler theory. It might look more like medicine, or aviation.
+            </p>
+
+            <p>
+                Medicine doesn't demand mathematical proofs from its treatments. It builds evidence-based practice guidelines through years of clinical trials, case studies, peer review, and structured error reporting. Physicians work with probabilistic systems (the human body) and they have developed rigorous frameworks for making good decisions under uncertainty.
+            </p>
+
+            <p>
+                Aviation doesn't eliminate human error. It builds systems around it: checklists, redundancy, crew resource management, black box analysis. Pilots operate complex stochastic systems, including their own fallible brains, and aviation has become one of the safest industries in the world. They built trust infrastructure designed for uncertainty.
+            </p>
+
+            <p>
+                Codegen's maturity frameworks might need to borrow from these traditions rather than from compiler theory. The Gang of Four equivalent for codegen, when it eventually arrives, might read less like a computer science textbook and more like a clinical practice handbook. The patterns won't be "Observer" and "Factory." They'll be something we don't have words for yet. And they'll be grounded in empirical practice rather than formal proof.
+            </p>
+
+            <h2>We Haven't Named Anything Yet</h2>
+
+            <p>
+                This is where we are. The pre-pattern era. It's awful. It's why we're all dooming.
+            </p>
+
+            <p>
+                The Gang of Four's real contribution wasn't inventing 23 patterns. It was recognizing that experienced developers around the world were already converging on similar solutions independently. The Gang of Four gave those solutions names. Before the book, knowledge was fragmented. Every team had their own way of solving the same problems, their own internal vocabulary, their own tribal knowledge. The book didn't create consensus, rather it <em>revealed</em> consensus that already existed but hadn't been articulated.
+            </p>
+
+            <p>
+                The same thing is happening right now with codegen, but in the earliest possible stage. Every team, every developer, is building their own set of heuristics for working with AI tools. Some of these heuristics are probably universal, and once named, everyone will say "yes, obviously." Some are probably wrong and will be discarded. Some are probably brilliant but locked inside one person's workflow, invisible to the rest of the industry. Nobody has collected them, tested them across contexts, named them, or published them in a way that creates shared vocabulary.
+            </p>
+
+            <p>
+                But I don't think we're ready for that yet. The structured programming debate is the closer parallel for where codegen is right now. Before the GoF gave us patterns in 1994, the field endured 20 years of arguing about <em>fundamentals</em>, Dijkstra's "Go To" letter, the structured programming wars, and the NATO software crisis conference. These were about paradigms, not patterns. The question wasn't "what's the best way to implement this design?" The question was "what is the right way to think about programming at all?"
+            </p>
+
+            <p>
+                That's where codegen is today. The basic questions, when to use codegen, when not to, what constitutes responsible use, what "understanding your code" means when you didn't write it, what code review looks like when the author is a language model... these are paradigm-level questions, and they are still wide open.
+            </p>
+
+            <p>
+                You can't write design patterns for a practice that the field hasn't agreed how to think about yet.
+            </p>
+
+            <p>
+                First we need the Dijkstra moment. We need a clear, opinionated articulation of what the fundamental problem actually is. A letter to the editor that reframes how everyone thinks about the practice. We haven't gotten that yet. But we will.
+            </p>
+
+            <h2>Patience Is the Point</h2>
+
+            <p>
+                Assembly to high-level languages. Unstructured to structured programming. Procedural to object-oriented. Each time, the new tool was adopted quickly and the wisdom about how to use it well lagged behind by years or decades.
+            </p>
+
+            <p>
+                We WILL figure out codegen, but we are in 1959, not 1994. We very well may end up in another software crisis. They literally coined that term in 1968, eleven years into the compiler revolution, when the industry finally admitted that it had adopted powerful new tools without understanding how to use them responsibly.
+            </p>
+
+            <p>
+                Dijkstra was depressed in 1968. The NATO conference was grim. Practitioners were struggling with tools they had enthusiastically adopted but didn't fully understand. That discomfort was not a sign of failure. It was the beginning of the intellectual work that produced structured programming, formal methods, and eventually the design patterns that shaped modern software engineering.
+            </p>
+
+            <p>
+                Stop dooming.
+            </p>
+
+            <p>
+                The discomfort we feel right now about codegen, the anxiety about quality, the arguments about best practices, the nagging sense that we're building on a foundation we don't fully understand, might be exactly the same kind of productive crisis.
+            </p>
+
+            <p>
+                Adoption was never the problem. Understanding was the problem. It's the problem we face today.
+            </p>
+
+            <p>
+                The understanding will come. It just takes longer than we want it to.
+            </p>
+        </article>
+    </main>
+
+    <footer>
+        <hr>
+        <p><a href="../">← Back to all posts</a></p>
+    </footer>
+</body>
+
+</html>
