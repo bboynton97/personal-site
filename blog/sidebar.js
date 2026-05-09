@@ -38,7 +38,7 @@
             [
                 ['X', 'https://x.com/braelyn_ai'],
                 ['GitHub', 'https://github.com/braelyn-ai'],
-                ['LinkedIn', 'https://www.linkedin.com/in/braelyn-boynton'],
+                ['LinkedIn', 'https://www.linkedin.com/in/braelyn-ai/'],
                 ['Instagram', 'https://www.instagram.com/braelyn.b__'],
             ].forEach(([label, url]) => {
                 const a = document.createElement('a');
