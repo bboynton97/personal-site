@@ -37,7 +37,7 @@
             links.className = 'sidebar-links';
             [
                 ['X', 'https://x.com/braelyn_ai'],
-                ['GitHub', 'https://github.com/bboynton97'],
+                ['GitHub', 'https://github.com/braelyn-ai'],
                 ['LinkedIn', 'https://www.linkedin.com/in/braelyn-boynton'],
                 ['Instagram', 'https://www.instagram.com/braelyn.b__'],
             ].forEach(([label, url]) => {
