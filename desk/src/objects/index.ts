@@ -15,7 +15,7 @@ import { loadBike } from './Bike'
 import { loadCessna } from './Cessna'
 import { loadKPile } from './KPile'
 import { loadEmergencyButton } from './EmergencyButton'
-import { loadBackrooms } from './Backrooms'
+export { prepareBackroomsLoader, ensureBackroomsLoaded } from './Backrooms'
 import { loadGitHubOctocat } from './GitHubOctocat'
 import { loadHorrorMonster } from './HorrorMonster'
 import { loadEverythingBagel } from './EverythingBagel'
@@ -43,7 +43,6 @@ export function loadSimpleObjects(loader: GLTFLoader, scene: THREE.Scene, state:
         loadCessna(loader, scene, state),
         loadKPile(loader, scene, state),
         loadEmergencyButton(loader, scene, state),
-        loadBackrooms(loader, scene, state),
         loadGitHubOctocat(loader, scene, state),
         loadHorrorMonster(loader, scene, state),
         loadEverythingBagel(loader, scene, state),

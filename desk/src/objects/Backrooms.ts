@@ -3,6 +3,20 @@ import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { AppState } from '../types'
 import { assetUrl } from '../utils/assetUrl'
 
+let backroomsLoadPromise: Promise<void> | null = null
+let backroomsLoaderFn: (() => Promise<void>) | null = null
+
+export function prepareBackroomsLoader(loader: GLTFLoader, scene: THREE.Scene, state: AppState): void {
+    backroomsLoaderFn = () => loadBackrooms(loader, scene, state)
+}
+
+export function ensureBackroomsLoaded(): Promise<void> {
+    if (!backroomsLoadPromise) {
+        backroomsLoadPromise = backroomsLoaderFn ? backroomsLoaderFn() : Promise.resolve()
+    }
+    return backroomsLoadPromise
+}
+
 export function loadBackrooms(loader: GLTFLoader, scene: THREE.Scene, state: AppState): Promise<void> {
     return new Promise((resolve, reject) => {
     loader.load(assetUrl('backrooms_map_packed_blender_3.2.0.glb'), (gltf) => {

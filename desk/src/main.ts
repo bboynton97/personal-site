@@ -16,7 +16,7 @@ import { WhiteOutShader } from './shaders/WhiteOutShader'
 import { Terminal } from './meshes/Terminal'
 import { Oscilloscope } from './meshes/Oscilloscope'
 import { Notepad } from './meshes/Notepad'
-import { loadSimpleObjects, loadComputer, loadOscilloscope, loadNotepad, loadDoor } from './objects/index'
+import { loadSimpleObjects, loadComputer, loadOscilloscope, loadNotepad, loadDoor, prepareBackroomsLoader } from './objects/index'
 import { createAnimationLoop } from './animate'
 
 // New Modules
@@ -87,7 +87,8 @@ loader.setDRACOLoader(dracoLoader)
 const meshoptDecoder = MeshoptDecoder()
 meshoptDecoder.ready.then(() => {
     loader.setMeshoptDecoder(meshoptDecoder)
-    
+    prepareBackroomsLoader(loader, scene, state)
+
     // Load door and walls first, then load everything else
     loadDoor(loader, scene, state).then(() => {
         // Skip loading scene objects on mobile for performance
